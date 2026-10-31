@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>エッセンシャルパートナーズ合同会社</title>
+<meta name="description" content="エッセンシャルパートナーズ合同会社（ESSENTIAL PARTNERS）。美容を入口に、恋愛・結婚、その先の関係づくりまで。一人の人生の豊かさと幸せに長く伴走する会社です。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1f2a33;
+    --ink-soft: #4a5560;
+    --muted: #7a838b;
+    --paper: #faf8f4;
+    --paper-2: #f2eee6;
+    --line: #e2dcd0;
+    --accent: #a8875a;
+    --accent-deep: #7d6440;
+    --serif: "Noto Serif JP", serif;
+    --sans: "Noto Sans JP", system-ui, sans-serif;
+    --latin: "Cormorant Garamond", serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.9;
+    letter-spacing: .04em;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* header */
+  header {
+    position: fixed; inset: 0 0 auto 0; z-index: 10;
+    background: rgba(250, 248, 244, .92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  header.scrolled { border-bottom-color: var(--line); }
+  .head { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { text-decoration: none; display: flex; flex-direction: column; line-height: 1.2; }
+  .logo .en { font-family: var(--latin); font-size: 20px; letter-spacing: .18em; font-weight: 600; }
+  .logo .ja { font-size: 10px; color: var(--muted); letter-spacing: .12em; }
+  nav ul { display: flex; gap: 28px; list-style: none; }
+  nav a { text-decoration: none; font-size: 13px; color: var(--ink-soft); transition: color .2s; }
+  nav a:hover { color: var(--accent-deep); }
+  .menu-btn { display: none; background: none; border: 0; width: 40px; height: 40px; cursor: pointer; }
+  .menu-btn span { display: block; width: 22px; height: 1px; background: var(--ink); margin: 6px auto; transition: transform .3s, opacity .3s; }
+
+  /* hero */
+  .hero {
+    min-height: 100vh; min-height: 100svh;
+    display: flex; align-items: center;
+    padding: 120px 0 80px;
+    background:
+      radial-gradient(ellipse at 85% 20%, rgba(168,135,90,.16), transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(31,42,51,.06), transparent 50%),
+      var(--paper);
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: "ESSENTIAL"; position: absolute; right: -2vw; bottom: 4vh;
+    font-family: var(--latin); font-size: clamp(80px, 16vw, 220px);
+    color: rgba(168,135,90,.08); letter-spacing: .05em; line-height: 1; pointer-events: none;
+  }
+  .eyebrow { font-family: var(--latin); color: var(--accent-deep); letter-spacing: .3em; font-size: 15px; margin-bottom: 28px; }
+  .hero h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(30px, 5.2vw, 56px); line-height: 1.55; letter-spacing: .08em;
+  }
+  .hero p.lead { margin-top: 32px; color: var(--ink-soft); font-size: clamp(14px, 1.6vw, 16px); max-width: 34em; }
+  .scroll-cue { margin-top: 64px; font-family: var(--latin); font-size: 13px; letter-spacing: .3em; color: var(--muted); display: flex; align-items: center; gap: 14px; }
+  .scroll-cue::after { content: ""; width: 60px; height: 1px; background: var(--muted); }
+
+  /* sections */
+  section { padding: 120px 0; }
+  .sec-title { margin-bottom: 56px; }
+  .sec-title .en { font-family: var(--latin); font-size: 15px; letter-spacing: .3em; color: var(--accent-deep); display: block; }
+  .sec-title h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 3.2vw, 34px); letter-spacing: .1em; margin-top: 8px; }
+
+  /* philosophy */
+  #philosophy { background: var(--paper-2); }
+  .philo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; }
+  .philo blockquote {
+    font-family: var(--serif); font-size: clamp(22px, 2.8vw, 30px); line-height: 1.8; letter-spacing: .1em;
+    border-left: 2px solid var(--accent); padding-left: 28px;
+  }
+  .philo .body p + p { margin-top: 1.4em; }
+  .philo .body { color: var(--ink-soft); }
+  .philo .body strong { color: var(--ink); font-weight: 500; }
+
+  /* flow */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; counter-reset: step; position: relative; }
+  .step { padding: 0 22px 0 0; position: relative; }
+  .step .num { font-family: var(--latin); font-size: 44px; color: var(--accent); line-height: 1; }
+  .step .bar { height: 1px; background: var(--line); margin: 20px 0 24px; position: relative; }
+  .step .bar::before { content: ""; position: absolute; left: 0; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .step h3 { font-family: var(--serif); font-weight: 500; font-size: 19px; letter-spacing: .08em; }
+  .step .tag { font-size: 12px; color: var(--accent-deep); margin-top: 4px; }
+  .step p { font-size: 14px; color: var(--ink-soft); margin-top: 14px; }
+  .flow-note { margin-top: 56px; font-size: 14px; color: var(--ink-soft); max-width: 46em; }
+
+  /* business */
+  #business { background: var(--paper-2); }
+  .biz-list { display: grid; gap: 24px; }
+  .biz {
+    display: grid; grid-template-columns: 220px 1fr; gap: 40px;
+    background: var(--paper); border: 1px solid var(--line); padding: 44px 48px;
+  }
+  .biz .thumb { width: 132px; height: 132px; object-fit: cover; margin-bottom: 20px; border: 1px solid var(--line); }
+  .biz .label .no { font-family: var(--latin); font-size: 14px; letter-spacing: .2em; color: var(--accent-deep); }
+  .biz .label h3 { font-family: var(--serif); font-weight: 500; font-size: 21px; line-height: 1.6; margin-top: 10px; letter-spacing: .06em; }
+  .biz .label .brand { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .biz .content p { color: var(--ink-soft); font-size: 15px; }
+  .biz ul { list-style: none; margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .biz li { font-size: 12px; border: 1px solid var(--line); padding: 4px 12px; border-radius: 999px; color: var(--ink-soft); background: var(--paper-2); }
+  .biz .link {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 24px;
+    font-size: 13px; text-decoration: none; color: var(--accent-deep);
+    border-bottom: 1px solid currentColor; padding-bottom: 2px;
+  }
+  .biz .link::after { content: "→"; transition: transform .2s; }
+  .biz .link:hover::after { transform: translateX(4px); }
+
+  /* message */
+  #message .msg { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; }
+  .msg .photo { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; margin-top: 40px; }
+  .msg .catch { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.8; letter-spacing: .08em; }
+  .msg .text p { color: var(--ink-soft); }
+  .msg .text p + p { margin-top: 1.4em; }
+  .sign { margin-top: 40px; text-align: right; }
+  .sign .role { font-size: 13px; color: var(--muted); }
+  .sign .name { font-family: var(--serif); font-size: 22px; letter-spacing: .3em; margin-top: 4px; }
+
+  /* company */
+  #company { background: var(--paper-2); }
+  dl.table { border-top: 1px solid var(--line); }
+  dl.table > div { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--line); padding: 22px 0; }
+  dl.table dt { font-size: 14px; color: var(--muted); }
+  dl.table dd { font-size: 15px; }
+  dl.table dd ul { list-style: none; }
+  dl.table dd li::before { content: "・"; color: var(--accent); }
+
+  /* contact */
+  #contact {
+    background: linear-gradient(180deg, #ebe0cd 0%, #e2d2b7 100%);
+    text-align: center; position: relative; overflow: hidden;
+  }
+  #contact::before {
+    content: ""; position: absolute; inset: auto -10% -40% auto; width: 520px; height: 520px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.55), transparent 65%); pointer-events: none;
+  }
+  #contact .wrap { position: relative; }
+  #contact p { color: var(--ink-soft); }
+  .contact-box {
+    margin: 48px auto 0; max-width: 560px; padding: 44px 32px;
+    background: rgba(255,255,255,.7); border: 1px solid rgba(168,135,90,.35);
+    box-shadow: 0 18px 40px -24px rgba(125,100,64,.45);
+  }
+  .contact-box .k { font-size: 13px; color: var(--accent-deep); letter-spacing: .2em; }
+  .contact-box .row + .row { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .tel, .mail {
+    display: inline-block; font-family: var(--latin); color: var(--ink); text-decoration: none; margin-top: 8px;
+    border-bottom: 1px solid rgba(168,135,90,.5); transition: color .2s, border-color .2s;
+  }
+  .tel { font-size: clamp(30px, 5vw, 40px); letter-spacing: .1em; line-height: 1.4; }
+  .mail { font-size: clamp(18px, 3.4vw, 24px); letter-spacing: .06em; word-break: break-all; }
+  .tel:hover, .mail:hover { color: var(--accent-deep); border-color: var(--accent-deep); }
+  .contact-box .action { display: block; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .ig { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; flex: none; }
+  .ig .dot { fill: currentColor; stroke: none; }
+  .sns-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+  .sns-links a {
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink);
+    border: 1px solid rgba(168,135,90,.45); padding: 10px 18px; border-radius: 999px; font-size: 13px;
+    background: rgba(255,255,255,.6); transition: color .2s, border-color .2s, background .2s;
+  }
+  .sns-links a:hover { color: var(--accent-deep); border-color: var(--accent-deep); background: #fff; }
+  .sns-links small { color: var(--muted); font-size: 11px; }
+  .biz .links { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+  .biz .link .ig { width: 15px; height: 15px; }
+  .sign .ig-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--accent-deep); text-decoration: none; border-bottom: 1px solid rgba(168,135,90,.45); }
+  .contact-box .note { font-size: 13px; margin-top: 12px; }
+  dl.table dd a { color: var(--accent-deep); text-decoration: none; border-bottom: 1px solid rgba(168,135,90,.45); }
+  dl.table dd a:hover { border-color: var(--accent-deep); }
+
+  footer { background: #d6c4a5; color: var(--ink-soft); padding: 32px 0; font-size: 12px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s ease, transform .9s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    .philo, #message .msg { grid-template-columns: 1fr; gap: 40px; }
+    .flow { grid-template-columns: 1fr 1fr; row-gap: 48px; }
+    .biz { grid-template-columns: 1fr; gap: 20px; padding: 36px 28px; }
+    .msg .photo { max-width: 320px; }
+  }
+  @media (max-width: 720px) {
+    .wrap { padding: 0 16px; }
+    section { padding: 88px 0; }
+    .menu-btn { display: block; }
+    .hero h1 { font-size: 23px; letter-spacing: .06em; }
+    nav {
+      position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--paper); border-bottom: 1px solid var(--line);
+      max-height: 0; overflow: hidden; transition: max-height .35s ease;
+    }
+    nav.open { max-height: 360px; }
+    nav ul { flex-direction: column; gap: 0; padding: 8px 16px 16px; }
+    nav a { display: block; padding: 14px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
+    .menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-btn.open span:nth-child(2) { opacity: 0; }
+    .menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .flow { grid-template-columns: 1fr; }
+    .step { padding: 0; }
+    dl.table > div { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
+    .biz { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header id="top">
+  <div class="wrap head">
+    <a class="logo" href="#top">
+      <span class="en">ESSENTIAL PARTNERS</span>
+      <span class="ja">エッセンシャルパートナーズ合同会社</span>
+    </a>
+    <button class="menu-btn" aria-label="メニュー" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav>
+      <ul>
+        <li><a href="#philosophy">理念</a></li>
+        <li><a href="#flow">私たちの考え方</a></li>
+        <li><a href="#business">事業内容</a></li>
+        <li><a href="#message">代表メッセージ</a></li>
+        <li><a href="#company">会社概要</a></li>
+        <li><a href="#contact">お問い合わせ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow reveal">ESSENTIAL PARTNERS</p>
+      <h1 class="reveal">誰かの人生に、<br>本当に必要とされる存在へ。</h1>
+      <p class="lead reveal">美容を入口に、恋愛・結婚、そしてその先の関係づくりまで。<br>エッセンシャルパートナーズは、お一人おひとりの人生の豊かさと幸せに、長く伴走する会社です。</p>
+      <p class="scroll-cue reveal">SCROLL</p>
+    </div>
+  </section>
+
+  <section id="philosophy">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">PHILOSOPHY</span><h2>理念</h2></div>
+      <div class="philo">
+        <blockquote class="reveal">一人の人生の<br>豊かさと幸せを<br>追求すること。</blockquote>
+        <div class="body reveal">
+          <p>社名の「エッセンシャル」は、<strong>なくてはならない</strong>という意味です。</p>
+          <p>私たちが目指すのは、一度きりの施術やサービスを提供する存在ではありません。お客様の人生のそばに長く寄り添い、変化の節目ごとに頼っていただける<strong>「人生に不可欠なパートナー」</strong>であることです。</p>
+          <p>売り込みより信頼関係を。テクニックより、本当の自己理解と本物のつながりを。その姿勢を、すべての事業の土台にしています。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">OUR APPROACH</span><h2>美しさから始まる、幸せの循環</h2></div>
+      <div class="flow">
+        <div class="step reveal">
+          <div class="num">01</div><div class="bar"></div>
+          <h3>自分を好きになる</h3><p class="tag">美容</p>
+          <p>外見が整うと、鏡を見るのが楽しみになり、自己肯定感が育ちます。</p>
+        </div>
+        <div class="step reveal">
+          <div class="num">02</div><div class="bar"></div>
+          <h3>恋を始める</h3><p class="tag">恋愛コーチング・結婚相談所</p>
+          <p>自信がつくと行動が変わり、新しい出会いに前向きになれます。</p>
+        </div>
+        <div class="step reveal">
+          <div class="num">03</div><div class="bar"></div>
+          <h3>関係を育てる</h3><p class="tag">交際後・ご夫婦の支援</p>
+          <p>続く関係に必要なのは人間力。価値観をすり合わせ、歩み寄る力を支えます。</p>
+        </div>
+        <div class="step reveal">
+          <div class="num">04</div><div class="bar"></div>
+          <h3>幸せな家庭が増える</h3><p class="tag">社会へ</p>
+          <p>幸せな家庭が一つでも増えることが、少子化という社会の課題への私たちなりの答えです。</p>
+        </div>
+      </div>
+      <p class="flow-note reveal">見た目が変わり、行動が変わっても、関係が続くかどうかはまた別の話です。だからこそ私たちは、美容だけ、出会いだけで終わらせず、その先まで一貫して伴走します。</p>
+    </div>
+  </section>
+
+  <section id="business">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">BUSINESS</span><h2>事業内容</h2></div>
+      <div class="biz-list">
+
+        <article class="biz reveal">
+          <div class="label">
+            <img class="thumb" src="images/logo_biyond.jpg" alt="美yond のロゴ" loading="lazy">
+            <div class="no">01 / SALON</div>
+            <h3>肌質改善エステサロン</h3>
+            <p class="brand">美yond（BEYOND）二子玉川</p>
+          </div>
+          <div class="content">
+            <p>二子玉川駅から徒歩約3分のプライベートサロン。肌質改善・小顔・痩身の三つを軸に、なりたい肌への道のりをお客様と一緒に設計します。サロンでの「攻めのケア」と、ご自宅での「守りのケア」の両輪で、5年後・10年後も好きでいられる自分づくりをサポートします。</p>
+            <ul><li>肌質改善</li><li>毛穴ケア</li><li>小顔・リフトアップ</li><li>痩身</li><li>眉・増毛エクステ</li><li>ホームケア提案</li></ul>
+            <div class="links">
+              <a class="link" href="https://beyond-essential.jp/" target="_blank" rel="noopener">美yond 公式サイト</a>
+              <a class="link" href="https://www.instagram.com/keana_hadakanri_beyond/" target="_blank" rel="noopener"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" class="dot"/></svg>美yond Instagram</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="biz reveal">
+          <div class="label">
+            <img class="thumb" src="images/logo_firstclass.jpg" alt="結婚直行 FirstClass のロゴ" loading="lazy">
+            <div class="no">02 / MARRIAGE</div>
+            <h3>結婚相談所・<br>恋愛コーチング</h3>
+            <p class="brand">結婚直行 FirstClass 二子玉川（IBJ正規加盟）</p>
+          </div>
+          <div class="content">
+            <p>私たちが大切にしているのは、成婚そのものより、結婚してからもずっと続く関係です。コミュニケーションや価値観のすり合わせなど、関係を育てる人間力を磨くサポートを行い、ご成婚後もご夫婦の関係に寄り添います。美容までサポートできることも、私たちならではの特徴です。</p>
+            <ul><li>結婚相談所</li><li>恋愛コーチング</li><li>交際後の関係づくり</li><li>成婚後のサポート</li><li>美容との連携</li></ul>
+            <a class="link" href="https://firstclass-futakotamagawa.com/" target="_blank" rel="noopener">結婚直行 FirstClass 公式サイト</a>
+          </div>
+        </article>
+
+        <article class="biz reveal">
+          <div class="label">
+            <img class="thumb" src="images/your_essential.jpg" alt="自社スキンケア Your Essential のローション" loading="lazy" style="object-position:50% 45%">
+            <div class="no">03 / FOR SALONS</div>
+            <h3>美容商材の卸・<br>メニュー導入支援</h3>
+            <p class="brand">サロン・美容院さま向け</p>
+          </div>
+          <div class="content">
+            <p>自社サロンで実際に試し、効果と安全性に納得したものだけを、ほかのサロンさまへお届けしています。導入しやすい新メニューや商材をご提案し、研修まで含めて、新規集客・リピート・客単価アップを支援します。</p>
+            <ul><li>オゾン泡ケア「ソラスパ」導入支援</li><li>自社スキンケア Your Essential</li><li>施術用美容液</li><li>インナーケア商材</li><li>増毛エクステ導入</li></ul>
+          </div>
+        </article>
+
+        <article class="biz reveal">
+          <div class="label">
+            <div class="no">04 / FOR BUSINESS</div>
+            <h3>法人向け健康支援・<br>第一印象コンサルティング</h3>
+            <p class="brand">企業・経営者さま向け</p>
+          </div>
+          <div class="content">
+            <p>社員お一人おひとりの「体の取扱説明書」づくりや栄養カウンセリングで、企業の健康づくりを支えます。また、経営者・士業・営業職など「見られる仕事」の方には、肌・眉・体型などのケアを軸に、提携の専門家と組んで第一印象を磨くご提案を行っています。</p>
+            <ul><li>体の取扱説明書</li><li>栄養カウンセリング</li><li>福利厚生のご提案</li><li>第一印象の設計</li></ul>
+          </div>
+        </article>
+
+        <article class="biz reveal">
+          <div class="label">
+            <div class="no">05 / GENE</div>
+            <h3>遺伝子検査サービス</h3>
+            <p class="brand">chatGENE</p>
+          </div>
+          <div class="content">
+            <p>唾液で調べる遺伝子検査に、結果を毎日の生活に落とし込む「あなた専用の体の取扱説明書」と個別カウンセリングを組み合わせました。肌質・ダイエット・栄養・睡眠などの傾向を知り、ご自身に合ったケアや食事を選ぶ手がかりにしていただけます。</p>
+            <ul><li>肌質の傾向</li><li>ダイエットの傾向</li><li>栄養・睡眠</li><li>個別カウンセリング</li></ul>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="message">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">MESSAGE</span><h2>代表メッセージ</h2></div>
+      <div class="msg">
+        <div class="reveal">
+          <p class="catch">肌が変わって、<br>人生が動き出した。<br>その体験が、私の原点です。</p>
+          <img class="photo" src="images/daihyo.jpg" alt="代表社員 根本 翔" loading="lazy">
+        </div>
+        <div class="text reveal">
+          <p>学生時代、私はニキビと肌荒れに悩み続けていました。高価な化粧品も、考えられることはほとんど試しました。最後の望みとして通った肌質改善のエステで、少しずつ肌が変わっていきました。</p>
+          <p>誰にも褒められなかった肌を、褒めてもらえるようになる。人前に出ることが嫌ではなくなる。コンプレックスが消えたとき、私の行動は大きく変わり、いろいろなことに積極的になれました。経営者として歩み始めたのも、この経験があったからです。</p>
+          <p>外見を磨くと自己肯定感が上がり、恋愛や結婚に前向きになれる。そして良い関係が続けば、幸せな家庭が増えていく。私はこの循環を信じて、2021年にエッセンシャルパートナーズを立ち上げました。</p>
+          <p>私たちが扱うのは、自分たちで体験し、本当に良いと納得したものだけです。目の前のお一人の人生に、なくてはならない存在であり続けるために。これからも誠実に、長く伴走してまいります。</p>
+          <div class="sign">
+            <p class="role">エッセンシャルパートナーズ合同会社　代表社員</p>
+            <p class="name">根本 翔</p>
+            <a class="ig-link" href="https://www.instagram.com/kakeru_beauty_essential/" target="_blank" rel="noopener"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" class="dot"/></svg>@kakeru_beauty_essential</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="company">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">COMPANY</span><h2>会社概要</h2></div>
+      <dl class="table reveal">
+        <div><dt>会社名</dt><dd>エッセンシャルパートナーズ合同会社<br><span style="color:var(--muted);font-size:13px">ESSENTIAL PARTNERS LLC</span></dd></div>
+        <div><dt>設立</dt><dd>2021年7月</dd></div>
+        <div><dt>代表社員</dt><dd>根本 翔</dd></div>
+        <div><dt>所在地</dt><dd>〒158-0094<br>東京都世田谷区玉川1-8-15 アノンテラス二子玉川101</dd></div>
+        <div><dt>電話番号</dt><dd><a href="tel:05088861735">050-8886-1735</a></dd></div>
+        <div><dt>メールアドレス</dt><dd><a href="mailto:essential.pt2107@gmail.com">essential.pt2107@gmail.com</a></dd></div>
+        <div><dt>事業内容</dt><dd><ul>
+          <li>エステティックサロンの運営（美yond）</li>
+          <li>結婚相談所の運営・恋愛コーチング</li>
+          <li>美容商材の卸売・サロン向けメニュー導入支援</li>
+          <li>法人向け健康支援・第一印象コンサルティング</li>
+          <li>遺伝子検査サービスの提供</li>
+        </ul></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">CONTACT</span><h2>お問い合わせ</h2></div>
+      <p class="reveal">事業提携・商材の導入・取材など、お気軽にお問い合わせください。</p>
+      <div class="contact-box reveal">
+        <div class="row">
+          <p class="k">MAIL</p>
+          <a class="mail" href="mailto:essential.pt2107@gmail.com">essential.pt2107@gmail.com</a>
+          <span class="action">押すとメールを作成できます</span>
+        </div>
+        <div class="row">
+          <p class="k">TEL</p>
+          <a class="tel" href="tel:05088861735">050-8886-1735</a>
+          <span class="action">スマートフォンでは押すとそのまま発信できます</span>
+        </div>
+        <div class="row">
+          <p class="k">INSTAGRAM</p>
+          <div class="sns-links">
+            <a href="https://www.instagram.com/keana_hadakanri_beyond/" target="_blank" rel="noopener"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" class="dot"/></svg><span>美yond<br><small>@keana_hadakanri_beyond</small></span></a>
+            <a href="https://www.instagram.com/kakeru_beauty_essential/" target="_blank" rel="noopener"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" class="dot"/></svg><span>代表 根本 翔<br><small>@kakeru_beauty_essential</small></span></a>
+          </div>
+        </div>
+        <p class="note" style="margin-top:28px">サロンのご予約は、美yond 公式サイトからお願いいたします。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>エッセンシャルパートナーズ合同会社</span>
+    <span>&copy; 2026 ESSENTIAL PARTNERS LLC</span>
+  </div>
+</footer>
+
+<script>
+  const header = document.querySelector('header');
+  const btn = document.querySelector('.menu-btn');
+  const nav = document.querySelector('nav');
+  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
+  btn.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); btn.classList.remove('open'); btn.setAttribute('aria-expanded', false);
+  }));
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
