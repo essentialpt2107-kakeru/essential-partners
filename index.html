@@ -130,6 +130,24 @@
   .biz .link::after { content: "→"; transition: transform .2s; }
   .biz .link:hover::after { transform: translateX(4px); }
 
+  /* brands（美yond から生まれたブランド） */
+  .biz .brands { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 32px; }
+  .brands .b-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; font-family: var(--serif); font-size: 16px; letter-spacing: .08em; }
+  .brands .b-head .en { font-family: var(--latin); font-size: 14px; letter-spacing: .2em; color: var(--accent-deep); }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .bcard {
+    display: grid; grid-template-columns: 96px 1fr; gap: 22px; align-items: start;
+    padding: 24px; background: var(--paper-2); border: 1px solid var(--line);
+    text-decoration: none; transition: border-color .2s, background .2s;
+  }
+  .bcard:hover { border-color: rgba(168,135,90,.6); background: #fff; }
+  .bcard img { width: 96px; height: 96px; object-fit: cover; }
+  .bcard .tag { font-family: var(--latin); font-size: 12px; letter-spacing: .2em; color: var(--accent-deep); }
+  .bcard h4 { font-family: var(--serif); font-weight: 500; font-size: 18px; letter-spacing: .06em; line-height: 1.5; margin-top: 2px; }
+  .bcard .desc { font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.85; }
+  .bcard .link { margin-top: 14px; }
+  .bcard:hover .link::after { transform: translateX(4px); }
+
   /* message */
   #message .msg { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; }
   .msg .photo { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; margin-top: 40px; }
@@ -208,6 +226,7 @@
     .philo, #message .msg { grid-template-columns: 1fr; gap: 40px; }
     .flow { grid-template-columns: 1fr 1fr; row-gap: 48px; }
     .biz { grid-template-columns: 1fr; gap: 20px; padding: 36px 28px; }
+    .brand-grid { grid-template-columns: 1fr; }
     .msg .photo { max-width: 320px; }
   }
   @media (max-width: 720px) {
@@ -230,6 +249,9 @@
     .step { padding: 0; }
     dl.table > div { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
     .biz { padding: 28px 20px; }
+    .biz .brands { padding-top: 24px; }
+    .bcard { grid-template-columns: 72px 1fr; gap: 16px; padding: 20px 18px; }
+    .bcard img { width: 72px; height: 72px; }
   }
 </style>
 </head>
@@ -328,6 +350,29 @@
               <a class="link" href="https://www.instagram.com/keana_hadakanri_beyond/" target="_blank" rel="noopener"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" class="dot"/></svg>美yond Instagram</a>
             </div>
           </div>
+          <div class="brands">
+            <p class="b-head"><span class="en">BRANDS</span>美yond から生まれたブランド</p>
+            <div class="brand-grid">
+              <a class="bcard" href="/homme/">
+                <img src="images/logo_homme.jpg" alt="美yond Homme のロゴ" loading="lazy">
+                <div>
+                  <p class="tag">FOR MEN</p>
+                  <h4>美yond Homme</h4>
+                  <p class="desc">選ばなくていい、男の肌管理。何から始めればいいかわからない男性のために、施術はサロンが肌を見て決め、おうちでのスキンケアや腸ケアまで月額のプランにまとめました。</p>
+                  <span class="link">美yond Homme のページ</span>
+                </div>
+              </a>
+              <a class="bcard" href="/jeune/">
+                <img src="images/logo_jeune.jpg" alt="美yond Jeune のロゴ" loading="lazy">
+                <div>
+                  <p class="tag">UNDER 29</p>
+                  <h4>美yond Jeune</h4>
+                  <p class="desc">キレイは、続けた人のもの。29歳までの方に向けて、美yondの肌ケアから続けやすいメニューに絞り、月額のサブスクで気軽に通えるようにしました。技術は美yondそのままです。</p>
+                  <span class="link">美yond Jeune のページ</span>
+                </div>
+              </a>
+            </div>
+          </div>
         </article>
 
         <article class="biz reveal">
@@ -419,7 +464,7 @@
         <div><dt>電話番号</dt><dd><a href="tel:05088861735">050-8886-1735</a></dd></div>
         <div><dt>メールアドレス</dt><dd><a href="mailto:essential.pt2107@gmail.com">essential.pt2107@gmail.com</a></dd></div>
         <div><dt>事業内容</dt><dd><ul>
-          <li>エステティックサロンの運営（美yond）</li>
+          <li>エステティックサロンの運営（美yond／美yond Homme／美yond Jeune）</li>
           <li>結婚相談所の運営・恋愛コーチング</li>
           <li>美容商材の卸売・サロン向けメニュー導入支援</li>
           <li>法人向け健康支援・第一印象コンサルティング</li>
