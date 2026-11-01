@@ -250,8 +250,14 @@
     dl.table > div { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
     .biz { padding: 28px 20px; }
     .biz .brands { padding-top: 24px; }
-    .bcard { grid-template-columns: 72px 1fr; gap: 16px; padding: 20px 18px; }
-    .bcard img { width: 72px; height: 72px; }
+    /* スマホではロゴの横に名前、説明とリンクはカードの幅いっぱいに */
+    .bcard { grid-template-columns: 64px 1fr; column-gap: 16px; row-gap: 0; align-items: center; padding: 20px 18px; }
+    .bcard > div { display: contents; }
+    .bcard img { width: 64px; height: 64px; grid-row: 1 / span 2; }
+    .bcard .tag { grid-column: 2; grid-row: 1; align-self: end; }
+    .bcard h4 { grid-column: 2; grid-row: 2; align-self: start; }
+    .bcard .desc { grid-column: 1 / -1; margin-top: 14px; }
+    .bcard .link { grid-column: 1 / -1; justify-self: start; }
   }
 </style>
 </head>
@@ -359,7 +365,7 @@
                   <p class="tag">FOR MEN</p>
                   <h4>美yond Homme</h4>
                   <p class="desc">選ばなくていい、男の肌管理。何から始めればいいかわからない男性のために、施術はサロンが肌を見て決め、おうちでのスキンケアや腸ケアまで月額のプランにまとめました。</p>
-                  <span class="link">美yond Homme のページ</span>
+                  <span class="link">ページを見る</span>
                 </div>
               </a>
               <a class="bcard" href="/jeune/">
@@ -368,7 +374,7 @@
                   <p class="tag">UNDER 29</p>
                   <h4>美yond Jeune</h4>
                   <p class="desc">キレイは、続けた人のもの。29歳までの方に向けて、美yondの肌ケアから続けやすいメニューに絞り、月額のサブスクで気軽に通えるようにしました。技術は美yondそのままです。</p>
-                  <span class="link">美yond Jeune のページ</span>
+                  <span class="link">ページを見る</span>
                 </div>
               </a>
             </div>
