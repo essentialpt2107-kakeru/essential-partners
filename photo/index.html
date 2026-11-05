@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- お客様ひとりずつの専用ページ。検索結果には出さず、URL の鍵をほかのサイトに渡さない -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>ビフォーアフター写真｜美yond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* 色と文字はホームケア商品一覧（site/homecare/index.html）とそろえる */
+:root{
+  --brand:#0ABAB5;
+  --brand-deep:#078F8B;
+  --brand-dark:#0A6F6C;
+  --brand-soft:#E7F8F7;
+  --brand-line:#BFEDEB;
+  --ink:#23211F;
+  --ink-sub:#6B6B6B;
+  --line:#E3ECEB;
+  --bg:#F3F7F7;
+  --card:#FFFFFF;
+  --warn:#B4473C;
+  --shadow:0 8px 28px rgba(16,80,78,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:var(--ink);background:var(--bg);
+  line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line)}
+.head{max-width:620px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.logo{font-family:"Noto Serif JP",serif;font-weight:600;font-size:21px;letter-spacing:.06em;line-height:1}
+.logo small{display:block;font-family:"Noto Sans JP",sans-serif;font-size:8.5px;letter-spacing:.28em;color:var(--brand-deep);margin-top:4px;font-weight:500}
+.head .sep{width:1px;height:22px;background:var(--line)}
+.head .tag{font-size:10.5px;letter-spacing:.16em;color:var(--ink-sub)}
+
+main{max-width:620px;margin:0 auto;padding:20px 16px 40px}
+
+.demo{background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:12px;padding:10px 14px;font-size:12.5px;margin-bottom:16px}
+
+/* 読み込み中・お知らせ・暗証番号 */
+.panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:32px 24px;text-align:center}
+.panel h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:20px;letter-spacing:.04em;line-height:1.6}
+.panel p{font-size:13.5px;color:var(--ink-sub);margin-top:10px}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--brand-line);border-top-color:var(--brand-deep);margin:4px auto 14px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pin-input{display:block;width:100%;max-width:220px;margin:22px auto 0;padding:14px 12px;border:1.5px solid var(--brand-line);border-radius:14px;
+  font-size:26px;letter-spacing:.5em;text-align:center;background:var(--brand-soft);outline:none}
+.pin-input:focus{border-color:var(--brand-deep);background:#fff}
+.err{color:var(--warn);font-size:13px;margin-top:10px;min-height:1.75em}
+.remember{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--ink-sub);margin-top:6px}
+.remember input{accent-color:var(--brand-deep);width:16px;height:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:200px;padding:13px 28px;border-radius:999px;background:var(--brand-deep);color:#fff;
+  font-weight:700;letter-spacing:.08em;margin-top:18px;box-shadow:0 6px 16px rgba(7,143,139,.25)}
+.btn:active{transform:translateY(1px)}
+
+/* お名前と記録のまとめ */
+.hero{background:linear-gradient(150deg,var(--brand-deep) 0%,var(--brand-dark) 100%);color:#fff;border-radius:22px;
+  padding:26px 22px 24px;position:relative;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.hero:before{width:260px;height:260px;right:-120px;top:-40px}
+.hero:after{width:200px;height:200px;right:-60px;top:10px}
+.eyebrow{font-size:11px;letter-spacing:.22em;display:flex;align-items:center;gap:10px;opacity:.9}
+.eyebrow:before{content:"";width:26px;height:1px;background:#fff}
+.hero h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:23px;line-height:1.55;margin-top:10px;letter-spacing:.04em;position:relative}
+.stats{display:flex;gap:10px;margin-top:16px;position:relative}
+.stat{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 10px}
+.stat b{display:block;font-size:17px;letter-spacing:.02em;line-height:1.4}
+.stat span{font-size:10.5px;opacity:.85;letter-spacing:.06em;white-space:nowrap}
+
+/* 切り替え */
+.tabs{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px;margin:20px 0 16px}
+.tabs button{flex:1;padding:9px 6px;border-radius:999px;font-size:13.5px;color:var(--ink-sub);font-weight:500}
+.tabs button[aria-selected="true"]{background:var(--brand-deep);color:#fff;font-weight:700}
+
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.v-head{display:flex;align-items:baseline;gap:10px;margin:2px 2px 12px}
+.v-n{font-family:"Noto Serif JP",serif;font-weight:600;font-size:18px;color:var(--brand-dark)}
+.v-date{font-size:12.5px;color:var(--ink-sub)}
+.v-new{margin-left:auto;font-size:10.5px;letter-spacing:.12em;color:var(--brand-deep);border:1px solid var(--brand-line);background:var(--brand-soft);border-radius:999px;padding:1px 10px}
+
+.tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--ink-sub)}
+.chips button[aria-pressed="true"]{border-color:var(--brand-deep);background:var(--brand-soft);color:var(--brand-dark);font-weight:700}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#fff}
+.seg button{padding:4px 12px;border-radius:999px;font-size:12px;color:var(--ink-sub)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff;font-weight:700}
+
+/* 写真の比べ方: 重ねる（つまみを動かす）／並べる */
+.cmp{position:relative;border-radius:14px;overflow:hidden;background:#E4EDEC;aspect-ratio:3/4;touch-action:pan-y;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;--x:50%}
+.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;opacity:0;transition:opacity .3s}
+.cmp img.ok{opacity:1}
+.cmp .top{clip-path:inset(0 calc(100% - var(--x)) 0 0)}
+.cmp .bar{position:absolute;top:0;bottom:0;left:var(--x);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.cmp .knob{position:absolute;top:50%;left:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;gap:6px;color:var(--brand-deep);font-size:13px;font-weight:700}
+.cmp:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.label{position:absolute;top:10px;padding:2px 10px;border-radius:999px;background:rgba(35,33,31,.6);color:#fff;font-size:11px;letter-spacing:.06em;line-height:1.8;pointer-events:none}
+.label.l{left:10px}.label.r{right:10px}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.side .cmp{border-radius:12px;touch-action:auto}
+.side .label{left:8px;right:auto;top:8px;font-size:10.5px}
+.hint{font-size:11.5px;color:var(--ink-sub);text-align:center;margin-top:8px}
+.none{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;font-size:12.5px;color:var(--ink-sub)}
+.cmp.loading:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);
+  background-size:200% 100%;animation:shine 1.3s linear infinite}
+@keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
+
+/* 回どうしを比べる */
+.pickers{display:grid;gap:10px}
+.pick{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px}
+.pick .who{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:var(--ink-sub)}
+.pick .who.r{background:var(--brand-deep)}
+.pick select{width:100%;padding:8px 30px 8px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13.5px;appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-sub) 50%),linear-gradient(135deg,var(--ink-sub) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.presets button{padding:6px 14px;border-radius:999px;border:1px dashed var(--brand-line);background:var(--brand-soft);color:var(--brand-dark);font-size:12.5px}
+
+.empty{text-align:center;color:var(--ink-sub);font-size:13.5px;padding:28px 12px}
+.note{font-size:11.5px;color:var(--ink-sub);text-align:center;margin-top:22px;line-height:1.8}
+.forget{display:block;margin:10px auto 0;font-size:11.5px;color:var(--ink-sub);text-decoration:underline}
+footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="logo">美yond<small>BEYOND</small></div>
+    <span class="sep"></span>
+    <span class="tag">BEFORE &amp; AFTER</span>
+  </div>
+</header>
+
+<main>
+  <p class="demo" id="demo" hidden>見本の画面です。写真はイラストで、暗証番号は <b>1234</b> です。</p>
+
+  <section class="panel" id="v-loading">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>写真を読み込んでいます</p>
+  </section>
+
+  <section class="panel" id="v-msg" hidden>
+    <h1 id="msg-title">ページを開けませんでした</h1>
+    <p id="msg-text"></p>
+    <button class="btn" id="msg-retry" type="button" hidden>もう一度読み込む</button>
+  </section>
+
+  <form class="panel" id="v-pin" hidden autocomplete="off">
+    <h1>暗証番号を入れてください</h1>
+    <p>ご登録のお電話番号の下4桁です。<br>別の番号をご案内した方は、その番号を入れてください。</p>
+    <input class="pin-input" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" aria-label="暗証番号">
+    <p class="err" id="pin-err" role="alert"></p>
+    <label class="remember"><input type="checkbox" id="remember" checked>この端末で次から入力を省く</label>
+    <button class="btn" type="submit">写真をひらく</button>
+  </form>
+
+  <section id="v-main" hidden>
+    <div class="hero">
+      <div class="eyebrow">YOUR SKIN RECORD</div>
+      <h1 id="hero-name"></h1>
+      <div class="stats">
+        <div class="stat"><b id="st-count"></b><span>記録</span></div>
+        <div class="stat"><b id="st-first"></b><span>はじめて</span></div>
+        <div class="stat"><b id="st-last"></b><span>最新</span></div>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="visits" aria-selected="true">来店ごと</button>
+      <button type="button" role="tab" data-tab="compare" aria-selected="false">回どうしを比べる</button>
+    </div>
+
+    <div id="t-visits"></div>
+
+    <div id="t-compare" hidden>
+      <div class="card">
+        <div class="pickers">
+          <div class="pick"><span class="who">左</span><select id="a-visit" aria-label="左に出す回"></select><span class="seg" id="a-side"></span></div>
+          <div class="pick"><span class="who r">右</span><select id="b-visit" aria-label="右に出す回"></select><span class="seg" id="b-side"></span></div>
+        </div>
+        <div class="presets">
+          <button type="button" data-preset="first">はじめて → いま</button>
+          <button type="button" data-preset="prev">前回 → 今回（施術前どうし）</button>
+        </div>
+        <div id="c-stage"></div>
+        <div class="tools"><div class="chips" id="c-angles"></div><div class="seg" id="c-mode"></div></div>
+      </div>
+    </div>
+
+    <p class="note">写真は美yondが大切に保管しています。<br>削除をご希望の場合は、公式LINEでお知らせください。</p>
+    <button class="forget" id="forget" type="button">この端末から暗証番号を消す</button>
+  </section>
+</main>
+<footer>© 美yond（ビヨンド）二子玉川の肌管理サロン</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* データ係（site/photo/gas/Code.gs）をウェブアプリとして公開したときの URL（2026-11-05 初版）。空にすると見本で動く */
+const API = 'https://script.google.com/macros/s/AKfycbzC5CV51gJeNWbbxD8IYw2XBdiVUa9rbWyTSuJRczuPfkinzoO87JjBBn9i_djzj44t/exec';
+
+const qs = new URLSearchParams(location.search);
+const DEMO = !API || qs.get('demo') === '1';
+const KEY = DEMO ? 'demo' : (qs.get('k') || '');
+const STORE_PIN = 'beyond-photo-pin:' + KEY;
+const STORE_MODE = 'beyond-photo-mode';
+const $ = s => document.querySelector(s);
+const SIDE = { before: 'ビフォー', after: 'アフター' };
+const WD = '日月火水木金土';
+
+const state = { pin: '', name: '', visits: [], mode: 'slide', tab: 'visits',
+  a: { v: 0, side: 'before' }, b: { v: 0, side: 'after' }, angle: 0 };
+
+/* ---------- 端末に覚えておくもの（使えない端末では覚えないだけ） ---------- */
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+};
+
+/* ---------- データ係とのやりとり ---------- */
+function call(body) {
+  if (DEMO) return demoCall(body);
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    .then(r => r.json());
+}
+
+// 写真は1枚ずつ取りにいく。同時に4枚まで
+const imgCache = {};
+const queue = [];
+let active = 0;
+function loadImg(id) {
+  if (!imgCache[id]) {
+    imgCache[id] = new Promise((resolve, reject) => { queue.push({ id, resolve, reject }); pump(); });
+    imgCache[id].catch(() => delete imgCache[id]);
+  }
+  return imgCache[id];
+}
+function pump() {
+  while (active < 4 && queue.length) {
+    const job = queue.shift();
+    active++;
+    call({ action: 'img', k: KEY, pin: state.pin, id: job.id, size: 'lg' })
+      .then(res => {
+        if (res.url) job.resolve(res.url);
+        else if (res.data) job.resolve('data:' + res.mime + ';base64,' + res.data);
+        else job.reject(res.error || 'error');
+      })
+      .catch(() => job.reject('network'))
+      .finally(() => { active--; pump(); });
+  }
+}
+
+/* ---------- 画面の切り替え ---------- */
+function show(id) {
+  ['v-loading', 'v-msg', 'v-pin', 'v-main'].forEach(v => { $('#' + v).hidden = v !== id; });
+}
+function showMsg(title, text, retry) {
+  $('#msg-title').textContent = title;
+  $('#msg-text').textContent = text;
+  $('#msg-retry').hidden = !retry;
+  show('v-msg');
+}
+function showPin(err) {
+  $('#pin-err').textContent = err || '';
+  $('#pin').value = '';
+  show('v-pin');
+  setTimeout(() => $('#pin').focus(), 50);
+}
+
+function start() {
+  $('#demo').hidden = !DEMO;
+  if (!KEY) return showMsg('専用のURLから開いてください', '美yondから公式LINEでお送りした、お客様専用のURLから開いてください。');
+  const saved = store.get(STORE_PIN);
+  if (saved) openWith(saved, true); else showPin();
+}
+
+function openWith(pin, remember) {
+  show('v-loading');
+  call({ action: 'list', k: KEY, pin })
+    .then(res => {
+      if (res.error === 'wrong_pin') {
+        store.del(STORE_PIN);
+        return showPin(res.left > 0 ? '暗証番号がちがいます（あと' + res.left + '回）' : '暗証番号がちがいます');
+      }
+      if (res.error === 'locked') return showMsg('しばらくお休みしています', '暗証番号を続けてまちがえたため、1時間ほど開けないようにしています。時間をおいてお試しください。');
+      if (res.error === 'not_found') return showMsg('ページが見つかりませんでした', '公式LINEで届いたURLをもう一度開くか、美yondにお問い合わせください。');
+      if (res.error) return showMsg('ページを開けませんでした', '少し時間をおいて、もう一度お試しください。', true);
+      state.pin = pin;
+      if (remember) store.set(STORE_PIN, pin);
+      state.name = res.name;
+      state.visits = res.visits || [];
+      renderMain();
+    })
+    .catch(() => showMsg('読み込めませんでした', '電波のよいところで、もう一度お試しください。', true));
+}
+
+$('#v-pin').addEventListener('submit', e => {
+  e.preventDefault();
+  const pin = $('#pin').value.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)).trim();
+  if (!/^\d{4,8}$/.test(pin)) { $('#pin-err').textContent = '数字で入れてください'; return; }
+  openWith(pin, $('#remember').checked);
+});
+$('#msg-retry').addEventListener('click', start);
+$('#forget').addEventListener('click', () => {
+  store.del(STORE_PIN);
+  state.pin = '';
+  showPin('この端末から暗証番号を消しました');
+});
+
+/* ---------- 日付 ---------- */
+function ymd(s) { return s.split('-').map(Number); }
+function longDate(s) { const [y, m, d] = ymd(s); return y + '年' + m + '月' + d + '日（' + WD[new Date(y, m - 1, d).getDay()] + '）'; }
+function shortDate(s) { const [y, m, d] = ymd(s); return y + '.' + m + '.' + d; }
+
+/* ---------- 本体 ---------- */
+function renderMain() {
+  const vs = state.visits;
+  $('#hero-name').textContent = state.name + ' 様の施術の記録';
+  $('#st-count').textContent = vs.length + '回';
+  $('#st-first').textContent = vs.length ? shortDate(vs[0].date) : '—';
+  $('#st-last').textContent = vs.length ? shortDate(vs[vs.length - 1].date) : '—';
+  state.mode = store.get(STORE_MODE) === 'side' ? 'side' : 'slide';
+  state.a = { v: 0, side: 'before' };
+  state.b = { v: Math.max(0, vs.length - 1), side: 'after' };
+  state.angle = 0;
+  fillVisitSelect($('#a-visit'));
+  fillVisitSelect($('#b-visit'));
+  setTab(vs.length > 1 ? state.tab : 'visits');
+  $('.tabs').hidden = vs.length < 2;
+  renderVisits();
+  renderCompare();
+  show('v-main');
+}
+
+function setTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  $('#t-visits').hidden = tab !== 'visits';
+  $('#t-compare').hidden = tab !== 'compare';
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+function setMode(mode) {
+  state.mode = mode;
+  store.set(STORE_MODE, mode);
+  renderVisits();
+  renderCompare();
+}
+
+// 押すと1つだけ選ばれるボタンの列
+function buttons(el, items, current, onPick) {
+  el.innerHTML = '';
+  items.forEach(it => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = it.label;
+    b.setAttribute('aria-pressed', String(it.value === current));
+    b.addEventListener('click', () => onPick(it.value));
+    el.appendChild(b);
+  });
+}
+function modeButtons(el) {
+  el.classList.add('seg');
+  buttons(el, [{ value: 'slide', label: '重ねる' }, { value: 'side', label: '並べる' }], state.mode, setMode);
+}
+function angleItems(n) {
+  return Array.from({ length: n }, (_, i) => ({ value: i, label: (i + 1) + '枚目' }));
+}
+
+/* 来店ごと: 新しい回から順に、その回のビフォーとアフター */
+function renderVisits() {
+  const box = $('#t-visits');
+  box.innerHTML = '';
+  const vs = state.visits;
+  if (!vs.length) {
+    box.innerHTML = '<div class="card empty">まだ写真がありません。<br>次のご来店のあと、こちらに届きます。</div>';
+    return;
+  }
+  vs.slice().reverse().forEach((v, i) => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = '<div class="v-head"><span class="v-n">' + v.n + '回目</span><span class="v-date">' + longDate(v.date) + '</span>' +
+      (i === 0 ? '<span class="v-new">最新</span>' : '') + '</div><div class="stage"></div><div class="tools"><div class="chips"></div><div class="seg"></div></div>';
+    const count = Math.max(v.before.length, v.after.length);
+    const draw = angle => {
+      const stageEl = card.querySelector('.stage');
+      stageEl.innerHTML = '';
+      stageEl.appendChild(stage(
+        { id: v.before[angle], label: SIDE.before, missing: 'この回のビフォー写真はありません' },
+        { id: v.after[angle], label: SIDE.after, missing: 'この回のアフター写真はありません' }));
+      const chips = card.querySelector('.chips');
+      if (count > 1) buttons(chips, angleItems(count), angle, draw); else chips.innerHTML = '';
+    };
+    draw(0);
+    modeButtons(card.querySelector('.tools .seg'));
+    box.appendChild(card);
+  });
+}
+
+/* 回どうしを比べる: 左右に好きな回のビフォー・アフターを出す */
+function fillVisitSelect(sel) {
+  sel.innerHTML = '';
+  state.visits.forEach((v, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    const [, m, d] = ymd(v.date);
+    o.textContent = v.n + '回目 ' + m + '/' + d;
+    sel.appendChild(o);
+  });
+}
+$('#a-visit').addEventListener('change', e => { state.a.v = Number(e.target.value); renderCompare(); });
+$('#b-visit').addEventListener('change', e => { state.b.v = Number(e.target.value); renderCompare(); });
+document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => {
+  const last = state.visits.length - 1;
+  if (b.dataset.preset === 'first') { state.a = { v: 0, side: 'before' }; state.b = { v: last, side: 'after' }; }
+  else { state.a = { v: Math.max(0, last - 1), side: 'before' }; state.b = { v: last, side: 'before' }; }
+  renderCompare();
+}));
+
+function renderCompare() {
+  const vs = state.visits;
+  if (vs.length < 2) return;
+  const a = vs[state.a.v], b = vs[state.b.v];
+  $('#a-visit').value = state.a.v;
+  $('#b-visit').value = state.b.v;
+  const sides = [{ value: 'before', label: SIDE.before }, { value: 'after', label: SIDE.after }];
+  buttons($('#a-side'), sides, state.a.side, s => { state.a.side = s; renderCompare(); });
+  buttons($('#b-side'), sides, state.b.side, s => { state.b.side = s; renderCompare(); });
+
+  const count = Math.max(a[state.a.side].length, b[state.b.side].length);
+  if (state.angle >= count) state.angle = 0;
+  const angles = $('#c-angles');
+  if (count > 1) buttons(angles, angleItems(count), state.angle, n => { state.angle = n; renderCompare(); }); else angles.innerHTML = '';
+  modeButtons($('#c-mode'));
+
+  const st = $('#c-stage');
+  st.innerHTML = '';
+  st.appendChild(stage(
+    { id: a[state.a.side][state.angle], label: a.n + '回目 ' + SIDE[state.a.side], missing: a.n + '回目の' + SIDE[state.a.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' },
+    { id: b[state.b.side][state.angle], label: b.n + '回目 ' + SIDE[state.b.side], missing: b.n + '回目の' + SIDE[state.b.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' }));
+}
+
+/* ---------- 写真の比べ方 ---------- */
+function stage(left, right) {
+  const wrap = document.createElement('div');
+  if (state.mode === 'side' || !left.id || !right.id) {
+    wrap.className = 'side';
+    [left, right].forEach(p => {
+      const fig = document.createElement('div');
+      fig.className = 'cmp';
+      fig.innerHTML = '<span class="label">' + esc(p.label) + '</span>';
+      if (p.id) fig.prepend(photo(p.id, fig)); else fig.insertAdjacentHTML('beforeend', '<span class="none">' + esc(p.missing) + '</span>');
+      wrap.appendChild(fig);
+    });
+    return wrap;
+  }
+  const box = document.createElement('div');
+  box.className = 'cmp';
+  box.tabIndex = 0;
+  box.setAttribute('role', 'slider');
+  box.setAttribute('aria-label', '左右に動かして' + left.label + 'と' + right.label + 'を比べる');
+  box.setAttribute('aria-valuemin', '0');
+  box.setAttribute('aria-valuemax', '100');
+  box.setAttribute('aria-valuenow', '50');
+  box.appendChild(photo(right.id, box, true));
+  const top = photo(left.id, box);
+  top.classList.add('top');
+  box.appendChild(top);
+  box.insertAdjacentHTML('beforeend', '<span class="label l">' + esc(left.label) + '</span><span class="label r">' + esc(right.label) +
+    '</span><div class="bar"><span class="knob" aria-hidden="true">‹ ›</span></div>');
+  slider(box);
+  wrap.appendChild(box);
+  wrap.insertAdjacentHTML('beforeend', '<p class="hint">写真の上を左右になぞると、見比べられます</p>');
+  return wrap;
+}
+
+// 画面に入ったときに取りにいく。setRatio のときは写真の縦横の比を枠に写す
+function photo(id, frame, setRatio) {
+  const img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  frame.classList.add('loading');
+  const go = () => loadImg(id).then(src => {
+    img.onload = () => {
+      img.classList.add('ok');
+      frame.classList.remove('loading');
+      if (setRatio && img.naturalWidth) frame.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+    };
+    img.src = src;
+  }).catch(err => {
+    frame.classList.remove('loading');
+    if (!frame.querySelector('.none')) frame.insertAdjacentHTML('beforeend', '<span class="none">' +
+      (err === 'not_ready' ? '写真を準備しています。少し時間をおいて開き直してください。' : '写真を読み込めませんでした') + '</span>');
+  });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: '300px' });
+    requestAnimationFrame(() => io.observe(frame));
+  } else go();
+  return img;
+}
+
+function slider(box) {
+  const set = x => {
+    const v = Math.min(100, Math.max(0, x));
+    box.style.setProperty('--x', v + '%');
+    box.setAttribute('aria-valuenow', String(Math.round(v)));
+  };
+  const at = e => { const r = box.getBoundingClientRect(); return (e.clientX - r.left) / r.width * 100; };
+  let down = false;
+  // 指のときは横になぞったときだけ動かす（縦のスクロールでは動かさない）
+  box.addEventListener('pointerdown', e => {
+    down = true;
+    if (box.setPointerCapture) box.setPointerCapture(e.pointerId);
+    if (e.pointerType === 'mouse') set(at(e));
+  });
+  box.addEventListener('pointermove', e => { if (down) set(at(e)); });
+  box.addEventListener('pointerup', e => { if (down) set(at(e)); down = false; });
+  box.addEventListener('pointercancel', () => { down = false; });
+  box.addEventListener('keydown', e => {
+    const now = Number(box.getAttribute('aria-valuenow'));
+    if (e.key === 'ArrowLeft') { set(now - 5); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { set(now + 5); e.preventDefault(); }
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---------- 見本（データ係とつなぐ前の確認用。写真はイラスト） ---------- */
+const DEMO_DATES = ['2026-06-07', '2026-07-05', '2026-08-09', '2026-09-13', '2026-11-05'];
+function demoCall(body) {
+  return new Promise(resolve => setTimeout(() => {
+    if (body.pin !== '1234') return resolve({ error: 'wrong_pin', left: 9 });
+    if (body.action === 'list') {
+      return resolve({ name: '見本 花子', visits: DEMO_DATES.map((date, i) => {
+        const ids = side => [0, 1, 2].slice(0, i === 1 ? 2 : 3).map(a => [i + 1, side, a].join('-'));
+        return { n: i + 1, date, before: ids('b'), after: ids('a') };
+      }) });
+    }
+    const [n, side, angle] = body.id.split('-');
+    resolve({ url: demoFace(Number(n), side === 'a', Number(angle)) });
+  }, body.action === 'list' ? 500 : 250 + Math.random() * 400));
+}
+function demoFace(n, after, angle) {
+  // 回を重ねるほど赤みとポツポツが減り、アフターはその回の中でさらに落ち着く
+  const level = Math.max(0, 1 - (n - 1) * 0.2 - (after ? 0.12 : 0));
+  const mix = (c1, c2, t) => '#' + [0, 2, 4].map(i => Math.round(parseInt(c1.substr(i, 2), 16) * t + parseInt(c2.substr(i, 2), 16) * (1 - t)).toString(16).padStart(2, '0')).join('');
+  const skin = mix('E8AF98', 'F6DCCB', level);
+  const dx = [0, -46, 46][angle];
+  let seed = 7 + angle * 31;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  let spots = '';
+  const total = Math.round(18 * level) + 1;
+  for (let i = 0; i < 18; i++) {
+    const x = 300 + dx + (rnd() - 0.5) * 230, y = 360 + rnd() * 190, r = 3 + rnd() * 5;
+    if (i < total) spots += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="' + r.toFixed(1) + '" fill="#C0705E" opacity="' + (0.25 + 0.45 * level).toFixed(2) + '"/>';
+  }
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F1F0"/><stop offset="1" stop-color="#CFDDDC"/></linearGradient></defs>' +
+    '<rect width="600" height="800" fill="url(#g)"/>' +
+    '<path d="M110 800 C130 640 220 600 300 600 C380 600 470 640 490 800 Z" fill="#FFFFFF" opacity=".9"/>' +
+    '<rect x="' + (262 + dx * 0.4) + '" y="520" width="76" height="110" rx="30" fill="' + skin + '"/>' +
+    '<ellipse cx="' + (300 + dx * 0.2) + '" cy="300" rx="185" ry="215" fill="#4A3A33"/>' +
+    '<ellipse cx="' + (300 + dx) + '" cy="380" rx="150" ry="190" fill="' + skin + '"/>' +
+    '<ellipse cx="' + (225 + dx * 1.3) + '" cy="440" rx="52" ry="34" fill="#E0796A" opacity="' + (0.5 * level).toFixed(2) + '"/>' +
+    '<ellipse cx="' + (375 + dx * 0.7) + '" cy="440" rx="52" ry="34" fill="#E0796A" opacity="' + (0.5 * level).toFixed(2) + '"/>' +
+    spots +
+    '<path d="M' + (230 + dx * 1.2) + ' 385 q22 14 44 0 M' + (326 + dx * 0.8) + ' 385 q22 14 44 0" stroke="#4A3A33" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M' + (300 + dx * 1.4) + ' 420 q-8 34 6 44" stroke="#C99582" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M' + (268 + dx) + ' 500 q32 20 64 0" stroke="#C26A62" stroke-width="6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M' + (150 + dx * 0.3) + ' 250 C200 150 420 140 460 260 C400 210 260 200 150 250 Z" fill="#4A3A33"/>' +
+    '<text x="580" y="780" text-anchor="end" font-family="sans-serif" font-size="22" fill="#FFFFFF" opacity=".85" letter-spacing="4">SAMPLE</text>' +
+    '</svg>';
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+start();
+})();
+</script>
+</body>
+</html>
