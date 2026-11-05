@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- スタッフ用。検索結果には出さず、開くには合言葉が要る -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-title" content="写真の管理">
+<title>写真の管理｜美yond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* 色と文字はお客様ページ（../index.html）とそろえる */
+:root{
+  --brand:#0ABAB5;
+  --brand-deep:#078F8B;
+  --brand-dark:#0A6F6C;
+  --brand-soft:#E7F8F7;
+  --brand-line:#BFEDEB;
+  --ink:#23211F;
+  --ink-sub:#6B6B6B;
+  --line:#E3ECEB;
+  --bg:#F3F7F7;
+  --card:#FFFFFF;
+  --warn:#B4473C;
+  --before:#5B5148;
+  --shadow:0 8px 28px rgba(16,80,78,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:var(--ink);background:var(--bg);
+  line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+[hidden]{display:none!important}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+
+header{background:#fff;border-bottom:1px solid var(--line)}
+.head{max-width:620px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.logo{font-family:"Noto Serif JP",serif;font-weight:600;font-size:21px;letter-spacing:.06em;line-height:1}
+.logo small{display:block;font-family:"Noto Sans JP",sans-serif;font-size:8.5px;letter-spacing:.28em;color:var(--brand-deep);margin-top:4px;font-weight:500}
+.head .sep{width:1px;height:22px;background:var(--line)}
+.head .tag{font-size:10.5px;letter-spacing:.16em;color:var(--ink-sub)}
+
+main{max-width:620px;margin:0 auto;padding:20px 16px 48px}
+.demo{background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:12px;padding:10px 14px;font-size:12.5px;margin-bottom:16px}
+
+/* 読み込み中・お知らせ・合言葉 */
+.panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:32px 24px;text-align:center}
+.panel h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:20px;letter-spacing:.04em;line-height:1.6}
+.panel p{font-size:13.5px;color:var(--ink-sub);margin-top:10px}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--brand-line);border-top-color:var(--brand-deep);margin:4px auto 14px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.field{display:block;width:100%;padding:13px 14px;border:1.5px solid var(--brand-line);border-radius:14px;background:var(--brand-soft);outline:none;font-size:16px}
+.field:focus{border-color:var(--brand-deep);background:#fff}
+.panel .field{max-width:280px;margin:22px auto 0;text-align:center;letter-spacing:.12em}
+.err{color:var(--warn);font-size:13px;margin-top:10px;min-height:1.75em}
+.remember{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--ink-sub);margin-top:6px}
+.remember input{accent-color:var(--brand-deep);width:16px;height:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:200px;padding:13px 28px;border-radius:999px;background:var(--brand-deep);color:#fff;
+  font-weight:700;letter-spacing:.08em;margin-top:18px;box-shadow:0 6px 16px rgba(7,143,139,.25);text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn-sub{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:999px;border:1px solid var(--brand-line);
+  background:#fff;color:var(--brand-dark);font-size:13px;font-weight:500;text-decoration:none}
+
+/* お客様一覧 */
+.bar-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.bar-top h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;letter-spacing:.04em}
+.bar-top .count{font-size:12px;color:var(--ink-sub)}
+.bar-top .btn{margin:0 0 0 auto;min-width:0;padding:9px 18px;font-size:13.5px}
+.search{background:#fff;border-color:var(--line)}
+.list{background:var(--card);border-radius:18px;box-shadow:var(--shadow);margin-top:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid var(--line);text-decoration:none}
+.row:first-child{border-top:0}
+.row:active{background:var(--brand-soft)}
+.row-name{font-weight:500;font-size:15.5px}
+.row-name small{font-size:12px;color:var(--ink-sub);margin-left:3px}
+.row-meta{margin-left:auto;font-size:12px;color:var(--ink-sub);white-space:nowrap}
+.row:after{content:"›";font-size:20px;line-height:1;color:var(--brand-line)}
+.empty{text-align:center;color:var(--ink-sub);font-size:13.5px;padding:28px 16px}
+.forget{display:block;margin:22px auto 0;font-size:11.5px;color:var(--ink-sub);text-decoration:underline}
+
+/* 新しいお客様 */
+.form{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:22px 20px 26px}
+.form h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;letter-spacing:.04em;margin-bottom:6px}
+.form label{display:block;font-size:13px;font-weight:700;margin-top:16px}
+.form label small{font-weight:400;color:var(--ink-sub);margin-left:6px}
+.form .field{margin-top:6px}
+.form .note{font-size:12px;color:var(--ink-sub);margin-top:6px}
+.form .btn{width:100%;margin-top:22px}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--brand-dark);text-decoration:none;margin:0 0 12px 2px}
+
+/* お客様1人分 */
+.hero{background:linear-gradient(150deg,var(--brand-deep) 0%,var(--brand-dark) 100%);color:#fff;border-radius:22px;padding:20px 20px 18px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.18);width:220px;height:220px;right:-90px;top:-50px}
+.eyebrow{font-size:11px;letter-spacing:.22em;display:flex;align-items:center;gap:10px;opacity:.9}
+.eyebrow:before{content:"";width:26px;height:1px;background:#fff}
+.hero h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:22px;line-height:1.5;margin-top:6px;letter-spacing:.04em;position:relative}
+.stats{display:flex;gap:8px;margin-top:12px;position:relative}
+.stat{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:6px 10px}
+.stat b{display:block;font-size:16px;letter-spacing:.04em;line-height:1.4}
+.stat span{font-size:10.5px;opacity:.85;letter-spacing:.06em;white-space:nowrap}
+
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:16px;margin-top:16px}
+.card h2{font-size:14.5px;font-weight:700;letter-spacing:.04em}
+.today{font-size:13px;color:var(--ink-sub);margin-top:2px}
+.today b{color:var(--ink)}
+.today .warn{color:var(--warn)}
+.up-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.up-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px 8px 16px;border-radius:16px;color:#fff;
+  font-weight:700;font-size:15px;letter-spacing:.04em;cursor:pointer;text-align:center;line-height:1.4}
+.up-btn.before{background:var(--before)}
+.up-btn.after{background:var(--brand-deep)}
+.up-btn svg{width:28px;height:28px}
+.up-btn small{font-size:11px;font-weight:400;opacity:.85}
+.up-btn:active{transform:translateY(1px)}
+.up-btns.busy .up-btn{opacity:.45;pointer-events:none}
+.up-btn:focus-within{outline:3px solid var(--brand);outline-offset:2px}
+.progress{margin-top:12px}
+.progress .track{height:6px;border-radius:999px;background:var(--brand-soft);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--brand-deep);transition:width .3s}
+.progress p{font-size:12.5px;color:var(--ink-sub);margin-top:6px}
+.hint{font-size:11.5px;color:var(--ink-sub);margin-top:10px}
+
+.info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px;align-items:baseline}
+.info dt{color:var(--ink-sub);font-size:12px}
+.info dd{word-break:break-all}
+.info .pin{font-size:18px;font-weight:700;letter-spacing:.2em}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+details.line{margin-top:10px;font-size:12.5px;color:var(--ink-sub)}
+details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:6px;color:var(--ink);-webkit-user-select:text;user-select:text}
+
+.sec{font-size:13px;color:var(--ink-sub);letter-spacing:.08em;margin:24px 4px 0}
+.v-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 6px}
+.v-n{font-family:"Noto Serif JP",serif;font-weight:600;font-size:17px;color:var(--brand-dark)}
+.v-date{font-size:12.5px;color:var(--ink-sub)}
+.side-row{margin-top:8px}
+.side-label{display:inline-block;font-size:11px;letter-spacing:.06em;color:#fff;border-radius:999px;padding:0 10px;line-height:1.9}
+.side-label.before{background:var(--before)}
+.side-label.after{background:var(--brand-deep)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:6px;margin-top:6px}
+.thumb{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#E4EDEC}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.thumb img.ok{opacity:1}
+.thumb .num{position:absolute;left:4px;top:4px;min-width:18px;height:18px;border-radius:9px;background:rgba(35,33,31,.6);color:#fff;font-size:10.5px;line-height:18px;text-align:center;padding:0 4px}
+.thumb[data-state]:after{position:absolute;inset:auto 0 0 0;font-size:10px;color:var(--ink-sub);padding:4px;text-align:center}
+.thumb[data-state="wait"]:after{content:"準備中"}
+.thumb[data-state="err"]:after{content:"読めません"}
+.none-s{font-size:12px;color:var(--ink-sub);grid-column:1/-1}
+.loading:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);
+  background-size:200% 100%;animation:shine 1.3s linear infinite}
+@keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
+
+/* 写真を大きく見る・移す・消す */
+.viewer{position:fixed;inset:0;z-index:20;background:rgba(20,22,22,.97);display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+.viewer-top{display:flex;align-items:center;color:#fff;font-size:14px;max-width:620px;width:100%;margin:0 auto}
+.viewer-top button{margin-left:auto;color:#fff;padding:6px 12px;border:1px solid rgba(255,255,255,.4);border-radius:999px;font-size:13px}
+.viewer-img{position:relative;flex:1;margin:12px auto;width:100%;max-width:620px;border-radius:14px;overflow:hidden}
+.viewer-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s}
+.viewer-img img.ok{opacity:1}
+.viewer-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.viewer-btns button{padding:11px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700}
+.viewer-btns .danger{background:var(--warn);color:#fff}
+.viewer-btns button:disabled{opacity:.5}
+
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:30;background:var(--ink);color:#fff;
+  font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="logo">美yond<small>BEYOND</small></div>
+    <span class="sep"></span>
+    <span class="tag">写真の管理 ・ STAFF</span>
+  </div>
+</header>
+
+<main>
+  <p class="demo" id="demo" hidden>見本の画面です。合言葉は <b>demo</b> です。写真はイラストで、入れた写真や登録はこの画面を閉じると消えます。</p>
+
+  <section class="panel" id="v-loading">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>読み込んでいます</p>
+  </section>
+
+  <section class="panel" id="v-msg" hidden>
+    <h1 id="msg-title">開けませんでした</h1>
+    <p id="msg-text"></p>
+    <button class="btn" id="msg-retry" type="button" hidden>もう一度読み込む</button>
+  </section>
+
+  <form class="panel" id="v-pass" hidden autocomplete="off">
+    <h1>合言葉を入れてください</h1>
+    <p>スタッフ用の画面です。合言葉は一覧表（スプレッドシート）の「設定」にあります。</p>
+    <input class="field" id="pass" type="password" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="合言葉">
+    <p class="err" id="pass-err" role="alert"></p>
+    <label class="remember"><input type="checkbox" id="remember" checked>この端末で次から入力を省く</label>
+    <button class="btn" type="submit">ひらく</button>
+  </form>
+
+  <section id="v-list" hidden>
+    <div class="bar-top">
+      <h1>お客様</h1><span class="count" id="list-count"></span>
+      <a class="btn" href="#new">＋ 新しいお客様</a>
+    </div>
+    <input class="field search" id="search" type="search" placeholder="お名前でさがす" aria-label="お名前でさがす">
+    <div class="list" id="list"></div>
+    <button class="forget" id="forget" type="button">この端末から合言葉を消す</button>
+  </section>
+
+  <form class="form" id="v-add" hidden autocomplete="off" novalidate>
+    <a class="back" href="#">‹ お客様一覧</a>
+    <h1>新しいお客様</h1>
+    <p class="note">登録すると、ドライブにお客様のフォルダ（ビフォー・アフター入り）と専用ページができます。</p>
+    <label for="add-name">お名前<small>「様」は付けなくて大丈夫です</small></label>
+    <input class="field" id="add-name" type="text" placeholder="例）山田 花子">
+    <label for="add-pin">電話番号の下4桁<small>お客様がページを開くときの暗証番号</small></label>
+    <input class="field" id="add-pin" type="text" inputmode="numeric" maxlength="8" placeholder="例）1234">
+    <p class="note">空のままにすると、4桁の番号を自動で決めます（LINEで送る文にその番号が入ります）。</p>
+    <p class="err" id="add-err" role="alert"></p>
+    <button class="btn" id="add-go" type="submit">登録する</button>
+  </form>
+
+  <section id="v-detail" hidden>
+    <a class="back" href="#">‹ お客様一覧</a>
+    <div class="panel" id="d-loading"><div class="spinner" aria-hidden="true"></div><p>読み込んでいます</p></div>
+    <div id="d-body" hidden>
+      <div class="hero">
+        <div class="eyebrow">CUSTOMER</div>
+        <h1 id="d-name"></h1>
+        <div class="stats">
+          <div class="stat"><b id="d-count"></b><span>記録</span></div>
+          <div class="stat"><b id="d-first"></b><span>はじめて</span></div>
+          <div class="stat"><b id="d-last"></b><span>最新</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>今日の写真を入れる</h2>
+        <p class="today" id="d-today"></p>
+        <div class="up-btns" id="up-btns">
+          <label class="up-btn before">
+            <input class="vh" type="file" accept="image/*" multiple data-side="before">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>
+            ビフォーを入れる<small>施術前の写真</small>
+          </label>
+          <label class="up-btn after">
+            <input class="vh" type="file" accept="image/*" multiple data-side="after">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>
+            アフターを入れる<small>施術後の写真</small>
+          </label>
+        </div>
+        <div class="progress" id="progress" hidden><div class="track"><i></i></div><p></p></div>
+        <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。ビフォーとアフターを同じ順番で撮ると、1枚目どうし・2枚目どうしが組になります。</p>
+      </div>
+
+      <div class="card">
+        <dl class="info">
+          <dt>暗証番号</dt><dd class="pin" id="d-pin"></dd>
+          <dt>専用ページ</dt><dd id="d-url"></dd>
+        </dl>
+        <div class="acts">
+          <button class="btn-sub" id="copy-line" type="button">LINEで送る文をコピー</button>
+          <a class="btn-sub" id="d-open" target="_blank" rel="noopener noreferrer">お客様のページをひらく</a>
+        </div>
+        <details class="line"><summary>送る文を見る</summary><pre id="d-line"></pre></details>
+      </div>
+
+      <h2 class="sec">これまでの写真</h2>
+      <div id="d-visits"></div>
+    </div>
+  </section>
+</main>
+<footer>© 美yond（ビヨンド）二子玉川の肌管理サロン</footer>
+
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="vw-title">
+  <div class="viewer-top"><span id="vw-title"></span><button type="button" id="vw-close">閉じる</button></div>
+  <div class="viewer-img" id="vw-img"></div>
+  <div class="viewer-btns">
+    <button type="button" id="vw-move"></button>
+    <button type="button" id="vw-trash" class="danger">この写真を消す</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* データ係（site/photo/gas/Code.gs）のウェブアプリの URL。お客様ページ（../index.html）と同じ。空にすると見本で動く */
+const API = 'https://script.google.com/macros/s/AKfycbzC5CV51gJeNWbbxD8IYw2XBdiVUa9rbWyTSuJRczuPfkinzoO87JjBBn9i_djzj44t/exec';
+
+const qs = new URLSearchParams(location.search);
+const DEMO = !API || qs.get('demo') === '1';
+const STORE_PASS = DEMO ? 'beyond-photo-admin-demo' : 'beyond-photo-admin';
+const MAX_BYTES = 20 * 1024 * 1024;
+const $ = s => document.querySelector(s);
+const SIDE = { before: 'ビフォー', after: 'アフター' };
+const WD = '日月火水木金土';
+
+const state = { pass: '', ok: false, customers: null, cur: null, busy: false };
+
+/* ---------- 端末に覚えておくもの（使えない端末では覚えないだけ） ---------- */
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+};
+
+/* ---------- データ係とのやりとり ---------- */
+function call(body) {
+  body = Object.assign({ pass: state.pass }, body);
+  if (DEMO) return demoCall(body);
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    .then(r => r.json());
+}
+
+// 合言葉が変わった・止められたときは、どの画面からでも入口に戻す
+function fail(err, text) {
+  if (err === 'wrong_pass') {
+    forgetPass();
+    return showPass('合言葉が変わったようです。新しい合言葉を入れてください');
+  }
+  if (err === 'locked') return showMsg('しばらくお休みしています', '合言葉を続けてまちがえたため、1時間ほど使えないようにしています。時間をおいてお試しください。');
+  toast(text || 'うまくいきませんでした。もう一度お試しください');
+}
+function netErr() { toast('つながりませんでした。電波を確かめて、もう一度お試しください'); }
+
+// 写真は1枚ずつ取りにいく。同時に4枚まで
+const imgCache = {};
+const queue = [];
+let active = 0;
+function loadImg(k, id, size) {
+  const key = size + ':' + id;
+  if (!imgCache[key]) {
+    imgCache[key] = new Promise((resolve, reject) => { queue.push({ k, id, size, resolve, reject }); pump(); });
+    imgCache[key].catch(() => delete imgCache[key]);
+  }
+  return imgCache[key];
+}
+function pump() {
+  while (active < 4 && queue.length) {
+    const job = queue.shift();
+    active++;
+    call({ action: 'a_img', k: job.k, id: job.id, size: job.size })
+      .then(res => {
+        if (res.url) job.resolve(res.url);
+        else if (res.data) job.resolve('data:' + res.mime + ';base64,' + res.data);
+        else job.reject(res.error || 'error');
+      })
+      .catch(() => job.reject('network'))
+      .finally(() => { active--; pump(); });
+  }
+}
+
+/* ---------- 画面の切り替え ---------- */
+const VIEWS = ['v-loading', 'v-msg', 'v-pass', 'v-list', 'v-add', 'v-detail'];
+function show(id) {
+  VIEWS.forEach(v => { $('#' + v).hidden = v !== id; });
+  window.scrollTo(0, 0);
+}
+function showMsg(title, text, retry) {
+  $('#msg-title').textContent = title;
+  $('#msg-text').textContent = text;
+  $('#msg-retry').hidden = !retry;
+  show('v-msg');
+}
+function showPass(err) {
+  $('#pass-err').textContent = err || '';
+  $('#pass').value = '';
+  show('v-pass');
+  setTimeout(() => $('#pass').focus(), 50);
+}
+let toastTimer;
+function toast(text) {
+  const t = $('#toast');
+  t.textContent = text;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+}
+
+// 住所の # のあとで画面を決める（空 = 一覧、new = 新しいお客様、c=キー = お客様1人分）。戻るボタンでも戻れる
+function route() {
+  if (!state.ok) return;
+  const h = location.hash.replace(/^#/, '');
+  if (h === 'new') return showAdd();
+  const m = h.match(/^c=(\w+)$/);
+  if (m) return showDetail(m[1]);
+  showList();
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('beforeunload', e => { if (state.busy) { e.preventDefault(); e.returnValue = ''; } });
+
+function start() {
+  $('#demo').hidden = !DEMO;
+  const saved = store.get(STORE_PASS);
+  if (saved) login(saved, true, true); else showPass();
+}
+
+function login(pass, remember, saved) {
+  show('v-loading');
+  state.pass = pass;
+  call({ action: 'a_list' })
+    .then(res => {
+      if (res.error === 'wrong_pass') {
+        forgetPass();
+        return showPass(saved ? '合言葉が変わったようです。新しい合言葉を入れてください' : '合言葉がちがいます');
+      }
+      if (res.error) return fail(res.error);
+      state.ok = true;
+      if (remember) store.set(STORE_PASS, pass);
+      state.customers = res.customers || [];
+      route();
+    })
+    .catch(() => showMsg('つながりませんでした', '電波のよいところで、もう一度お試しください。', true));
+}
+function forgetPass() {
+  store.del(STORE_PASS);
+  state.pass = '';
+  state.ok = false;
+}
+
+$('#v-pass').addEventListener('submit', e => {
+  e.preventDefault();
+  const pass = $('#pass').value.trim();
+  if (!pass) { $('#pass-err').textContent = '合言葉を入れてください'; return; }
+  login(pass, $('#remember').checked, false);
+});
+$('#msg-retry').addEventListener('click', start);
+$('#forget').addEventListener('click', () => {
+  forgetPass();
+  showPass('この端末から合言葉を消しました');
+});
+
+/* ---------- 日付と文字 ---------- */
+function ymd(s) { return s.split('-').map(Number); }
+function longDate(s) { const [y, m, d] = ymd(s); return y + '年' + m + '月' + d + '日（' + WD[new Date(y, m - 1, d).getDay()] + '）'; }
+function shortDate(s) { const [y, m, d] = ymd(s); return y + '.' + m + '.' + d; }
+function md(s) { const [, m, d] = ymd(s); return m + '/' + d; }
+function pad(n) { return String(n).padStart(2, '0'); }
+function todayText() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function halfWidth(s) { return s.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)); }
+// さがすときは空白を無視し、カタカナもひらがなとして比べる
+function norm(s) { return String(s).replace(/[\s　]/g, '').toLowerCase().replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60)); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---------- お客様一覧 ---------- */
+function showList() {
+  state.cur = null;
+  show('v-list');
+  renderList();
+  call({ action: 'a_list' })
+    .then(res => {
+      if (res.error) return fail(res.error);
+      state.customers = res.customers || [];
+      if (!$('#v-list').hidden) renderList();
+    })
+    .catch(netErr);
+}
+
+function renderList() {
+  const all = state.customers || [];
+  const q = norm($('#search').value);
+  const rows = all.filter(c => !q || norm(c.name).indexOf(q) >= 0)
+    .sort((a, b) => (b.last || b.created).localeCompare(a.last || a.created) || a.name.localeCompare(b.name, 'ja'));
+  $('#list-count').textContent = all.length + '名';
+  const box = $('#list');
+  box.innerHTML = '';
+  if (!rows.length) {
+    box.innerHTML = '<p class="empty">' + (all.length ? '見つかりませんでした' : 'まだお客様がいません。<br>「＋ 新しいお客様」から登録できます') + '</p>';
+    return;
+  }
+  rows.forEach(c => {
+    const a = document.createElement('a');
+    a.className = 'row';
+    a.href = '#c=' + c.k;
+    // 回数と最新の日は、管理画面でそのお客様を開いたときに一覧表に書かれる
+    const meta = c.count ? c.count + '回 ・ 最新 ' + md(c.last) : c.created ? '登録 ' + md(c.created) : '';
+    a.innerHTML = '<span class="row-name">' + esc(c.name) + '<small>様</small></span><span class="row-meta">' + esc(meta) + '</span>';
+    box.appendChild(a);
+  });
+}
+$('#search').addEventListener('input', renderList);
+
+/* ---------- 新しいお客様 ---------- */
+function showAdd() {
+  state.cur = null;
+  $('#add-name').value = '';
+  $('#add-pin').value = '';
+  $('#add-err').textContent = '';
+  show('v-add');
+  setTimeout(() => $('#add-name').focus(), 50);
+}
+
+$('#v-add').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#add-name').value.trim().replace(/\s*様$/, '');
+  const pin = halfWidth($('#add-pin').value).trim();
+  const err = $('#add-err');
+  if (!name) { err.textContent = 'お名前を入れてください'; return; }
+  if (pin && !/^\d{4,8}$/.test(pin)) { err.textContent = '番号は数字4桁で入れてください'; return; }
+  if ((state.customers || []).some(c => norm(c.name) === norm(name)) &&
+      !confirm('「' + name + ' 様」はもう登録されています。別の方として、もう1人登録しますか？')) return;
+  err.textContent = '';
+  const go = $('#add-go');
+  go.disabled = true;
+  go.textContent = '登録しています…';
+  call({ action: 'a_add', name, pin })
+    .then(res => {
+      if (res.error) return fail(res.error, '登録できませんでした。もう一度お試しください');
+      if (!res.k) { toast('登録に時間がかかっています。一覧で確かめてください'); location.hash = ''; return; }
+      toast(name + ' 様を登録しました');
+      location.hash = 'c=' + res.k;
+    })
+    .catch(netErr)
+    .finally(() => { go.disabled = false; go.textContent = '登録する'; });
+});
+
+/* ---------- お客様1人分 ---------- */
+function showDetail(k) {
+  if (!state.cur || state.cur.k !== k) {
+    state.cur = { k };
+    $('#d-body').hidden = true;
+    $('#d-loading').hidden = false;
+  }
+  show('v-detail');
+  loadDetail(k);
+}
+
+function loadDetail(k) {
+  return call({ action: 'a_detail', k })
+    .then(res => {
+      if (!state.cur || state.cur.k !== k) return; // 別の画面に移ったあと
+      if (res.error === 'not_found') { toast('お客様が見つかりませんでした'); location.hash = ''; return; }
+      if (res.error) return fail(res.error);
+      state.cur = Object.assign({ k }, res);
+      renderDetail();
+    })
+    .catch(netErr);
+}
+
+function renderDetail() {
+  const c = state.cur;
+  const vs = c.visits || [];
+  $('#d-loading').hidden = true;
+  $('#d-body').hidden = false;
+  $('#d-name').textContent = c.name + ' 様';
+  $('#d-count').textContent = vs.length + '回';
+  $('#d-first').textContent = vs.length ? shortDate(vs[0].date) : '—';
+  $('#d-last').textContent = vs.length ? shortDate(vs[vs.length - 1].date) : '—';
+  $('#d-pin').textContent = c.pin;
+  $('#d-url').textContent = c.url;
+  $('#d-open').href = c.url;
+  $('#d-line').textContent = c.line;
+
+  const today = todayText();
+  const tv = vs.find(v => v.date === today);
+  const t = $('#d-today');
+  if (!tv) t.textContent = '今日（' + md(today) + '）の写真はまだありません';
+  else {
+    t.innerHTML = '今日（' + md(today) + '）の写真：ビフォー <b>' + tv.before.length + '枚</b> ・ アフター <b>' + tv.after.length + '枚</b>' +
+      (tv.before.length && tv.after.length && tv.before.length !== tv.after.length ? '<br><span class="warn">枚数がちがいます。同じ枚数にすると、すべて組になります</span>' : '');
+  }
+
+  const box = $('#d-visits');
+  box.innerHTML = '';
+  if (!vs.length) {
+    box.innerHTML = '<div class="card empty">まだ写真がありません。<br>上のボタンから入れると、ここに来店日ごとに並びます。</div>';
+    return;
+  }
+  vs.slice().reverse().forEach(v => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = '<div class="v-head"><span class="v-n">' + v.n + '回目</span><span class="v-date">' + longDate(v.date) + '</span></div>';
+    ['before', 'after'].forEach(side => {
+      const row = document.createElement('div');
+      row.className = 'side-row';
+      row.innerHTML = '<span class="side-label ' + side + '">' + SIDE[side] + ' ' + v[side].length + '枚</span>';
+      const grid = document.createElement('div');
+      grid.className = 'thumbs';
+      if (!v[side].length) grid.innerHTML = '<span class="none-s">なし</span>';
+      v[side].forEach((id, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'thumb';
+        b.setAttribute('aria-label', v.n + '回目の' + SIDE[side] + '、' + (i + 1) + '枚目を大きく見る');
+        b.innerHTML = '<span class="num">' + (i + 1) + '</span>';
+        b.prepend(photo(c.k, id, b, 'xs'));
+        b.addEventListener('click', () => openViewer({ id, side, n: v.n, i }));
+        grid.appendChild(b);
+      });
+      row.appendChild(grid);
+      card.appendChild(row);
+    });
+    box.appendChild(card);
+  });
+}
+
+// 画面に入ったときに取りにいく。入れた直後で縮小画像がまだのときは、少し待って取り直す
+function photo(k, id, frame, size) {
+  const img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  frame.classList.add('loading');
+  let tries = 0;
+  const go = () => loadImg(k, id, size).then(src => {
+    img.onload = () => { img.classList.add('ok'); frame.classList.remove('loading'); delete frame.dataset.state; };
+    img.src = src;
+  }).catch(err => {
+    if (err === 'not_ready' && tries++ < 12 && frame.isConnected) {
+      frame.dataset.state = 'wait';
+      setTimeout(go, 5000);
+      return;
+    }
+    frame.classList.remove('loading');
+    frame.dataset.state = err === 'not_ready' ? 'wait' : 'err';
+  });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: '300px' });
+    requestAnimationFrame(() => io.observe(frame));
+  } else go();
+  return img;
+}
+
+/* ---------- 写真を入れる ---------- */
+document.querySelectorAll('#up-btns input[type=file]').forEach(input => input.addEventListener('change', () => {
+  const files = Array.from(input.files || []);
+  input.value = '';
+  if (files.length && state.cur) upload(state.cur.k, input.dataset.side, files);
+}));
+
+const MIME_BY_EXT = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', heic: 'image/heic', heif: 'image/heif', webp: 'image/webp', gif: 'image/gif' };
+const EXT_BY_MIME = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/heic': '.heic', 'image/heif': '.heif', 'image/webp': '.webp', 'image/gif': '.gif' };
+
+async function upload(k, side, files) {
+  if (state.busy) return;
+  state.busy = true;
+  $('#up-btns').classList.add('busy');
+  let done = 0, skipped = 0, stop = '';
+  setProgress(0, files.length, SIDE[side] + 'を入れています（0 / ' + files.length + '枚）');
+  for (let i = 0; i < files.length && !stop; i++) {
+    const f = files[i];
+    const mime = f.type || MIME_BY_EXT[(f.name.split('.').pop() || '').toLowerCase()] || '';
+    if (!/^image\//.test(mime) || f.size > MAX_BYTES) { skipped++; continue; }
+    try {
+      // 撮った日時をファイル名に入れておく（写真の中の記録が読めないときも、撮った日の回に入るように）
+      const name = 'IMG_' + await shotStamp(f) + '_' + pad(i + 1) + (EXT_BY_MIME[mime] || '.jpg');
+      const data = (await readAs(f, 'DataURL')).split(',')[1];
+      const res = await call({ action: 'a_upload', k, side, name, mime, data });
+      if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
+      else if (res.error) skipped++;
+      else done++;
+    } catch (e) {
+      skipped++;
+    }
+    setProgress(i + 1, files.length, SIDE[side] + 'を入れています（' + (i + 1) + ' / ' + files.length + '枚）');
+  }
+  state.busy = false;
+  $('#up-btns').classList.remove('busy');
+  if (stop) return fail(stop);
+  setProgress(1, 1, SIDE[side] + 'を' + done + '枚入れました' + (skipped ? '。' + skipped + '枚は入れられませんでした（写真でないファイル・20MBより大きい写真・通信の途切れ）' : ''));
+  toast(SIDE[side] + 'を' + done + '枚入れました');
+  if (state.cur && state.cur.k === k) loadDetail(k);
+}
+
+function setProgress(n, total, text) {
+  const el = $('#progress');
+  el.hidden = false;
+  el.querySelector('i').style.width = (total ? n / total * 100 : 0) + '%';
+  el.querySelector('p').textContent = text;
+}
+
+function readAs(blob, kind) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r['readAs' + kind](blob);
+  });
+}
+
+// "yyyyMMdd_HHmmss"。JPEG の撮影日時（Exif）→ ファイルの日時の順
+async function shotStamp(file) {
+  try {
+    const s = exifDate(new DataView(await readAs(file.slice(0, 256 * 1024), 'ArrayBuffer')));
+    if (s) return s;
+  } catch (e) {}
+  const d = new Date(file.lastModified || Date.now());
+  return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+}
+function exifDate(v) {
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return '';
+  let p = 2;
+  while (p + 4 <= v.byteLength) {
+    const marker = v.getUint16(p);
+    if (marker === 0xFFE1 && p + 10 <= v.byteLength && v.getUint32(p + 4) === 0x45786966) return tiffDate(v, p + 10); // "Exif"
+    if ((marker & 0xFF00) !== 0xFF00 || marker === 0xFFDA) return '';
+    p += 2 + v.getUint16(p + 2);
+  }
+  return '';
+}
+function tiffDate(v, t) {
+  const le = v.getUint16(t) === 0x4949;
+  const u16 = o => v.getUint16(o, le), u32 = o => v.getUint32(o, le);
+  const entries = off => {
+    const out = {}, at = t + off;
+    if (at + 2 > v.byteLength) return out;
+    for (let i = 0, n = u16(at); i < n && at + 14 + i * 12 <= v.byteLength; i++) out[u16(at + 2 + i * 12)] = at + 2 + i * 12;
+    return out;
+  };
+  const text = e => {
+    if (e == null || u16(e + 2) !== 2) return '';
+    const n = u32(e + 4), o = n > 4 ? t + u32(e + 8) : e + 8;
+    let s = '';
+    for (let i = 0; i < n - 1 && o + i < v.byteLength; i++) s += String.fromCharCode(v.getUint8(o + i));
+    return s;
+  };
+  const ifd0 = entries(u32(t + 4));
+  const sub = ifd0[0x8769] != null ? entries(u32(ifd0[0x8769] + 8)) : {};
+  const m = (text(sub[0x9003]) || text(ifd0[0x0132])).match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+  return m && m[1] !== '0000' ? m[1] + m[2] + m[3] + '_' + m[4] + m[5] + m[6] : '';
+}
+
+/* ---------- LINEで送る文 ---------- */
+$('#copy-line').addEventListener('click', () => {
+  if (!state.cur || !state.cur.line) return;
+  copyText(state.cur.line)
+    .then(() => toast('コピーしました。公式LINEに貼って送ってください'))
+    .catch(() => { $('.line').open = true; toast('コピーできませんでした。「送る文を見る」から選んでコピーしてください'); });
+});
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    ok ? resolve() : reject();
+  });
+}
+
+/* ---------- 写真を大きく見る・移す・消す ---------- */
+let viewing = null;
+function openViewer(p) {
+  viewing = p;
+  $('#vw-title').textContent = p.n + '回目 ' + SIDE[p.side] + ' ' + (p.i + 1) + '枚目';
+  const frame = $('#vw-img');
+  frame.innerHTML = '';
+  frame.appendChild(photo(state.cur.k, p.id, frame, 'sm'));
+  $('#vw-move').textContent = p.side === 'before' ? 'アフターに移す' : 'ビフォーに移す';
+  $('#vw-move').disabled = $('#vw-trash').disabled = false;
+  $('#viewer').hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('#vw-close').focus();
+}
+function closeViewer() {
+  viewing = null;
+  $('#viewer').hidden = true;
+  $('#vw-img').innerHTML = '';
+  document.body.style.overflow = '';
+}
+$('#vw-close').addEventListener('click', closeViewer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && viewing) closeViewer(); });
+window.addEventListener('hashchange', () => { if (viewing) closeViewer(); });
+
+function photoAction(body, done) {
+  const k = state.cur.k;
+  $('#vw-move').disabled = $('#vw-trash').disabled = true;
+  call(Object.assign({ k, id: viewing.id }, body))
+    .then(res => {
+      if (res.error) { $('#vw-move').disabled = $('#vw-trash').disabled = false; return fail(res.error); }
+      closeViewer();
+      toast(done);
+      loadDetail(k);
+    })
+    .catch(() => { $('#vw-move').disabled = $('#vw-trash').disabled = false; netErr(); });
+}
+$('#vw-move').addEventListener('click', () => {
+  const to = viewing.side === 'before' ? 'after' : 'before';
+  photoAction({ action: 'a_move', to }, SIDE[to] + 'に移しました');
+});
+$('#vw-trash').addEventListener('click', () => {
+  if (!confirm('この写真を消しますか？\nドライブのゴミ箱に入り、30日間は元に戻せます。')) return;
+  photoAction({ action: 'a_trash' }, '写真を消しました');
+});
+
+/* ---------- 見本（データ係とつながずに確かめる用。写真はイラスト） ---------- */
+const demo = { seq: 0, customers: [
+  { k: 'demo1', name: '見本 花子', pin: '1234', created: '2026-06-07', photos: [] },
+  { k: 'demo2', name: '見本 さくら', pin: '5678', created: '2026-10-28', photos: [] },
+] };
+['2026-06-07', '2026-08-09', '2026-10-11'].forEach((date, n) => ['before', 'after'].forEach(side => [0, 1].forEach(a => {
+  demo.customers[0].photos.push({ id: 'p' + (++demo.seq), side, time: date + ' 1' + (side === 'before' ? 0 : 1) + ':0' + a + ':00', url: demoSvg(side, n + 1, a) });
+})));
+function demoVisits(c) {
+  const byDate = {};
+  c.photos.forEach(p => {
+    const d = p.time.slice(0, 10);
+    byDate[d] = byDate[d] || { date: d, before: [], after: [] };
+    byDate[d][p.side].push(p);
+  });
+  const byTime = (a, b) => a.time < b.time ? -1 : a.time > b.time ? 1 : 0;
+  return Object.keys(byDate).sort().map((d, i) => ({ n: i + 1, date: d,
+    before: byDate[d].before.sort(byTime).map(p => p.id), after: byDate[d].after.sort(byTime).map(p => p.id) }));
+}
+function demoCall(b) {
+  return new Promise(resolve => setTimeout(() => resolve(demoAnswer(b)), b.action === 'a_img' ? 150 + Math.random() * 300 : 400));
+}
+function demoAnswer(b) {
+  if (b.pass !== 'demo') return { error: 'wrong_pass' };
+  if (b.action === 'a_list') {
+    return { customers: demo.customers.map(c => {
+      const vs = demoVisits(c);
+      return { k: c.k, name: c.name, count: vs.length, last: vs.length ? vs[vs.length - 1].date : '', created: c.created };
+    }) };
+  }
+  if (b.action === 'a_add') {
+    const k = 'demo' + (demo.customers.length + 1);
+    demo.customers.push({ k, name: b.name, pin: b.pin || String(1000 + Math.floor(Math.random() * 9000)), created: todayText(), photos: [] });
+    return { k };
+  }
+  const c = demo.customers.find(c => c.k === b.k);
+  if (!c) return { error: 'not_found' };
+  const p = c.photos.find(p => p.id === b.id);
+  if (b.action === 'a_detail') {
+    const url = new URL('../?demo=1', location.href).href;
+    return { name: c.name, pin: c.pin, url, visits: demoVisits(c),
+      line: c.name + '様\n\nいつも美yondをご利用いただきありがとうございます。\n（見本の文です）\n\n▼' + c.name + '様の専用ページ\n' + url + '\n\n暗証番号：' + c.pin };
+  }
+  if (b.action === 'a_img') return p ? { url: p.url } : { error: 'not_found' };
+  if (b.action === 'a_upload') {
+    const m = b.name.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+    const id = 'p' + (++demo.seq);
+    // 同じ秒に撮った写真はファイル名の順（データ係と同じ）
+    c.photos.push({ id, side: b.side, time: m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' ' + b.name, url: 'data:' + b.mime + ';base64,' + b.data });
+    return { id };
+  }
+  if (!p) return { error: 'not_found' };
+  if (b.action === 'a_move') { p.side = b.to; return { ok: true }; }
+  if (b.action === 'a_trash') { c.photos.splice(c.photos.indexOf(p), 1); return { ok: true }; }
+  return { error: 'bad_request' };
+}
+function demoSvg(side, n, angle) {
+  const bg = side === 'before' ? '#D8CEC6' : '#C9E9E6';
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400"><rect width="300" height="400" fill="' + bg + '"/>' +
+    '<ellipse cx="150" cy="190" rx="80" ry="100" fill="#F2D5C4"/><ellipse cx="150" cy="150" rx="92" ry="70" fill="#4A3A33" opacity=".85"/>' +
+    '<text x="150" y="335" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#23211F">' + SIDE[side] + '</text>' +
+    '<text x="150" y="368" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#6B6B6B">' + n + '回目 ・ ' + (angle + 1) + '枚目</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+start();
+})();
+</script>
+</body>
+</html>
