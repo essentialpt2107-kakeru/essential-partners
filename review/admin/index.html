@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- お店の管理画面。開くには合言葉が要る。検索結果には出さない -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>口コミ強化｜管理画面</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* 色と文字はアンケート（../index.html）とそろえる */
+:root{
+  --brand:#0ABAB5;
+  --brand-deep:#078F8B;
+  --brand-dark:#0A6F6C;
+  --brand-soft:#E7F8F7;
+  --brand-line:#BFEDEB;
+  --ink:#23211F;
+  --ink-sub:#6B6B6B;
+  --line:#E3ECEB;
+  --bg:#F3F7F7;
+  --card:#FFFFFF;
+  --star:#E8A93A;
+  --warn:#B4473C;
+  --warn-soft:#FBEDEB;
+  --shadow:0 8px 28px rgba(16,80,78,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:var(--ink);background:var(--bg);
+  line-height:1.75;font-size:14.5px;-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.head{max-width:760px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.logo{font-family:"Noto Serif JP",serif;font-weight:600;font-size:17px;letter-spacing:.05em;white-space:nowrap}
+.head .sep{width:1px;height:20px;background:var(--line)}
+.head .tag{font-size:10.5px;letter-spacing:.14em;color:var(--ink-sub);white-space:nowrap}
+.head select{margin-left:auto;max-width:46%;padding:6px 28px 6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px}
+
+main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.demo{background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:12px;padding:10px 14px;font-size:12.5px;margin-bottom:14px}
+
+.panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:30px 22px;text-align:center}
+.panel h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;letter-spacing:.04em}
+.panel p{font-size:13px;color:var(--ink-sub);margin-top:8px}
+.spinner{width:30px;height:30px;border-radius:50%;border:3px solid var(--brand-line);border-top-color:var(--brand-deep);margin:4px auto 12px;animation:spin .9s linear infinite}
+.spinner.s{width:18px;height:18px;border-width:2px;margin:0;display:inline-block;vertical-align:-3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pass{display:block;width:100%;max-width:260px;margin:18px auto 0;padding:12px;border:1.5px solid var(--brand-line);border-radius:12px;font-size:18px;
+  letter-spacing:.12em;text-align:center;background:var(--brand-soft);outline:none}
+.pass:focus{border-color:var(--brand-deep);background:#fff}
+.remember{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--ink-sub);margin-top:8px}
+.remember input{accent-color:var(--brand-deep);width:16px;height:16px}
+.err{color:var(--warn);font-size:13px;margin-top:8px;min-height:1.6em}
+.ok{color:var(--brand-dark);font-size:13px;margin-top:8px;min-height:1.6em}
+.forget{display:block;margin:22px auto 0;font-size:11.5px;color:var(--ink-sub);text-decoration:underline}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;border-radius:999px;background:var(--brand-deep);color:#fff;
+  font-weight:700;letter-spacing:.05em;box-shadow:0 5px 14px rgba(7,143,139,.22)}
+.btn:disabled{background:#B9CFCE;box-shadow:none;cursor:default}
+.btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line);box-shadow:none}
+.btn.small{padding:6px 14px;font-size:12.5px}
+.btn.wide{width:100%}
+.link{color:var(--brand-dark);text-decoration:underline;font-size:12.5px}
+.del{color:var(--ink-sub);font-size:12px;text-decoration:underline}
+
+.tabs{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:16px;overflow-x:auto}
+.tabs button{flex:1;padding:8px 6px;border-radius:999px;font-size:13.5px;color:var(--ink-sub);font-weight:500;white-space:nowrap;min-width:72px}
+.tabs button[aria-selected="true"]{background:var(--brand-deep);color:#fff;font-weight:700}
+.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--warn);color:#fff;font-size:10.5px;line-height:18px;margin-left:4px}
+
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.card .sub{font-size:12.5px;color:var(--ink-sub)}
+.rule{background:var(--brand-soft);border:1px solid var(--brand-line);color:var(--brand-dark);border-radius:12px;padding:10px 12px;font-size:12.5px;margin-bottom:14px}
+
+/* 回答 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:10px 12px}
+.stat b{display:block;font-size:20px;line-height:1.4}
+.stat span{font-size:11px;color:var(--ink-sub)}
+.stat.alert b{color:var(--warn)}
+.dist{display:grid;gap:4px;margin-top:8px}
+.dist div{display:grid;grid-template-columns:28px 1fr 30px;align-items:center;gap:8px;font-size:12px;color:var(--ink-sub)}
+.dist i{display:block;height:8px;border-radius:4px;background:var(--star)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--ink-sub)}
+.chips button[aria-pressed="true"]{border-color:var(--brand-deep);background:var(--brand-soft);color:var(--brand-dark);font-weight:700}
+.ans{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:10px;border-left:4px solid transparent}
+.ans.low{border-left-color:var(--warn)}
+.ans .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ans .st{color:var(--star);letter-spacing:.08em;font-size:15px}
+.ans .at{font-size:12px;color:var(--ink-sub)}
+.ans .who{font-size:12px;color:var(--ink-sub)}
+.pill{font-size:11px;border-radius:999px;padding:0 9px;line-height:20px;border:1px solid var(--line);color:var(--ink-sub)}
+.pill.warn{background:var(--warn-soft);border-color:#EFC9C4;color:var(--warn)}
+.pill.done{background:var(--brand-soft);border-color:var(--brand-line);color:var(--brand-dark)}
+.ans .menus{font-size:12px;color:var(--brand-dark);margin-top:4px}
+.ans .body{white-space:pre-wrap;margin-top:6px;font-size:14px}
+.ans .req{white-space:pre-wrap;margin-top:8px;font-size:13px;background:#F7F9F9;border-radius:10px;padding:8px 10px}
+.ans .req b{display:block;font-size:11px;color:var(--ink-sub);font-weight:500}
+.follow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;margin-top:10px}
+.follow select,.follow input{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;width:100%}
+.empty{text-align:center;color:var(--ink-sub);font-size:13px;padding:24px 12px}
+
+/* 入力 */
+label.f{display:block;margin-top:12px;font-size:12.5px;font-weight:700}
+label.f small{font-weight:400;color:var(--ink-sub);margin-left:6px}
+.help{font-size:11.5px;color:var(--ink-sub);margin-top:2px;font-weight:400}
+.in,textarea.in,select.in{display:block;width:100%;margin-top:5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:#FAFCFC;font-size:14px;outline:none}
+textarea.in{min-height:84px;resize:vertical;line-height:1.7}
+.in:focus{border-color:var(--brand);background:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.row .in{margin-top:0;flex:1;min-width:140px}
+.row select.in{flex:0 0 auto;width:auto}
+
+/* キーワード */
+.kw{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.kw:first-child{border-top:0}
+.kw b{font-size:14px}
+.kw .why{font-size:12px;color:var(--ink-sub)}
+.prio{font-size:11px;font-weight:700;border-radius:6px;padding:0 7px;line-height:20px;white-space:nowrap}
+.prio.p高{background:#FCEBD3;color:#8A5410}.prio.p中{background:var(--brand-soft);color:var(--brand-dark)}.prio.p低{background:#EEF1F1;color:var(--ink-sub)}
+.cand{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:start;padding:9px 0;border-top:1px solid var(--line)}
+.cand input{accent-color:var(--brand-deep);width:18px;height:18px;margin-top:3px}
+.cand.have{opacity:.55}
+
+/* 文章づくり */
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--ink-sub)}
+.seg button[aria-pressed="true"]{border-color:var(--brand-deep);background:var(--brand-deep);color:#fff;font-weight:700}
+.result textarea.in{min-height:200px;background:#fff}
+.count{font-size:12px;color:var(--ink-sub);text-align:right;margin-top:4px}
+.count.over{color:var(--warn);font-weight:700}
+.used{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.used span{font-size:11.5px;background:var(--brand-soft);color:var(--brand-dark);border-radius:999px;padding:1px 10px}
+.notes{margin-top:10px;background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:10px;padding:8px 10px;font-size:12.5px;white-space:pre-wrap}
+
+/* 設定 */
+.qr{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.qr canvas{width:150px;height:150px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.qr .url{font-size:12.5px;word-break:break-all}
+.keyline{font-size:12.5px;margin-top:6px}
+.keyline b.on{color:var(--brand-dark)}.keyline b.off{color:var(--warn)}
+footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="logo">口コミ強化</div>
+    <span class="sep"></span>
+    <span class="tag">管理画面</span>
+    <select id="storeSel" aria-label="お店" hidden></select>
+  </div>
+</header>
+
+<main>
+  <div class="demo" id="demo" hidden>これは見本です（合言葉 demo）。何をしても本物には入りません。AI の文章も見本の決まった文です。</div>
+
+  <div class="panel" id="msg" hidden></div>
+
+  <!-- 合言葉 -->
+  <form class="panel" id="login" hidden>
+    <h1>合言葉を入れてください</h1>
+    <p>お店ごとの合言葉、または全店舗の管理用の合言葉</p>
+    <input class="pass" id="pass" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
+    <label class="remember"><input type="checkbox" id="remember" checked>この端末では次から省く</label>
+    <div class="err" id="loginErr" aria-live="polite"></div>
+    <button class="btn" type="submit">開く</button>
+  </form>
+
+  <div id="app" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="answers" aria-selected="true">回答<span class="badge" id="openBadge" hidden></span></button>
+      <button role="tab" data-tab="keywords" aria-selected="false">キーワード</button>
+      <button role="tab" data-tab="drafts" aria-selected="false">文章づくり</button>
+      <button role="tab" data-tab="settings" aria-selected="false">設定</button>
+    </div>
+
+    <!-- 回答 -->
+    <section id="tab-answers">
+      <div class="rule">アンケートの最後は、星に関係なく全員に同じお礼と Google 口コミの案内を出しています（Google の規約で、星で振り分けることは禁止されているため）。低い星の回答はメールでお知らせするので、直接フォローしてください。</div>
+      <div class="stats">
+        <div class="stat"><b id="sCount">-</b><span>回答</span></div>
+        <div class="stat"><b id="sAvg">-</b><span>平均の星</span></div>
+        <div class="stat alert"><b id="sOpen">-</b><span>未対応</span></div>
+      </div>
+      <div class="card"><h2>星の分かれ方</h2><div class="dist" id="dist"></div></div>
+      <div class="chips" id="ansFilter">
+        <button type="button" data-f="all" aria-pressed="true">すべて</button>
+        <button type="button" data-f="open" aria-pressed="false">未対応</button>
+        <button type="button" data-f="low" aria-pressed="false">低い星</button>
+        <button type="button" data-f="comment" aria-pressed="false">ご感想あり</button>
+      </div>
+      <div id="ansList"></div>
+    </section>
+
+    <!-- キーワード -->
+    <section id="tab-keywords" hidden>
+      <div class="rule">キーワードは、お店が自分で書く文章（ビジネスの説明・サービス・投稿・口コミへの返信）にだけ使います。お客様に「この言葉を口コミに入れて」と頼むことは Google の規約で禁止されています。</div>
+      <div class="card">
+        <h2>登録したキーワード</h2>
+        <p class="sub">優先度の高い順。文章づくりで AI が自然に入れられるものだけを使います。</p>
+        <div id="kwList"></div>
+        <div class="row">
+          <input class="in" id="kwNew" placeholder="例: 二子玉川 フェイシャル" maxlength="60">
+          <select class="in" id="kwPrio"><option>高</option><option selected>中</option><option>低</option></select>
+          <button class="btn small" type="button" id="kwAdd">足す</button>
+        </div>
+        <div class="err" id="kwErr" aria-live="polite"></div>
+      </div>
+      <div class="card">
+        <h2>AI に候補を出してもらう</h2>
+        <p class="sub">お店の情報・アンケートのご感想（お客様の言葉）・下に貼った検索語句をもとに、強化するとよいキーワードを出します。</p>
+        <label class="f" for="terms">Google の「検索語句」<small>任意・あると精度が上がります</small>
+          <div class="help">ビジネス プロフィールの「パフォーマンス」→「ビジネス プロフィールの表示につながった検索語句」に出てくる語句を、そのまま貼ってください。</div>
+        </label>
+        <textarea class="in" id="terms" placeholder="二子玉川 エステ&#10;二子玉川 毛穴"></textarea>
+        <div class="row"><button class="btn" type="button" id="suggest">候補を出す</button><span class="sub" id="suggestWait" hidden><span class="spinner s"></span> AI が考えています（30秒ほど）</span></div>
+        <div class="err" id="sugErr" aria-live="polite"></div>
+        <div id="candBox" hidden>
+          <div id="candList"></div>
+          <div class="row"><button class="btn" type="button" id="candAdd">選んだものを登録する</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 文章づくり -->
+    <section id="tab-drafts" hidden>
+      <div class="rule">登録したキーワードを、意味が自然に通るところにだけ入れて下書きします。載せる前に、事実と違うところがないか必ず読んで直してください。</div>
+      <div class="card">
+        <h2>何を書きますか</h2>
+        <div class="seg" id="kindSeg">
+          <button type="button" data-k="reply" aria-pressed="true">口コミへの返信</button>
+          <button type="button" data-k="post" aria-pressed="false">投稿</button>
+          <button type="button" data-k="description" aria-pressed="false">ビジネスの説明</button>
+          <button type="button" data-k="service" aria-pressed="false">サービスの説明</button>
+        </div>
+
+        <div data-for="reply">
+          <label class="f" for="rStars">口コミの星</label>
+          <select class="in" id="rStars"><option value="5">★5</option><option value="4">★4</option><option value="3">★3</option><option value="2">★2</option><option value="1">★1</option></select>
+          <label class="f" for="rText">口コミの本文<small>Google から写して貼る。星だけなら空でよい</small></label>
+          <textarea class="in" id="rText"></textarea>
+        </div>
+        <div data-for="post" hidden>
+          <label class="f" for="pTheme">投稿のテーマ</label>
+          <textarea class="in" id="pTheme" placeholder="例: 冬の乾燥で毛穴が目立つ方へ。保湿しながらの毛穴ケアのご案内"></textarea>
+        </div>
+        <div data-for="description" hidden>
+          <label class="f" for="dNote">とくに入れてほしいこと<small>任意</small></label>
+          <textarea class="in" id="dNote" placeholder="例: 駅から近いこと、お子様連れでも来やすいこと"></textarea>
+          <p class="help">お店の情報（設定のタブ）をもとに、Google の説明欄（750字まで）に合わせて書きます。</p>
+        </div>
+        <div data-for="service" hidden>
+          <label class="f" for="svName">サービス（メニュー）名</label>
+          <input class="in" id="svName" list="menuList" maxlength="200">
+          <datalist id="menuList"></datalist>
+          <label class="f" for="svNote">とくに入れてほしいこと<small>任意</small></label>
+          <textarea class="in" id="svNote"></textarea>
+        </div>
+
+        <div class="row"><button class="btn" type="button" id="write">下書きを作る</button><span class="sub" id="writeWait" hidden><span class="spinner s"></span> AI が書いています（20〜40秒ほど）</span></div>
+        <div class="err" id="draftErr" aria-live="polite"></div>
+      </div>
+
+      <div class="card result" id="result" hidden>
+        <h2>下書き</h2>
+        <textarea class="in" id="draft"></textarea>
+        <div class="count" id="count"></div>
+        <div class="used" id="used"></div>
+        <div class="notes" id="notes" hidden></div>
+        <div class="row"><button class="btn" type="button" id="copyDraft">コピーする</button><span class="ok" id="copied" aria-live="polite"></span></div>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section id="tab-settings" hidden>
+      <div class="card">
+        <h2>アンケートの QR コード</h2>
+        <div class="qr">
+          <canvas id="qr" width="600" height="600"></canvas>
+          <div>
+            <div class="url" id="surveyUrl"></div>
+            <div class="row">
+              <button class="btn small" type="button" id="qrSave">QR コードを保存</button>
+              <a class="btn small ghost" id="surveyOpen" target="_blank" rel="noopener">アンケートを開く</a>
+            </div>
+            <p class="help">店内の POP やお会計のときの案内に使ってください。来店した方みんなに同じように案内します。</p>
+          </div>
+        </div>
+      </div>
+
+      <form class="card" id="storeForm">
+        <h2>お店の情報</h2>
+        <p class="sub">AI が文章を書くときの材料にもなります。事実だけを書いてください。</p>
+        <label class="f" for="f_name">店舗名</label>
+        <input class="in" id="f_name" maxlength="100" required>
+        <label class="f" for="f_category">業種<small>例: エステサロン</small></label>
+        <input class="in" id="f_category" maxlength="100">
+        <label class="f" for="f_area">地域・最寄り駅<small>例: 二子玉川駅 東口から徒歩3分</small></label>
+        <input class="in" id="f_area" maxlength="200">
+        <label class="f" for="f_reviewUrl">Google 口コミの URL
+          <div class="help">ビジネス プロフィールの「口コミを増やす」（口コミを依頼）で出るリンクを貼ってください。アンケートのお礼の画面から開きます。</div>
+        </label>
+        <input class="in" id="f_reviewUrl" inputmode="url" placeholder="https://g.page/r/…/review">
+        <label class="f" for="f_notifyEmail">通知先メール<small>複数はカンマで区切る</small></label>
+        <input class="in" id="f_notifyEmail" inputmode="email">
+        <label class="f" for="f_notifyAt">メールで知らせる星</label>
+        <select class="in" id="f_notifyAt">
+          <option value="0">知らせない</option><option value="1">★1</option><option value="2">★2 以下</option>
+          <option value="3">★3 以下</option><option value="4">★4 以下</option><option value="5">すべての回答</option>
+        </select>
+        <p class="help">お知らせが届くだけです。お客様に出る画面は、星に関係なく同じです。</p>
+        <label class="f" for="f_menus">メニュー<small>1行に1つ。アンケートの選択肢になります</small></label>
+        <textarea class="in" id="f_menus"></textarea>
+        <label class="f" for="f_features">お店の特徴<small>コンセプト・強み・設備・お客様の層など</small></label>
+        <textarea class="in" id="f_features" style="min-height:120px"></textarea>
+        <label class="f" for="f_contact">お問い合わせ先<small>低い星の口コミへの返信で案内する電話・LINE など</small></label>
+        <input class="in" id="f_contact" maxlength="200">
+        <label class="f" for="f_avoid">使わない表現<small>1行に1つ。法律や方針で使えない言葉</small></label>
+        <textarea class="in" id="f_avoid" placeholder="例: 脂肪燃焼"></textarea>
+        <div id="passBox" hidden>
+          <label class="f" for="f_pass">このお店の合言葉<small>全店舗の管理用の合言葉で開いたときだけ表示</small></label>
+          <input class="in" id="f_pass" maxlength="40" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="row"><button class="btn" type="submit" id="saveStore">保存する</button><span class="ok" id="storeOk" aria-live="polite"></span></div>
+        <div class="err" id="storeErr" aria-live="polite"></div>
+        <p class="keyline">AI のキー: <b id="keyState"></b>　モデル: <span id="modelName"></span></p>
+      </form>
+
+      <form class="card" id="newStore" hidden>
+        <h2>新しいお店を足す</h2>
+        <p class="sub">全店舗の管理用の合言葉で開いたときだけ使えます。合言葉とアンケートの URL は自動でできます。</p>
+        <label class="f" for="n_id">店舗ID<small>英小文字・数字・ハイフン（例: salon-a）。アンケートの URL に入ります</small></label>
+        <input class="in" id="n_id" maxlength="30" autocapitalize="off" spellcheck="false">
+        <label class="f" for="n_name">店舗名</label>
+        <input class="in" id="n_name" maxlength="100">
+        <div class="row"><button class="btn" type="submit">足す</button></div>
+        <div class="err" id="newErr" aria-live="polite"></div>
+      </form>
+
+      <button class="forget" id="forget" type="button">この端末から合言葉を消す</button>
+    </section>
+  </div>
+</main>
+<footer>口コミ強化システム</footer>
+
+<script>
+// データ係（site/review/gas/Code.gs）のウェブアプリの URL。空のままだと見本が出る
+const API = 'https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwnxBWoWzyY3ExMVtH5OGrhVM0RI-gdKHT6gebIRuPy7g/exec';
+
+const params = new URLSearchParams(location.search);
+const DEMO = !API || params.get('demo') === '1';
+const $ = id => document.getElementById(id);
+const PASS_KEY = 'review_admin_pass';
+const STORE_KEY = 'review_admin_store';
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+};
+const S = { pass: '', master: false, stores: [], s: '', answers: [], summary: null, filter: 'all', keywords: [], candidates: [], info: null, kind: 'reply', limit: 0 };
+
+const ERRORS = {
+  no_key: 'AI のキーがまだ登録されていません。スプレッドシートのメニュー「口コミ強化 → AIのキーを登録・変更」から登録してください。',
+  ai_key: 'AI のキーが正しくないようです。スプレッドシートのメニューから登録し直してください。',
+  ai_busy: 'AI が混み合っています。少し時間をおいて、もう一度お試しください。',
+  ai_refused: 'AI がこの依頼には答えられませんでした。内容を少し変えてお試しください。',
+  ai_cut: '文章が長くなりすぎて途中で切れました。もう一度お試しください。',
+  ai_error: 'AI の返事をうまく受け取れませんでした。もう一度お試しください。',
+  ai_empty: 'AI の返事が空でした。もう一度お試しください。',
+  need_input: '入力が足りません。',
+  bad_url: 'Google 口コミの URL は https:// から始まる形で入れてください。',
+  bad_email: 'メールアドレスの形が違うようです。',
+  bad_stars: '知らせる星を選び直してください。',
+  need_name: '店舗名を入れてください。',
+  bad_pass: '合言葉は6文字以上、空白なしで入れてください。',
+  bad_id: '店舗ID は英小文字・数字・ハイフンで2〜30文字にしてください（例: salon-a）。',
+  id_taken: 'その店舗ID はもう使われています。',
+  forbidden: 'この操作は、全店舗の管理用の合言葉で開いたときだけできます。',
+  not_found: '見つかりませんでした。ページを開き直してください。',
+  network: 'つながりませんでした。電波のよいところで、もう一度お試しください。',
+  server: 'うまくいきませんでした。もう一度お試しください。',
+};
+const errText = code => ERRORS[code] || ERRORS.server;
+
+function call(body) {
+  const req = Object.assign({ pass: S.pass, s: S.s }, body);
+  const p = DEMO ? demo(req) : fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req) })
+    .then(r => r.json());
+  return p.catch(() => ({ error: 'network' })).then(res => {
+    if (res.error === 'wrong_pass' || res.error === 'locked') {
+      if (body.action !== 'a_login') stop(res.error);
+    }
+    return res;
+  });
+}
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  });
+  kids.flat().forEach(k => { if (k !== null && k !== undefined && k !== false) e.append(k); });
+  return e;
+}
+
+function showMsg(title, text) {
+  $('msg').replaceChildren(el('h1', { text: title }), el('p', { text: text }));
+  $('msg').hidden = false;
+  $('login').hidden = $('app').hidden = true;
+}
+
+function stop(err) {
+  if (err === 'locked') return showMsg('しばらくお休みしています', '合言葉を続けてまちがえたため、1時間ほど使えないようにしています。時間をおいてお試しください。');
+  store.del(PASS_KEY);
+  S.pass = '';
+  showLogin('合言葉が変わったようです。もう一度入れてください。');
+}
+
+function showLogin(err) {
+  $('msg').hidden = $('app').hidden = true;
+  $('login').hidden = false;
+  $('storeSel').hidden = true;
+  $('loginErr').textContent = err || '';
+  $('pass').focus();
+}
+
+/* ---------- 合言葉 ---------- */
+
+function login(pass, remember, saved) {
+  S.pass = pass;
+  if (!saved) $('loginErr').textContent = '';
+  call({ action: 'a_login' }).then(res => {
+    if (res.error === 'locked') return stop('locked');
+    if (res.error) {
+      store.del(PASS_KEY);
+      S.pass = '';
+      return showLogin(res.error === 'wrong_pass' ? (saved ? '' : '合言葉がちがいます。') : errText(res.error));
+    }
+    if (remember) store.set(PASS_KEY, pass);
+    S.master = res.master;
+    S.stores = res.stores;
+    if (!S.stores.length) return showMsg('お店がまだありません', 'スプレッドシートのシート「店舗」に、店舗ID と店舗名を入れてください。');
+    const sel = $('storeSel');
+    sel.replaceChildren(...S.stores.map(s => el('option', { value: s.id, text: s.name || s.id })));
+    sel.hidden = S.stores.length < 2;
+    const last = store.get(STORE_KEY);
+    S.s = S.stores.some(s => s.id === last) ? last : S.stores[0].id;
+    sel.value = S.s;
+    $('login').hidden = $('msg').hidden = true;
+    $('app').hidden = false;
+    $('newStore').hidden = !S.master;
+    openStore();
+  });
+}
+
+$('login').addEventListener('submit', e => {
+  e.preventDefault();
+  const pass = $('pass').value.trim();
+  if (pass) login(pass, $('remember').checked, false);
+});
+
+$('forget').addEventListener('click', () => {
+  store.del(PASS_KEY);
+  S.pass = '';
+  $('pass').value = '';
+  showLogin('この端末から合言葉を消しました。');
+});
+
+$('storeSel').addEventListener('change', e => {
+  S.s = e.target.value;
+  store.set(STORE_KEY, S.s);
+  openStore();
+});
+
+function openStore() {
+  S.candidates = [];
+  $('candBox').hidden = true;
+  $('result').hidden = true;
+  ['kwErr', 'sugErr', 'draftErr', 'storeErr', 'storeOk', 'newErr'].forEach(id => { $(id).textContent = ''; });
+  loadAnswers();
+  loadKeywords();
+  loadInfo();
+}
+
+/* ---------- タブ ---------- */
+
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  ['answers', 'keywords', 'drafts', 'settings'].forEach(t => { $('tab-' + t).hidden = t !== b.dataset.tab; });
+  window.scrollTo(0, 0);
+}));
+
+/* ---------- 回答 ---------- */
+
+function loadAnswers() {
+  $('ansList').replaceChildren(el('div', { class: 'empty' }, el('span', { class: 'spinner s' }), ' 読み込んでいます'));
+  call({ action: 'a_answers' }).then(res => {
+    if (res.error) return $('ansList').replaceChildren(el('div', { class: 'empty', text: errText(res.error) }));
+    S.answers = res.answers;
+    S.summary = res.summary;
+    renderSummary();
+    renderAnswers();
+  });
+}
+
+function renderSummary() {
+  const sm = S.summary;
+  $('sCount').textContent = sm.count;
+  $('sAvg').textContent = sm.count ? sm.average.toFixed(2) : '-';
+  $('sOpen').textContent = sm.open;
+  $('openBadge').textContent = sm.open;
+  $('openBadge').hidden = !sm.open;
+  const max = Math.max(1, ...sm.dist);
+  $('dist').replaceChildren(...[5, 4, 3, 2, 1].map(n => el('div', {},
+    el('span', { text: '★' + n }),
+    el('i', { style: 'width:' + (sm.dist[n - 1] ? Math.max(2, sm.dist[n - 1] / max * 100) : 0) + '%' }),
+    el('span', { text: String(sm.dist[n - 1]) }))));
+}
+
+document.querySelectorAll('#ansFilter button').forEach(b => b.addEventListener('click', () => {
+  S.filter = b.dataset.f;
+  document.querySelectorAll('#ansFilter button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderAnswers();
+}));
+
+function renderAnswers() {
+  const f = S.filter;
+  const list = S.answers.filter(a => f === 'all' || (f === 'open' && a.status === '未対応') || (f === 'low' && a.low) || (f === 'comment' && (a.comment || a.request)));
+  if (!list.length) return $('ansList').replaceChildren(el('div', { class: 'empty', text: S.answers.length ? 'この条件の回答はありません。' : 'まだ回答はありません。QR コードを店内に置くと、ここに届きます。' }));
+  $('ansList').replaceChildren(...list.map(answerCard));
+}
+
+function answerCard(a) {
+  const status = a.status === '未対応' ? el('span', { class: 'pill warn', text: '未対応' }) : a.status === '対応済み' ? el('span', { class: 'pill done', text: '対応済み' }) : null;
+  const card = el('div', { class: 'ans' + (a.low ? ' low' : '') },
+    el('div', { class: 'top' },
+      el('span', { class: 'st', text: '★'.repeat(a.stars) + '☆'.repeat(5 - a.stars) }),
+      el('span', { class: 'at', text: a.at }),
+      a.name ? el('span', { class: 'who', text: a.name + ' 様' }) : null,
+      status),
+    a.menus ? el('div', { class: 'menus', text: a.menus }) : null,
+    a.comment ? el('div', { class: 'body', text: a.comment }) : null,
+    a.request ? el('div', { class: 'req' }, el('b', { text: 'お店へのご要望' }), a.request) : null);
+  if (a.low || a.status) {
+    const sel = el('select', { 'aria-label': '対応' }, ['未対応', '対応済み'].map(v => el('option', { value: v, text: v })));
+    sel.value = a.status || '未対応';
+    const memo = el('input', { placeholder: '対応メモ（例: 電話でおわび）', maxlength: '500', value: a.memo });
+    const save = el('button', { class: 'btn small', type: 'button', text: '保存' });
+    const note = el('div', { class: 'ok' });
+    save.addEventListener('click', () => {
+      save.disabled = true;
+      call({ action: 'a_status', id: a.id, status: sel.value, memo: memo.value }).then(res => {
+        save.disabled = false;
+        if (res.error) return (note.className = 'err', note.textContent = errText(res.error));
+        a.status = sel.value;
+        a.memo = memo.value;
+        S.summary.open = S.answers.filter(x => x.status === '未対応').length;
+        renderSummary();
+        renderAnswers();
+      });
+    });
+    card.append(el('div', { class: 'follow' }, sel, memo, save), note);
+  }
+  return card;
+}
+
+/* ---------- キーワード ---------- */
+
+function loadKeywords() {
+  $('kwList').replaceChildren(el('div', { class: 'empty' }, el('span', { class: 'spinner s' })));
+  call({ action: 'a_keywords' }).then(res => {
+    if (res.error) return $('kwList').replaceChildren(el('div', { class: 'empty', text: errText(res.error) }));
+    S.keywords = res.keywords;
+    renderKeywords();
+  });
+}
+
+function renderKeywords() {
+  if (!S.keywords.length) return $('kwList').replaceChildren(el('div', { class: 'empty', text: 'まだありません。下の「AI に候補を出してもらう」か、手で足してください。' }));
+  $('kwList').replaceChildren(...S.keywords.map(k => el('div', { class: 'kw' },
+    el('span', { class: 'prio p' + k.priority, text: k.priority }),
+    el('div', {}, el('b', { text: k.keyword }), el('div', { class: 'why', text: [k.kind, k.source, k.reason].filter(Boolean).join(' ・ ') })),
+    el('button', { class: 'del', type: 'button', text: '消す', onclick: () => {
+      call({ action: 'a_del_keyword', keyword: k.keyword }).then(res => {
+        if (res.error) return ($('kwErr').textContent = errText(res.error));
+        S.keywords = res.keywords;
+        renderKeywords();
+      });
+    } }))));
+}
+
+$('kwAdd').addEventListener('click', () => {
+  const keyword = $('kwNew').value.trim().replace(/\s+/g, ' ');
+  if (!keyword) return;
+  $('kwErr').textContent = '';
+  call({ action: 'a_add_keywords', items: [{ keyword, priority: $('kwPrio').value }] }).then(res => {
+    if (res.error) return ($('kwErr').textContent = errText(res.error));
+    S.keywords = res.keywords;
+    $('kwNew').value = '';
+    renderKeywords();
+  });
+});
+
+$('suggest').addEventListener('click', () => {
+  $('suggest').disabled = true;
+  $('suggestWait').hidden = false;
+  $('sugErr').textContent = '';
+  call({ action: 'a_suggest', searchTerms: $('terms').value }).then(res => {
+    $('suggest').disabled = false;
+    $('suggestWait').hidden = true;
+    if (res.error) return ($('sugErr').textContent = errText(res.error));
+    S.candidates = res.candidates;
+    renderCandidates();
+  });
+});
+
+function renderCandidates() {
+  $('candBox').hidden = !S.candidates.length;
+  if (!S.candidates.length) return ($('sugErr').textContent = '候補が出ませんでした。お店の情報を足してから、もう一度お試しください。');
+  $('candList').replaceChildren(...S.candidates.map((k, i) => {
+    const box = el('input', { type: 'checkbox', 'data-i': String(i), 'aria-label': k.keyword });
+    box.checked = !k.exists && k.priority === '高';
+    box.disabled = !!k.exists;
+    return el('label', { class: 'cand' + (k.exists ? ' have' : '') }, box,
+      el('span', { class: 'prio p' + k.priority, text: k.priority }),
+      el('div', {}, el('b', { text: k.keyword + (k.exists ? '（登録済み）' : '') }), el('div', { class: 'why', text: [k.kind, k.source, k.reason].join(' ・ ') })));
+  }));
+}
+
+$('candAdd').addEventListener('click', () => {
+  const items = [...$('candList').querySelectorAll('input:checked')].map(b => S.candidates[Number(b.dataset.i)]);
+  if (!items.length) return ($('sugErr').textContent = '登録するものにチェックを入れてください。');
+  call({ action: 'a_add_keywords', items }).then(res => {
+    if (res.error) return ($('sugErr').textContent = errText(res.error));
+    S.keywords = res.keywords;
+    S.candidates = S.candidates.map(k => Object.assign({}, k, { exists: k.exists || items.includes(k) }));
+    renderKeywords();
+    renderCandidates();
+    $('sugErr').textContent = '';
+  });
+});
+
+/* ---------- 文章づくり ---------- */
+
+document.querySelectorAll('#kindSeg button').forEach(b => b.addEventListener('click', () => {
+  S.kind = b.dataset.k;
+  document.querySelectorAll('#kindSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  document.querySelectorAll('[data-for]').forEach(d => { d.hidden = d.dataset.for !== S.kind; });
+  $('draftErr').textContent = '';
+  $('result').hidden = true;
+}));
+
+$('write').addEventListener('click', () => {
+  const k = S.kind;
+  const input = k === 'reply' ? { stars: Number($('rStars').value), review: $('rText').value }
+    : k === 'post' ? { theme: $('pTheme').value }
+    : k === 'description' ? { note: $('dNote').value }
+    : { service: $('svName').value, note: $('svNote').value };
+  if ((k === 'post' && !input.theme.trim()) || (k === 'service' && !input.service.trim())) return ($('draftErr').textContent = k === 'post' ? '投稿のテーマを入れてください。' : 'サービス名を入れてください。');
+  $('write').disabled = true;
+  $('writeWait').hidden = false;
+  $('draftErr').textContent = '';
+  call({ action: 'a_draft', kind: k, input }).then(res => {
+    $('write').disabled = false;
+    $('writeWait').hidden = true;
+    if (res.error) return ($('draftErr').textContent = errText(res.error));
+    S.limit = res.limit;
+    $('draft').value = res.text;
+    $('used').replaceChildren(...(res.used.length ? [el('span', { text: '入れたキーワード: ' + res.used.join('、') })] : [el('span', { text: 'キーワードは入れていません' })]));
+    $('notes').textContent = res.notes ? '確認してほしいこと: ' + res.notes : '';
+    $('notes').hidden = !res.notes;
+    $('copied').textContent = '';
+    $('result').hidden = false;
+    countDraft();
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+function countDraft() {
+  const n = [...$('draft').value].length;
+  $('count').textContent = n + ' 字' + (S.limit ? ' ／ 上限 ' + S.limit.toLocaleString() + ' 字' : '');
+  $('count').classList.toggle('over', !!S.limit && n > S.limit);
+}
+$('draft').addEventListener('input', countDraft);
+
+$('copyDraft').addEventListener('click', () => {
+  const text = $('draft').value;
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+    .then(() => { $('copied').textContent = 'コピーしました。Google の画面に貼ってください。'; })
+    .catch(() => { $('draft').select(); $('copied').textContent = '選んだ状態にしました。長押しでコピーしてください。'; });
+});
+
+/* ---------- 設定 ---------- */
+
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'pass'];
+
+function loadInfo() {
+  call({ action: 'a_store' }).then(res => {
+    if (res.error) return ($('storeErr').textContent = errText(res.error));
+    fillInfo(res);
+  });
+}
+
+function fillInfo(res) {
+  S.info = res.store;
+  FIELDS.forEach(k => { if ($('f_' + k)) $('f_' + k).value = res.store[k] === undefined ? '' : res.store[k]; });
+  $('f_notifyAt').value = String(Math.min(5, Math.max(0, Number(res.store.notifyAt) || 0)));
+  $('passBox').hidden = !res.master;
+  $('keyState').textContent = res.hasKey ? '登録済み' : '未登録（スプレッドシートのメニューから登録）';
+  $('keyState').className = res.hasKey ? 'on' : 'off';
+  $('modelName').textContent = res.model;
+  $('menuList').replaceChildren(...String(res.store.menus || '').split('\n').map(s => s.trim()).filter(Boolean).map(m => el('option', { value: m })));
+  const url = res.store.surveyUrl || '';
+  $('surveyUrl').textContent = url;
+  $('surveyOpen').href = url || '#';
+  drawQr(url);
+}
+
+function drawQr(url) {
+  const c = $('qr');
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, c.width, c.height);
+  if (!url || typeof qrcode !== 'function') return;
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  const n = qr.getModuleCount();
+  const cell = Math.floor(c.width / (n + 8));
+  const off = Math.floor((c.width - cell * n) / 2);
+  ctx.fillStyle = '#000';
+  for (let r = 0; r < n; r++) for (let col = 0; col < n; col++) if (qr.isDark(r, col)) ctx.fillRect(off + col * cell, off + r * cell, cell, cell);
+}
+
+$('qrSave').addEventListener('click', () => {
+  const a = el('a', { href: $('qr').toDataURL('image/png'), download: 'アンケートQR_' + S.s + '.png' });
+  document.body.append(a);
+  a.click();
+  a.remove();
+});
+
+$('storeForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = {};
+  FIELDS.forEach(k => { if (k !== 'pass' || S.master) v[k] = $('f_' + k).value; });
+  $('saveStore').disabled = true;
+  $('storeErr').textContent = $('storeOk').textContent = '';
+  call({ action: 'a_save_store', store: v }).then(res => {
+    $('saveStore').disabled = false;
+    if (res.error) return ($('storeErr').textContent = errText(res.error));
+    fillInfo(res);
+    const opt = [...$('storeSel').options].find(o => o.value === S.s);
+    if (opt) opt.textContent = res.store.name;
+    S.stores = S.stores.map(s => s.id === S.s ? Object.assign({}, s, { name: res.store.name }) : s);
+    $('storeOk').textContent = '保存しました。';
+    loadAnswers(); // 知らせる星が変わると「低い星」の印が変わる
+  });
+});
+
+$('newStore').addEventListener('submit', e => {
+  e.preventDefault();
+  $('newErr').textContent = '';
+  call({ action: 'a_save_store', create: true, store: { id: $('n_id').value.trim(), name: $('n_name').value.trim() } }).then(res => {
+    if (res.error) return ($('newErr').textContent = errText(res.error));
+    S.stores.push({ id: res.store.id, name: res.store.name });
+    $('storeSel').append(el('option', { value: res.store.id, text: res.store.name }));
+    $('storeSel').hidden = S.stores.length < 2;
+    S.s = res.store.id;
+    $('storeSel').value = S.s;
+    store.set(STORE_KEY, S.s);
+    $('n_id').value = $('n_name').value = '';
+    openStore();
+    $('storeOk').textContent = '新しいお店を足しました。お店の情報を入れて保存してください。';
+  });
+});
+
+/* ---------- 見本（合言葉 demo。本物には何も入らない） ---------- */
+
+const D = {
+  stores: [{ id: 'demo', name: '見本サロン' }, { id: 'demo2', name: '見本サロン 2号店' }],
+  info: {
+    id: 'demo', name: '見本サロン', category: 'エステサロン', area: '二子玉川駅 東口から徒歩3分', reviewUrl: 'https://g.page/r/demo/review',
+    notifyEmail: 'owner@example.com', notifyAt: '3', menus: 'フェイシャル\n毛穴ケア\n小顔リフト\nボディ', features: '肌質改善が得意な、マンションの一室のプライベートサロン。',
+    contact: '070-0000-0000（お電話）', avoid: '脂肪燃焼', pass: 'demo', surveyUrl: 'https://essential-partners.co.jp/review/?s=demo', created: '2026-11-07',
+  },
+  answers: [
+    { id: 'a1', at: '2026-11-07 18:20', stars: 2, menus: '毛穴ケア', comment: '施術はよかったが、予約の時間に少し待った。', request: '待ち時間があるなら事前に教えてほしい', name: '山田', notified: '送信済み', status: '未対応', memo: '' },
+    { id: 'a2', at: '2026-11-07 15:02', stars: 5, menus: 'フェイシャル、小顔リフト', comment: '毛穴の黒ずみが目立たなくなってうれしいです。説明も丁寧でした。', request: '', name: '', notified: '', status: '', memo: '' },
+    { id: 'a3', at: '2026-11-06 20:41', stars: 4, menus: 'ボディ', comment: '', request: '', name: '佐藤', notified: '', status: '', memo: '' },
+    { id: 'a4', at: '2026-11-05 12:10', stars: 5, menus: 'フェイシャル', comment: '駅から近くて通いやすい。', request: 'もう少し遅い時間も空いているとうれしい', name: '', notified: '', status: '', memo: '' },
+  ],
+  keywords: [
+    { keyword: '二子玉川 フェイシャル', kind: '地域×業種', reason: 'お店の主力', priority: '高', source: 'Googleの検索語句', added: '2026-11-07' },
+    { keyword: '二子玉川 毛穴ケア', kind: '地域×メニュー', reason: 'お客様の言葉に多い', priority: '中', source: 'お客様の言葉', added: '2026-11-07' },
+  ],
+};
+
+function demoSummary() {
+  const dist = [0, 0, 0, 0, 0];
+  D.answers.forEach(a => dist[a.stars - 1]++);
+  const sum = D.answers.reduce((s, a) => s + a.stars, 0);
+  return { count: D.answers.length, average: Math.round(sum / D.answers.length * 100) / 100, dist, open: D.answers.filter(a => a.status === '未対応').length, notifyAt: Number(D.info.notifyAt) };
+}
+
+function demo(b) {
+  const wait = /^a_(suggest|draft)$/.test(b.action) ? 1500 : 300;
+  return new Promise(resolve => setTimeout(() => resolve(demoAnswer(b)), wait));
+}
+
+function demoAnswer(b) {
+  if (b.pass !== 'demo') return { error: 'wrong_pass' };
+  const view = () => ({ store: Object.assign({}, D.info), master: true, hasKey: true, model: 'claude-opus-5-5' });
+  switch (b.action) {
+    case 'a_login': return { master: true, stores: D.stores };
+    case 'a_answers': return { answers: D.answers.map(a => Object.assign({ low: a.stars <= Number(D.info.notifyAt) }, a)), summary: demoSummary() };
+    case 'a_status': D.answers.forEach(a => { if (a.id === b.id) Object.assign(a, { status: b.status, memo: b.memo }); }); return { ok: true };
+    case 'a_store': return view();
+    case 'a_save_store':
+      if (b.create) return { error: 'forbidden' };
+      Object.assign(D.info, b.store);
+      return view();
+    case 'a_keywords': return { keywords: D.keywords };
+    case 'a_add_keywords':
+      b.items.forEach(k => { if (!D.keywords.some(x => x.keyword === k.keyword)) D.keywords.push(Object.assign({ kind: 'その他', reason: '', priority: '中', source: '手で追加', added: '2026-11-07' }, k)); });
+      return { keywords: D.keywords };
+    case 'a_del_keyword': D.keywords = D.keywords.filter(k => k.keyword !== b.keyword); return { keywords: D.keywords };
+    case 'a_suggest': return { candidates: [
+      { keyword: '二子玉川 毛穴洗浄', kind: '地域×メニュー', reason: '強みの毛穴ケアと地域の組み合わせ', priority: '高', source: 'お店の情報から', exists: false },
+      { keyword: '二子玉川 フェイシャル', kind: '地域×業種', reason: '検索語句に出ている主力', priority: '高', source: 'Googleの検索語句', exists: true },
+      { keyword: '二子玉川 小顔', kind: '地域×メニュー', reason: 'メニューにあり、地域と組み合わせやすい', priority: '中', source: 'お店の情報から', exists: false },
+      { keyword: '毛穴 黒ずみ エステ', kind: '悩み・目的', reason: 'お客様のご感想によく出る悩み', priority: '中', source: 'お客様の言葉', exists: false },
+    ] };
+    case 'a_draft': {
+      const texts = {
+        reply: b.input.stars <= 3
+          ? 'このたびはご来店いただき、またご意見をお寄せいただきありがとうございます。お待たせしてしまい、ご不便をおかけしたことを心よりおわび申し上げます。いただいた声をスタッフ全員で共有し、ご案内の仕方を見直してまいります。よろしければ、お電話で直接お話を伺えませんでしょうか。'
+          : 'うれしいお言葉をありがとうございます。毛穴の変化を感じていただけて、スタッフ一同とても励みになります。二子玉川駅からのお帰りの際も、またお気軽にお立ち寄りください。次回のご来店を心よりお待ちしております。',
+        post: '冬の乾燥で、毛穴が目立ちやすくなる季節です。見本サロンでは、保湿しながら汚れを落とす毛穴ケアをご用意しています。二子玉川駅から徒歩3分なので、お仕事帰りにも立ち寄りやすい場所です。肌の状態を見ながら、その日に合うケアをご提案します。気になる方は、お気軽にご予約ください。',
+        description: '見本サロンは、二子玉川駅 東口から徒歩3分にある、肌質改善が得意なプライベートサロンです。マンションの一室で、周りを気にせずゆっくりお過ごしいただけます。フェイシャル・毛穴ケア・小顔リフト・ボディのメニューをご用意しています。',
+        service: '毛穴の黒ずみやざらつきが気になる方に向けたフェイシャルです。肌の状態を確かめてから、汚れを落とし、うるおいを補います。',
+      };
+      const text = texts[b.kind];
+      const used = D.keywords.map(k => k.keyword).filter(k => text.includes(k));
+      return { text, used, notes: b.kind === 'reply' && b.input.stars <= 3 ? '連絡先はお店の情報の「お問い合わせ先」に合わせて直してください。' : '', length: text.length, limit: { reply: 4096, post: 1500, description: 750, service: 300 }[b.kind] };
+    }
+  }
+  return { error: 'bad_request' };
+}
+
+/* ---------- はじめに ---------- */
+
+$('demo').hidden = !DEMO;
+const saved = store.get(PASS_KEY);
+if (saved) {
+  showMsg('開いています…', '');
+  $('msg').prepend(el('div', { class: 'spinner' }));
+  login(saved, true, true);
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
