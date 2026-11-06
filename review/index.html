@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- お店ごとのアンケート（?s=店舗ID）。店内の QR コードから開く。検索結果には出さない -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>アンケート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* 色と文字はビフォーアフター写真ページ（site/photo/index.html）とそろえる */
+:root{
+  --brand:#0ABAB5;
+  --brand-deep:#078F8B;
+  --brand-dark:#0A6F6C;
+  --brand-soft:#E7F8F7;
+  --brand-line:#BFEDEB;
+  --ink:#23211F;
+  --ink-sub:#6B6B6B;
+  --line:#E3ECEB;
+  --bg:#F3F7F7;
+  --card:#FFFFFF;
+  --star:#E8A93A;
+  --warn:#B4473C;
+  --shadow:0 8px 28px rgba(16,80,78,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:var(--ink);background:var(--bg);
+  line-height:1.75;font-size:15px;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line)}
+.head{max-width:560px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.shop{font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;letter-spacing:.05em;line-height:1.3}
+.head .sep{width:1px;height:20px;background:var(--line)}
+.head .tag{font-size:10.5px;letter-spacing:.16em;color:var(--ink-sub)}
+
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+.demo{background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:12px;padding:10px 14px;font-size:12.5px;margin-bottom:16px}
+
+.panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:32px 22px;text-align:center}
+.panel h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:20px;letter-spacing:.04em;line-height:1.6}
+.panel p{font-size:13.5px;color:var(--ink-sub);margin-top:10px}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--brand-line);border-top-color:var(--brand-deep);margin:4px auto 14px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.lead{font-size:13.5px;color:var(--ink-sub);margin:2px 4px 16px}
+.lead b{display:block;font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;color:var(--ink);letter-spacing:.04em;margin-bottom:6px}
+
+.q{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px 16px;margin-bottom:14px}
+.q h2{font-size:15px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.q h2 .req{font-size:10.5px;color:#fff;background:var(--brand-deep);border-radius:999px;padding:0 8px;font-weight:500;letter-spacing:.06em}
+.q h2 .opt{font-size:11px;color:var(--ink-sub);font-weight:400}
+.q .sub{font-size:12px;color:var(--ink-sub);margin-top:2px}
+
+.stars{display:flex;justify-content:space-between;gap:4px;margin-top:12px}
+.stars button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:12px}
+.stars svg{width:42px;height:42px;fill:#E4E8E8;transition:fill .15s,transform .15s}
+.stars button.on svg{fill:var(--star)}
+.stars button:active svg{transform:scale(.92)}
+.stars button span{font-size:10.5px;color:var(--ink-sub);white-space:nowrap}
+.stars button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.picked{text-align:center;font-size:13px;color:var(--brand-dark);font-weight:700;min-height:1.75em;margin-top:4px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips button{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--ink-sub);text-align:left}
+.chips button[aria-pressed="true"]{border-color:var(--brand-deep);background:var(--brand-soft);color:var(--brand-dark);font-weight:700}
+
+textarea,input[type=text]{display:block;width:100%;margin-top:10px;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:#FAFCFC;
+  font-size:15px;line-height:1.7;outline:none}
+textarea{min-height:110px;resize:vertical}
+textarea:focus,input[type=text]:focus{border-color:var(--brand);background:#fff}
+.trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+.send{display:flex;width:100%;align-items:center;justify-content:center;padding:15px 20px;border-radius:999px;background:var(--brand-deep);color:#fff;
+  font-weight:700;font-size:16px;letter-spacing:.08em;margin-top:6px;box-shadow:0 6px 16px rgba(7,143,139,.25)}
+.send:disabled{background:#B9CFCE;box-shadow:none;cursor:default}
+.err{color:var(--warn);font-size:13px;text-align:center;margin-top:10px;min-height:1.75em}
+.privacy{font-size:11.5px;color:var(--ink-sub);text-align:center;margin-top:6px;line-height:1.8}
+
+/* お礼の画面（星に関係なく全員同じ） */
+.thanks .check{width:56px;height:56px;border-radius:50%;background:var(--brand-soft);color:var(--brand-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.thanks .check svg{width:28px;height:28px}
+.google{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
+.google p{font-size:13.5px;color:var(--ink);margin-top:0}
+.btn{display:flex;width:100%;max-width:320px;margin:12px auto 0;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:999px;
+  font-weight:700;letter-spacing:.06em;text-decoration:none}
+.btn.primary{background:var(--brand-deep);color:#fff;box-shadow:0 6px 16px rgba(7,143,139,.25)}
+.btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line)}
+.copied{font-size:12px;color:var(--brand-dark);min-height:1.75em;margin-top:6px}
+.google .free{font-size:11.5px;color:var(--ink-sub);margin-top:14px;line-height:1.8}
+footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="shop" id="shop">アンケート</div>
+    <span class="sep" id="sep" hidden></span>
+    <span class="tag" id="tag" hidden>アンケート</span>
+  </div>
+</header>
+
+<main>
+  <div class="demo" id="demo" hidden>これは見本です。送っても保存されません。</div>
+
+  <!-- 読み込み中・見つからない・つながらない -->
+  <div class="panel" id="msg">
+    <div class="spinner"></div>
+    <p>読み込んでいます…</p>
+  </div>
+
+  <!-- アンケート -->
+  <form id="form" hidden novalidate>
+    <p class="lead"><b>本日はご来店<br>ありがとうございました</b>よりよいお店にするため、1分ほどのアンケートにご協力ください。</p>
+
+    <section class="q">
+      <h2>本日のご満足度 <span class="req">必須</span></h2>
+      <div class="stars" id="stars" role="radiogroup" aria-label="ご満足度"></div>
+      <div class="picked" id="picked" aria-live="polite"></div>
+    </section>
+
+    <section class="q" id="menuBox" hidden>
+      <h2>受けたメニュー <span class="opt">あてはまるものすべて・任意</span></h2>
+      <div class="chips" id="menus"></div>
+    </section>
+
+    <section class="q">
+      <h2>ご感想 <span class="opt">任意</span></h2>
+      <textarea id="comment" maxlength="2000" placeholder="ご自由にお書きください"></textarea>
+    </section>
+
+    <section class="q">
+      <h2>お店へのご要望・改善してほしいこと <span class="opt">任意</span></h2>
+      <p class="sub">お店だけに届きます。</p>
+      <textarea id="request" maxlength="2000"></textarea>
+    </section>
+
+    <section class="q">
+      <h2>お名前 <span class="opt">任意</span></h2>
+      <input type="text" id="name" maxlength="50" autocomplete="name">
+    </section>
+
+    <!-- 人には見えない欄（機械の送信よけ） -->
+    <div class="trap" aria-hidden="true"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+
+    <button type="submit" class="send" id="send" disabled>回答を送る</button>
+    <div class="err" id="err" aria-live="polite"></div>
+    <p class="privacy">いただいた回答は、このお店のサービス向上のためだけに使います。</p>
+  </form>
+
+  <!-- お礼（星に関係なく全員同じ） -->
+  <div class="panel thanks" id="thanks" hidden>
+    <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+    <h1>アンケートのご回答<br>ありがとうございました</h1>
+    <p>いただいた声は、スタッフ一同で読ませていただきます。</p>
+    <div class="google" id="google" hidden>
+      <p>よろしければ、Google にも<br>ご感想をお寄せください。<br>これからお店を選ぶ方の参考になります。</p>
+      <button type="button" class="btn ghost" id="copy" hidden>書いたご感想をコピーする</button>
+      <div class="copied" id="copied" aria-live="polite"></div>
+      <a class="btn primary" id="review" target="_blank" rel="noopener">Google に口コミを書く</a>
+      <p class="free">Google への投稿は任意です。星の数や内容は、ご自由にお選びください。</p>
+    </div>
+  </div>
+</main>
+<footer id="foot" hidden></footer>
+
+<script>
+// データ係（site/review/gas/Code.gs）のウェブアプリの URL。空のままだと見本が出る
+const API = 'https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwnxBWoWzyY3ExMVtH5OGrhVM0RI-gdKHT6gebIRuPy7g/exec';
+
+const params = new URLSearchParams(location.search);
+const DEMO = !API || params.get('demo') === '1';
+const STORE = params.get('s') || '';
+const LABELS = ['不満', 'やや不満', 'ふつう', '満足', 'とても満足'];
+const $ = id => document.getElementById(id);
+const state = { stars: 0, menus: [], sending: false };
+
+function call(body) {
+  if (DEMO) return demo(body);
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    .then(r => r.json());
+}
+
+function demo(body) {
+  return new Promise(resolve => setTimeout(() => {
+    if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'] });
+    else resolve({ ok: true, reviewUrl: 'https://www.google.com/maps' });
+  }, 500));
+}
+
+function show(id) {
+  ['msg', 'form', 'thanks'].forEach(x => { $(x).hidden = x !== id; });
+}
+
+function message(title, text) {
+  $('msg').innerHTML = '';
+  const h = document.createElement('h1');
+  h.textContent = title;
+  const p = document.createElement('p');
+  p.textContent = text;
+  $('msg').append(h, p);
+  show('msg');
+}
+
+const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.4l6.6-.8z"/></svg>';
+
+function buildStars() {
+  LABELS.forEach((label, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', 'false');
+    b.setAttribute('aria-label', (i + 1) + ' ' + label);
+    b.innerHTML = STAR + '<span>' + label + '</span>';
+    b.addEventListener('click', () => pickStars(i + 1));
+    $('stars').append(b);
+  });
+}
+
+function pickStars(n) {
+  state.stars = n;
+  [...$('stars').children].forEach((b, i) => {
+    b.classList.toggle('on', i < n);
+    b.setAttribute('aria-checked', String(i + 1 === n));
+  });
+  $('picked').textContent = LABELS[n - 1];
+  $('send').disabled = false;
+}
+
+function buildMenus(menus) {
+  if (!menus.length) return;
+  menus.forEach(m => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = m;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', String(on));
+      state.menus = on ? state.menus.concat(m) : state.menus.filter(x => x !== m);
+    });
+    $('menus').append(b);
+  });
+  $('menuBox').hidden = false;
+}
+
+function start() {
+  $('demo').hidden = !DEMO;
+  if (!STORE && !DEMO) return message('アンケートが見つかりませんでした', 'お店の QR コードから、もう一度開いてください。');
+  call({ action: 'store', s: STORE })
+    .then(res => {
+      if (res.error) return message('アンケートが見つかりませんでした', 'お店の QR コードから、もう一度開いてください。');
+      $('shop').textContent = res.name;
+      $('sep').hidden = $('tag').hidden = false;
+      document.title = 'アンケート｜' + res.name;
+      $('foot').textContent = res.name;
+      $('foot').hidden = false;
+      buildStars();
+      buildMenus(res.menus || []);
+      show('form');
+    })
+    .catch(() => message('つながりませんでした', '電波のよいところで、ページを開き直してください。'));
+}
+
+$('form').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!state.stars || state.sending) return;
+  state.sending = true;
+  $('send').disabled = true;
+  $('send').textContent = '送っています…';
+  $('err').textContent = '';
+  const comment = $('comment').value.trim();
+  call({
+    action: 'answer',
+    s: STORE,
+    stars: state.stars,
+    menus: state.menus,
+    comment: comment,
+    request: $('request').value.trim(),
+    name: $('name').value.trim(),
+    website: $('website').value,
+  })
+    .then(res => {
+      if (res.error) throw new Error(res.error);
+      thanks(res.reviewUrl, comment);
+    })
+    .catch(err => {
+      state.sending = false;
+      $('send').disabled = false;
+      $('send').textContent = '回答を送る';
+      $('err').textContent = err.message === 'busy'
+        ? 'ただいま混み合っています。少し時間をおいて、もう一度お送りください。'
+        : '送れませんでした。電波のよいところで、もう一度お送りください。';
+    });
+});
+
+// 星に関係なく、全員に同じお礼と Google の案内を出す
+function thanks(reviewUrl, comment) {
+  if (reviewUrl) {
+    $('review').href = reviewUrl;
+    $('google').hidden = false;
+    if (comment && navigator.clipboard) {
+      $('copy').hidden = false;
+      $('copy').addEventListener('click', () => {
+        navigator.clipboard.writeText(comment)
+          .then(() => { $('copied').textContent = 'コピーしました。Google の画面で貼り付けられます。'; })
+          .catch(() => { $('copied').textContent = 'コピーできませんでした。'; });
+      });
+    }
+  }
+  show('thanks');
+  window.scrollTo(0, 0);
+}
+
+start();
+</script>
+</body>
+</html>
