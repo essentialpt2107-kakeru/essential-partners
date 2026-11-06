@@ -164,6 +164,11 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .viewer-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .viewer-btns button{padding:11px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700}
 .viewer-btns .danger{background:var(--warn);color:#fff}
+
+/* 登録の解除 */
+.remove{display:block;margin:32px auto 0;padding:10px 20px;border-radius:999px;border:1px solid #E7C9C4;background:#fff;color:var(--warn);font-size:13px;font-weight:700}
+.remove:disabled{opacity:.5}
+.remove-note{font-size:11.5px;color:var(--ink-sub);text-align:center;margin-top:8px;line-height:1.7}
 .viewer-btns button:disabled{opacity:.5}
 
 .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:30;background:var(--ink);color:#fff;
@@ -274,6 +279,9 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 
       <h2 class="sec">これまでの写真</h2>
       <div id="d-visits"></div>
+
+      <button class="remove" id="d-remove" type="button">このお客様の登録を解除</button>
+      <p class="remove-note">テストのやり直しや、写真ページをやめたお客様に。<br>専用ページは開けなくなり、写真のフォルダはドライブのゴミ箱に入ります（30日間は元に戻せます）。</p>
     </div>
   </section>
 </main>
@@ -798,6 +806,27 @@ $('#vw-trash').addEventListener('click', () => {
   photoAction({ action: 'a_trash' }, '写真を消しました');
 });
 
+/* ---------- 登録の解除 ---------- */
+$('#d-remove').addEventListener('click', () => {
+  const c = state.cur;
+  if (!c || !c.name) return;
+  const n = (c.visits || []).length;
+  if (!confirm(c.name + ' 様の登録を解除しますか？\n\n・専用ページは開けなくなります\n・写真のフォルダはドライブのゴミ箱に入ります（30日間は元に戻せます）')) return;
+  if (n && !confirm('写真が' + n + '回分あります。本当に解除しますか？')) return;
+  const btn = $('#d-remove');
+  btn.disabled = true;
+  btn.textContent = '解除しています…';
+  call({ action: 'a_remove', k: c.k })
+    .then(res => {
+      if (res.error) return fail(res.error, '解除できませんでした。もう一度お試しください');
+      state.customers = (state.customers || []).filter(x => x.k !== c.k);
+      toast(c.name + ' 様の登録を解除しました');
+      location.hash = '';
+    })
+    .catch(netErr)
+    .finally(() => { btn.disabled = false; btn.textContent = 'このお客様の登録を解除'; });
+});
+
 /* ---------- 見本（データ係とつながずに確かめる用。写真はイラスト） ---------- */
 const demo = { seq: 0, customers: [
   { k: 'demo1', name: '見本 花子', pin: '1234', created: '2026-06-07', photos: [] },
@@ -835,6 +864,7 @@ function demoAnswer(b) {
   }
   const c = demo.customers.find(c => c.k === b.k);
   if (!c) return { error: 'not_found' };
+  if (b.action === 'a_remove') { demo.customers.splice(demo.customers.indexOf(c), 1); return { ok: true }; }
   const p = c.photos.find(p => p.id === b.id);
   if (b.action === 'a_detail') {
     const url = new URL('../?demo=1', location.href).href;
