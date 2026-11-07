@@ -164,6 +164,8 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .viewer-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .viewer-btns button{padding:11px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700}
 .viewer-btns .danger{background:var(--warn);color:#fff}
+.vw-note{color:rgba(255,255,255,.75);font-size:12px;text-align:center;margin:-4px auto 10px;max-width:620px;line-height:1.6}
+.face-note{font-size:12px;color:var(--ink-sub);margin:-4px 2px 10px}
 
 /* 登録の解除 */
 .remove{display:block;margin:32px auto 0;padding:10px 20px;border-radius:999px;border:1px solid #E7C9C4;background:#fff;color:var(--warn);font-size:13px;font-weight:700}
@@ -262,7 +264,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
           </label>
         </div>
         <div class="progress" id="progress" hidden><div class="track"><i></i></div><p></p></div>
-        <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。ビフォーとアフターを同じ順番で撮ると、1枚目どうし・2枚目どうしが組になります。</p>
+        <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。ビフォーとアフターを同じ順番で撮ると、1枚目どうし・2枚目どうしが組になります。<br>
+          入れるときに顔の位置（眉・目・鼻・口）を読み取り、お客様のページでは顔の位置と大きさをそろえて出します（アフターは少し明るく）。元の写真はそのまま残ります。</p>
       </div>
 
       <div class="card">
@@ -278,6 +281,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       </div>
 
       <h2 class="sec">これまでの写真</h2>
+      <p class="face-note" id="d-face" hidden></p>
       <div id="d-visits"></div>
 
       <button class="remove" id="d-remove" type="button">このお客様の登録を解除</button>
@@ -290,6 +294,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="vw-title">
   <div class="viewer-top"><span id="vw-title"></span><button type="button" id="vw-close">閉じる</button></div>
   <div class="viewer-img" id="vw-img"></div>
+  <p class="vw-note" id="vw-note"></p>
   <div class="viewer-btns">
     <button type="button" id="vw-move"></button>
     <button type="button" id="vw-trash" class="danger">この写真を消す</button>
@@ -297,6 +302,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<!-- 顔の位置の読み取り（お客様ページと同じもの） -->
+<script src="../face.js"></script>
 <script>
 (function(){
 "use strict";
@@ -611,6 +618,53 @@ function renderDetail() {
     });
     box.appendChild(card);
   });
+  analyzeMissing();
+}
+
+/* ---------- 顔の位置（お客様のページで、眉・目・鼻・口の位置をそろえるために使う） ----------
+ * ふつうは写真を入れるときに読み取る。ドライブのアプリから入れた写真や、そのとき読めなかった写真は、
+ * お客様を開いたときにここで読み取って書き足す（写真はこのスマホの中で読むだけで、ほかには送らない） */
+let analyzing = '';
+async function analyzeMissing() {
+  const F = window.BeyondFace, c = state.cur;
+  if (!F || !c || !c.visits || analyzing === c.k || state.busy) return;
+  const marks = c.marks = c.marks || {};
+  const ids = [];
+  c.visits.forEach(v => v.before.concat(v.after).forEach(id => { if (F.parse(marks[id]) === null) ids.push(id); }));
+  if (!ids.length) return;
+  const k = analyzing = c.k;
+  const note = $('#d-face');
+  let n = 0;
+  try {
+    for (const id of ids) {
+      if (!state.cur || state.cur.k !== k || state.busy) break;
+      note.hidden = false;
+      note.textContent = '写真の顔の位置を読み取っています（' + (++n) + ' / ' + ids.length + '枚）。この画面のままお待ちください';
+      // 大きい写真は覚えておかない（1枚ずつ取りにいって、読んだら捨てる）
+      const res = await call({ action: 'a_img', k, id, size: 'lg' }).catch(() => ({ error: 'network' }));
+      if (res.error === 'wrong_pass' || res.error === 'locked') { fail(res.error); break; }
+      if (!res.data && !res.url) continue; // 縮小画像がまだ → 次に開いたときに読む
+      const m = await F.loadImage(res.url || 'data:' + res.mime + ';base64,' + res.data).then(F.detect).catch(() => '');
+      if (!m) continue;
+      const saved = await call({ action: 'a_marks', k, id, marks: m }).catch(() => ({ error: 'network' }));
+      if (saved.error === 'wrong_pass' || saved.error === 'locked') { fail(saved.error); break; }
+      if (!saved.error) marks[id] = m;
+    }
+  } finally {
+    if (analyzing === k) analyzing = '';
+    note.hidden = true;
+  }
+}
+// 入れる写真のファイルから読み取る。はじめての読み込み（約15MB）が遅いときは待ちすぎず、あとで開いたときに読む
+let faceWarm = false;
+async function marksForFile(file, onSlow) {
+  const F = window.BeyondFace;
+  if (!F) return '';
+  if (!faceWarm && onSlow) onSlow();
+  const timeout = new Promise(resolve => setTimeout(() => resolve(''), faceWarm ? 15000 : 45000));
+  const m = await Promise.race([F.detectFile(file).catch(() => ''), timeout]);
+  if (m) faceWarm = true;
+  return m;
 }
 
 // 画面に入ったときに取りにいく。入れた直後で縮小画像がまだのときは、少し待って取り直す
@@ -662,8 +716,9 @@ async function upload(k, side, files) {
     try {
       // 撮った日時をファイル名に入れておく（写真の中の記録が読めないときも、撮った日の回に入るように）
       const name = 'IMG_' + await shotStamp(f) + '_' + pad(i + 1) + (EXT_BY_MIME[mime] || '.jpg');
+      const marks = await marksForFile(f, () => setProgress(i, files.length, '顔の位置を読み取る準備をしています（はじめてのときだけ少しかかります）'));
       const data = (await readAs(f, 'DataURL')).split(',')[1];
-      const res = await call({ action: 'a_upload', k, side, name, mime, data });
+      const res = await call({ action: 'a_upload', k, side, name, mime, data, marks });
       if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
       else if (res.error) skipped++;
       else done++;
@@ -770,6 +825,10 @@ function openViewer(p) {
   frame.innerHTML = '';
   frame.appendChild(photo(state.cur.k, p.id, frame, 'sm'));
   $('#vw-move').textContent = p.side === 'before' ? 'アフターに移す' : 'ビフォーに移す';
+  const m = window.BeyondFace ? window.BeyondFace.parse((state.cur.marks || {})[p.id]) : null;
+  $('#vw-note').textContent = m === 'none' ? '顔が見つからなかったため、お客様のページでは位置をそろえずに出します'
+    : m ? '顔の位置を読み取りました。お客様のページでは、ほかの写真と顔の位置・大きさをそろえて出します'
+    : '顔の位置はまだ読み取っていません（このお客様を開いておくと読み取ります）';
   $('#vw-move').disabled = $('#vw-trash').disabled = false;
   $('#viewer').hidden = false;
   document.body.style.overflow = 'hidden';
@@ -833,7 +892,8 @@ const demo = { seq: 0, customers: [
   { k: 'demo2', name: '見本 さくら', pin: '5678', created: '2026-10-28', photos: [] },
 ] };
 ['2026-06-07', '2026-08-09', '2026-10-11'].forEach((date, n) => ['before', 'after'].forEach(side => [0, 1].forEach(a => {
-  demo.customers[0].photos.push({ id: 'p' + (++demo.seq), side, time: date + ' 1' + (side === 'before' ? 0 : 1) + ':0' + a + ':00', url: demoSvg(side, n + 1, a) });
+  // 見本の写真はイラストなので、顔の位置は「見つからない」としておく（入れた写真は本物と同じように読み取る）
+  demo.customers[0].photos.push({ id: 'p' + (++demo.seq), side, time: date + ' 1' + (side === 'before' ? 0 : 1) + ':0' + a + ':00', url: demoSvg(side, n + 1, a), marks: 'face:none' });
 })));
 function demoVisits(c) {
   const byDate = {};
@@ -868,7 +928,9 @@ function demoAnswer(b) {
   const p = c.photos.find(p => p.id === b.id);
   if (b.action === 'a_detail') {
     const url = new URL('../?demo=1', location.href).href;
-    return { name: c.name, pin: c.pin, url, visits: demoVisits(c),
+    const marks = {};
+    c.photos.forEach(p => { if (p.marks) marks[p.id] = p.marks; });
+    return { name: c.name, pin: c.pin, url, visits: demoVisits(c), marks,
       line: c.name + '様\n\nいつも美yondをご利用いただきありがとうございます。\n（見本の文です）\n\n▼' + c.name + '様の専用ページ\n' + url + '\n\n暗証番号：' + c.pin };
   }
   if (b.action === 'a_img') return p ? { url: p.url } : { error: 'not_found' };
@@ -876,10 +938,11 @@ function demoAnswer(b) {
     const m = b.name.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
     const id = 'p' + (++demo.seq);
     // 同じ秒に撮った写真はファイル名の順（データ係と同じ）
-    c.photos.push({ id, side: b.side, time: m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' ' + b.name, url: 'data:' + b.mime + ';base64,' + b.data });
+    c.photos.push({ id, side: b.side, time: m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' ' + b.name, url: 'data:' + b.mime + ';base64,' + b.data, marks: b.marks || '' });
     return { id };
   }
   if (!p) return { error: 'not_found' };
+  if (b.action === 'a_marks') { p.marks = b.marks; return { ok: true }; }
   if (b.action === 'a_move') { p.side = b.to; return { ok: true }; }
   if (b.action === 'a_trash') { c.photos.splice(c.photos.indexOf(p), 1); return { ok: true }; }
   return { error: 'bad_request' };
