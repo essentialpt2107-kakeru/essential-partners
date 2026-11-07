@@ -4,6 +4,8 @@
  * 顔の位置: 管理画面で写真を入れるとき、スタッフのスマホの中で眉・目・鼻・口の位置（20か所）を読み取り、
  *   その写真のドライブの「説明」に数字だけ書いておく。写真そのものはどこにも送らない。
  *   読み取りは Google の MediaPipe（顔の点を478か所見つける仕組み）。管理画面だけが読み込む（初回だけ約15MB）
+ *   ベッドに寝たお客様を頭の側から撮ると顔が上下さかさまに写る。点の読み取りはまっすぐの顔しか正しく読めないので、
+ *   先に顔の向き（0・90・180・270度）を顔の見つけやすさで決め、その向きに回してから読む
  * 位置合わせ: お客様ページでは、その数字から「拡大・回転・移動」だけで、どの写真も同じ場所・同じ大きさに顔が来るよう切り抜く。
  *   顔の形は変えない（縦横の伸び縮みやゆがみは入れない）。元の写真はドライブにそのまま残る
  * 明るさ: iPhone の写真アプリの「明るさ」と同じ曲線。Mac の Core Image（写真アプリと同じ仕組み）で、
@@ -14,6 +16,7 @@
 
 const LIB = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+const DETECTOR = 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
 
 // 読み取る点（MediaPipe の番号）と、合わせるときの重み。ずれにくい目と鼻を重く、表情で動く眉・口・あごは軽く
 const POINTS = [
@@ -26,15 +29,17 @@ const POINTS = [
 // 正面の顔の標準の配置（両目の真ん中が 0,0、両目のあいだが 1。下が +）。見本の顔から左右をならして作った
 const TEMPLATE = [-0.941,-0.249,-0.687,-0.351,-0.244,-0.263,0.941,-0.249,0.687,-0.351,0.244,-0.263,-0.737,-0.034,-0.263,0.034,0.737,-0.034,0.263,0.034,0.000,-0.019,0.000,0.689,0.000,0.769,-0.263,0.709,0.263,0.709,-0.458,0.988,0.458,0.988,0.000,0.967,0.000,1.211,0.000,1.709];
 // 切り抜きの枠は 横3:縦4。両目の真ん中を横の真ん中・上から42%に置き、両目のあいだを枠の幅の30%にする
-const FRAME = { ratio: 4 / 3, cx: 0.5, cy: 0.42 * 4 / 3, iod: 0.30 };
+// upright: false は撮ったときの向きのまま（上下さかさまに撮った写真は、さかさまのまま顔の位置だけそろえる）。true にすると顔をまっすぐ立てて見せる
+const FRAME = { ratio: 4 / 3, cx: 0.5, cy: 0.42 * 4 / 3, iod: 0.30, upright: false };
 const FILL = '#E4EDEC'; // 元の写真の外にはみ出たところの色（ページの写真枠と同じ）
 
-/* ---------- 説明に書く文字（face:v1;a=横÷縦;p=x,y,x,y…  位置は写真の幅・高さに対する割合） ---------- */
+/* ---------- 説明に書く文字（face:v2;a=横÷縦;p=x,y,x,y…  位置は写真の幅・高さに対する割合） ----------
+ * v1 は向きを決めずに読んでいたので、上下さかさまの顔を読み違えていた → 使わずに読み直す */
 function parse(s) {
   if (typeof s !== 'string' || s.indexOf('face:') !== 0) return null;
   if (s === 'face:none') return 'none';
   const parts = s.slice(5).split(';');
-  if (parts[0] !== 'v1') return null; // 書き方が古い・新しい → もう一度読み取る
+  if (parts[0] !== 'v2') return null; // 書き方が古い・新しい → もう一度読み取る
   const kv = {};
   parts.slice(1).forEach(t => { const i = t.indexOf('='); if (i > 0) kv[t.slice(0, i)] = t.slice(i + 1); });
   const p = String(kv.p || '').split(',').map(Number);
@@ -43,7 +48,7 @@ function parse(s) {
   return { aspect, p };
 }
 function format(aspect, p) {
-  return 'face:v1;a=' + aspect.toFixed(4) + ';p=' + p.map(v => v.toFixed(4)).join(',');
+  return 'face:v2;a=' + aspect.toFixed(4) + ';p=' + p.map(v => v.toFixed(4)).join(',');
 }
 
 /* ---------- 合わせ方: 写真の点を標準の配置に、拡大・回転・移動だけで重ねる（重みつきの最小二乗） ---------- */
@@ -104,6 +109,9 @@ function render(img, opts) {
   const aligned = usable(opts.marks, w, h);
   if (aligned) {
     const f = fit(opts.marks, w, h);
+    // 上下さかさまに写った顔（回す角度が90度より大きい）は、まっすぐにせず撮ったときの向きのまま、目の高さを下から42%に置く
+    const flip = !FRAME.upright && f.ar < 0;
+    const sg = flip ? -1 : 1;
     // 枠の幅が元の写真の何ピクセル分か。それより細かくしても見た目は変わらないので、絵の大きさはそこまで（480〜1080）
     const crop = 1 / (FRAME.iod * Math.hypot(f.ar, f.ai));
     const W = Math.round(Math.min(1080, Math.max(480, crop)));
@@ -112,7 +120,8 @@ function render(img, opts) {
     ctx.fillStyle = FILL;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const k = W * FRAME.iod;
-    ctx.setTransform(k * f.ar, k * f.ai, -k * f.ai, k * f.ar, k * f.bx + W * FRAME.cx, k * f.by + W * FRAME.cy);
+    const ey = flip ? canvas.height - W * FRAME.cy : W * FRAME.cy;
+    ctx.setTransform(sg * k * f.ar, sg * k * f.ai, -sg * k * f.ai, sg * k * f.ar, sg * k * f.bx + W * FRAME.cx, sg * k * f.by + ey);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, w, h);
@@ -131,39 +140,69 @@ function render(img, opts) {
 }
 
 /* ---------- 顔の位置を読み取る（管理画面だけが使う） ---------- */
-let landmarkerP = null;
-function landmarker() {
-  if (!landmarkerP) {
-    landmarkerP = (async () => {
+let tasksP = null;
+function tasks() {
+  if (!tasksP) {
+    tasksP = (async () => {
       const vision = await import(LIB + '/vision_bundle.mjs');
       const files = await vision.FilesetResolver.forVisionTasks(LIB + '/wasm');
+      // 顔を見つける係（小さい。向きを決めるのに使う）と、顔の点を読む係
+      const detector = await vision.FaceDetector.createFromOptions(files, {
+        baseOptions: { modelAssetPath: DETECTOR, delegate: 'CPU' }, runningMode: 'IMAGE', minDetectionConfidence: 0.3,
+      });
       const make = delegate => vision.FaceLandmarker.createFromOptions(files, {
         baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: 'IMAGE', numFaces: 3,
       });
-      try { return await make('GPU'); } catch (e) { return await make('CPU'); }
+      let landmarker;
+      try { landmarker = await make('GPU'); } catch (e) { landmarker = await make('CPU'); }
+      return { detector, landmarker };
     })();
-    landmarkerP.catch(() => { landmarkerP = null; }); // 読み込めなかったら、次にもう一度ためす
+    tasksP.catch(() => { tasksP = null; }); // 読み込めなかったら、次にもう一度ためす
   }
-  return landmarkerP;
+  return tasksP;
+}
+
+// 写真を q 度（0・90・180・270）回した絵。長い辺は max まで
+function turned(img, w, h, q, max) {
+  const s = Math.min(1, max / Math.max(w, h));
+  const dw = Math.max(1, Math.round(w * s)), dh = Math.max(1, Math.round(h * s));
+  const c = document.createElement('canvas');
+  c.width = q % 180 ? dh : dw;
+  c.height = q % 180 ? dw : dh;
+  const x = c.getContext('2d');
+  x.translate(c.width / 2, c.height / 2);
+  x.rotate(q * Math.PI / 180);
+  x.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+  return c;
 }
 
 // 写真（img / canvas）から、説明に書く文字を返す。顔が見つからなければ 'face:none'
 async function detect(img) {
   const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
   if (!w || !h) throw new Error('empty');
-  const s = Math.min(1, 1280 / Math.max(w, h));
-  const c = document.createElement('canvas');
-  c.width = Math.max(1, Math.round(w * s));
-  c.height = Math.max(1, Math.round(h * s));
-  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-  const lm = await landmarker();
-  const faces = (lm.detect(c).faceLandmarks || []).filter(f => f && f.length >= 468);
+  const { detector, landmarker } = await tasks();
+  // 4つの向きで顔の見つけやすさ（0〜1）を比べ、いちばん高い向きで点を読む
+  let q = 0, top = -1;
+  [0, 90, 180, 270].forEach(t => {
+    (detector.detect(turned(img, w, h, t, 640)).detections || []).forEach(d => {
+      const sc = d.categories && d.categories[0] ? d.categories[0].score : 0;
+      if (sc > top) { top = sc; q = t; }
+    });
+  });
+  const c = turned(img, w, h, q, 1280);
+  const faces = (landmarker.detect(c).faceLandmarks || []).filter(f => f && f.length >= 468);
   // いちばん大きく写っている顔（両目のあいだが広い顔）
   const iod = f => Math.hypot((f[263].x + f[362].x - f[33].x - f[133].x) / 2 * c.width, (f[263].y + f[362].y - f[33].y - f[133].y) / 2 * c.height);
   const best = faces.sort((a, b) => iod(b) - iod(a))[0];
   if (!best || iod(best) < 0.04 * Math.min(c.width, c.height)) return 'face:none';
+  // 回した絵の上の点を、元の写真の上の位置（幅・高さに対する割合）に戻す
+  const th = q * Math.PI / 180, cos = Math.cos(th), sin = Math.sin(th);
+  const dw = q % 180 ? c.height : c.width, dh = q % 180 ? c.width : c.height;
   const p = [];
-  POINTS.forEach(([i]) => { p.push(best[i].x, best[i].y); });
+  POINTS.forEach(([i]) => {
+    const a = best[i].x * c.width - c.width / 2, b = best[i].y * c.height - c.height / 2;
+    p.push((a * cos + b * sin + dw / 2) / dw, (-a * sin + b * cos + dh / 2) / dh);
+  });
   return format(w / h, p);
 }
 
@@ -182,5 +221,5 @@ async function detectFile(file) {
   try { return await detect(await loadImage(url)); } finally { URL.revokeObjectURL(url); }
 }
 
-window.BeyondFace = { parse, format, fit, usable, render, toneLUT, detect, detectFile, loadImage, warm: landmarker, POINTS, TEMPLATE, FRAME };
+window.BeyondFace = { parse, format, fit, usable, render, toneLUT, detect, detectFile, loadImage, warm: tasks, POINTS, TEMPLATE, FRAME };
 })();
