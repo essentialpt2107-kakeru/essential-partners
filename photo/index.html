@@ -96,8 +96,8 @@ main{max-width:620px;margin:0 auto;padding:20px 16px 40px}
 /* 写真の比べ方: 重ねる（つまみを動かす）／並べる */
 .cmp{position:relative;border-radius:14px;overflow:hidden;background:#E4EDEC;aspect-ratio:3/4;touch-action:pan-y;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;--x:50%}
-.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;opacity:0;transition:opacity .3s}
-.cmp img.ok{opacity:1}
+.cmp img,.cmp canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;opacity:0;transition:opacity .3s}
+.cmp img.ok,.cmp canvas.ok{opacity:1}
 .cmp .top{clip-path:inset(0 calc(100% - var(--x)) 0 0)}
 .cmp .bar{position:absolute;top:0;bottom:0;left:var(--x);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
 .cmp .knob{position:absolute;top:50%;left:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:#fff;
@@ -202,6 +202,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 </main>
 <footer>© 美yond（ビヨンド）二子玉川の肌管理サロン</footer>
 
+<!-- 顔の位置合わせとアフターの明るさ（管理画面と同じもの） -->
+<script src="face.js"></script>
 <script>
 (function(){
 "use strict";
@@ -218,7 +220,7 @@ const $ = s => document.querySelector(s);
 const SIDE = { before: 'ビフォー', after: 'アフター' };
 const WD = '日月火水木金土';
 
-const state = { pin: '', name: '', visits: [], mode: 'slide', tab: 'visits',
+const state = { pin: '', name: '', visits: [], marks: {}, bright: 0, mode: 'slide', tab: 'visits',
   a: { v: 0, side: 'before' }, b: { v: 0, side: 'after' }, angle: 0 };
 
 /* ---------- 端末に覚えておくもの（使えない端末では覚えないだけ） ---------- */
@@ -300,6 +302,8 @@ function openWith(pin, remember) {
       if (remember) store.set(STORE_PIN, pin);
       state.name = res.name;
       state.visits = res.visits || [];
+      state.marks = res.marks || {};
+      state.bright = Number(res.bright) || 0;
       renderMain();
     })
     .catch(() => showMsg('読み込めませんでした', '電波のよいところで、もう一度お試しください。', true));
@@ -398,7 +402,7 @@ function renderVisits() {
       stageEl.innerHTML = '';
       stageEl.appendChild(stage(
         { id: v.before[angle], label: SIDE.before, missing: 'この回のビフォー写真はありません' },
-        { id: v.after[angle], label: SIDE.after, missing: 'この回のアフター写真はありません' }));
+        { id: v.after[angle], label: SIDE.after, after: true, missing: 'この回のアフター写真はありません' }));
       const chips = card.querySelector('.chips');
       if (count > 1) buttons(chips, angleItems(count), angle, draw); else chips.innerHTML = '';
     };
@@ -447,20 +451,31 @@ function renderCompare() {
   const st = $('#c-stage');
   st.innerHTML = '';
   st.appendChild(stage(
-    { id: a[state.a.side][state.angle], label: a.n + '回目 ' + SIDE[state.a.side], missing: a.n + '回目の' + SIDE[state.a.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' },
-    { id: b[state.b.side][state.angle], label: b.n + '回目 ' + SIDE[state.b.side], missing: b.n + '回目の' + SIDE[state.b.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' }));
+    { id: a[state.a.side][state.angle], label: a.n + '回目 ' + SIDE[state.a.side], after: state.a.side === 'after', missing: a.n + '回目の' + SIDE[state.a.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' },
+    { id: b[state.b.side][state.angle], label: b.n + '回目 ' + SIDE[state.b.side], after: state.b.side === 'after', missing: b.n + '回目の' + SIDE[state.b.side] + 'に' + (state.angle + 1) + '枚目の写真はありません' }));
 }
 
 /* ---------- 写真の比べ方 ---------- */
+// 顔の位置を読み取ってある写真なら、その数字（管理画面が写真を入れたときに読み取り、ドライブの説明に入れたもの）
+function marksOf(id) {
+  const m = id && window.BeyondFace ? window.BeyondFace.parse(state.marks[id]) : null;
+  return m && m !== 'none' ? m : null;
+}
+
 function stage(left, right) {
   const wrap = document.createElement('div');
-  if (state.mode === 'side' || !left.id || !right.id) {
+  // 2枚とも顔の位置がわかるときは、顔が同じ場所・同じ大きさに来るように切り抜いてそろえる。
+  // 片方だけわかるときは、そろえるとかえってずれて見えるので、2枚とも元のまま
+  const both = !!(left.id && right.id);
+  const align = both && !!(marksOf(left.id) && marksOf(right.id));
+  if (state.mode === 'side' || !both) {
     wrap.className = 'side';
     [left, right].forEach(p => {
       const fig = document.createElement('div');
       fig.className = 'cmp';
       fig.innerHTML = '<span class="label">' + esc(p.label) + '</span>';
-      if (p.id) fig.prepend(photo(p.id, fig)); else fig.insertAdjacentHTML('beforeend', '<span class="none">' + esc(p.missing) + '</span>');
+      if (p.id) fig.prepend(photo(p, fig, { align: both ? align : !!marksOf(p.id) }));
+      else fig.insertAdjacentHTML('beforeend', '<span class="none">' + esc(p.missing) + '</span>');
       wrap.appendChild(fig);
     });
     return wrap;
@@ -473,8 +488,8 @@ function stage(left, right) {
   box.setAttribute('aria-valuemin', '0');
   box.setAttribute('aria-valuemax', '100');
   box.setAttribute('aria-valuenow', '50');
-  box.appendChild(photo(right.id, box, true));
-  const top = photo(left.id, box);
+  box.appendChild(photo(right, box, { align, setRatio: !align }));
+  const top = photo(left, box, { align });
   top.classList.add('top');
   box.appendChild(top);
   box.insertAdjacentHTML('beforeend', '<span class="label l">' + esc(left.label) + '</span><span class="label r">' + esc(right.label) +
@@ -485,19 +500,45 @@ function stage(left, right) {
   return wrap;
 }
 
-// 画面に入ったときに取りにいく。setRatio のときは写真の縦横の比を枠に写す
-function photo(id, frame, setRatio) {
-  const img = document.createElement('img');
-  img.alt = '';
-  img.decoding = 'async';
+// 画面に入ったときに取りにいく。
+// align: 顔の位置で切り抜く（枠は 横3:縦4 のまま）／ setRatio: 元の写真の縦横の比を枠に写す ／ アフターは明るさを足す（シート「設定」の目盛り）
+function photo(p, frame, opts) {
+  const F = window.BeyondFace;
+  const el = document.createElement('img');
+  el.alt = '';
+  el.decoding = 'async';
   frame.classList.add('loading');
-  const go = () => loadImg(id).then(src => {
-    img.onload = () => {
-      img.classList.add('ok');
+  const show = (src, w, h, aligned) => new Promise((resolve, reject) => {
+    el.onload = () => {
+      el.classList.add('ok');
       frame.classList.remove('loading');
-      if (setRatio && img.naturalWidth) frame.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+      if (opts.setRatio && !aligned) frame.style.aspectRatio = (w || el.naturalWidth) + ' / ' + (h || el.naturalHeight);
+      resolve();
     };
-    img.src = src;
+    el.onerror = () => reject('error');
+    el.src = src;
+  });
+  const marks = opts.align ? marksOf(p.id) : null;
+  const bright = p.after ? state.bright : 0;
+  const go = () => loadImg(p.id).then(src => {
+    if (!F || (!marks && !bright)) return show(src, 0, 0, false); // そろえない・明るさも足さないときは、そのまま出す
+    return F.loadImage(src).then(img => {
+      const r = F.render(img, { marks, bright });
+      // 絵はふつうの画像にして出し、作業用の絵（メモリをたくさん使う）はすぐ手放す。何十回分の写真を見てもスマホが重くならないように
+      return new Promise((resolve, reject) => {
+        try { r.canvas.toBlob(resolve, 'image/jpeg', 0.92); } catch (e) { reject(e); }
+      }).then(blob => {
+        const url = blob ? URL.createObjectURL(blob) : r.canvas.toDataURL('image/jpeg', 0.92);
+        r.canvas.width = r.canvas.height = 0;
+        return show(url, img.naturalWidth, img.naturalHeight, r.aligned);
+      }, () => {
+        // 画像にできない絵（見本のイラストなど、ブラウザによって）は、絵のまま出す
+        r.canvas.className = el.className + ' ok';
+        el.replaceWith(r.canvas);
+        frame.classList.remove('loading');
+        if (opts.setRatio && !r.aligned) frame.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+      });
+    });
   }).catch(err => {
     frame.classList.remove('loading');
     if (!frame.querySelector('.none')) frame.insertAdjacentHTML('beforeend', '<span class="none">' +
@@ -507,7 +548,7 @@ function photo(id, frame, setRatio) {
     const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: '300px' });
     requestAnimationFrame(() => io.observe(frame));
   } else go();
-  return img;
+  return el;
 }
 
 function slider(box) {
@@ -544,14 +585,38 @@ function demoCall(body) {
   return new Promise(resolve => setTimeout(() => {
     if (body.pin !== '1234') return resolve({ error: 'wrong_pin', left: 9 });
     if (body.action === 'list') {
-      return resolve({ name: '見本 花子', visits: DEMO_DATES.map((date, i) => {
+      const marks = {};
+      const visits = DEMO_DATES.map((date, i) => {
         const ids = side => [0, 1, 2].slice(0, i === 1 ? 2 : 3).map(a => [i + 1, side, a].join('-'));
         return { n: i + 1, date, before: ids('b'), after: ids('a') };
-      }) });
+      });
+      visits.forEach(v => v.before.concat(v.after).forEach(id => { const [n, side, a] = id.split('-'); marks[id] = demoMarks(Number(n), side === 'a', Number(a)); }));
+      return resolve({ name: '見本 花子', visits, marks, bright: 10 });
     }
     const [n, side, angle] = body.id.split('-');
     resolve({ url: demoFace(Number(n), side === 'a', Number(angle)) });
   }, body.action === 'list' ? 500 : 250 + Math.random() * 400));
+}
+// 撮るたびに顔の位置・傾き・大きさが少しずつちがう（本物の写真と同じように）。位置合わせでそろって見える
+function demoShot(n, after, angle) {
+  let seed = n * 97 + (after ? 13 : 0) + angle * 5;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280 - 0.5;
+  return { rot: rnd() * 12, scale: 1 + rnd() * 0.3, x: rnd() * 90, y: rnd() * 70 };
+}
+// 見本の顔の眉・目・鼻・口の位置（管理画面が読み取ったときと同じ書き方）
+function demoMarks(n, after, angle) {
+  const F = window.BeyondFace;
+  if (!F) return '';
+  const t = demoShot(n, after, angle), dx = [0, -46, 46][angle];
+  const r = t.rot * Math.PI / 180, c = Math.cos(r) * t.scale, si = Math.sin(r) * t.scale;
+  const p = [];
+  for (let i = 0; i < F.TEMPLATE.length; i += 2) {
+    // 絵の目のあいだは 96 だが、イラストは顔が横に広いので、枠に顔全体が入るように 128 として扱う
+    const x = 300 + dx + 128 * F.TEMPLATE[i], y = 388 + 128 * F.TEMPLATE[i + 1];
+    const X = 300 + c * (x - 300) - si * (y - 400) + t.x, Y = 400 + si * (x - 300) + c * (y - 400) + t.y;
+    p.push(X / 600, Y / 800);
+  }
+  return F.format(600 / 800, p);
 }
 function demoFace(n, after, angle) {
   // 回を重ねるほど赤みとポツポツが減り、アフターはその回の中でさらに落ち着く
@@ -567,9 +632,11 @@ function demoFace(n, after, angle) {
     const x = 300 + dx + (rnd() - 0.5) * 230, y = 360 + rnd() * 190, r = 3 + rnd() * 5;
     if (i < total) spots += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="' + r.toFixed(1) + '" fill="#C0705E" opacity="' + (0.25 + 0.45 * level).toFixed(2) + '"/>';
   }
+  const t = demoShot(n, after, angle);
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">' +
     '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F1F0"/><stop offset="1" stop-color="#CFDDDC"/></linearGradient></defs>' +
     '<rect width="600" height="800" fill="url(#g)"/>' +
+    '<g transform="translate(' + (300 + t.x).toFixed(1) + ' ' + (400 + t.y).toFixed(1) + ') rotate(' + t.rot.toFixed(2) + ') scale(' + t.scale.toFixed(3) + ') translate(-300 -400)">' +
     '<path d="M110 800 C130 640 220 600 300 600 C380 600 470 640 490 800 Z" fill="#FFFFFF" opacity=".9"/>' +
     '<rect x="' + (262 + dx * 0.4) + '" y="520" width="76" height="110" rx="30" fill="' + skin + '"/>' +
     '<ellipse cx="' + (300 + dx * 0.2) + '" cy="300" rx="185" ry="215" fill="#4A3A33"/>' +
@@ -581,6 +648,7 @@ function demoFace(n, after, angle) {
     '<path d="M' + (300 + dx * 1.4) + ' 420 q-8 34 6 44" stroke="#C99582" stroke-width="4" fill="none" stroke-linecap="round"/>' +
     '<path d="M' + (268 + dx) + ' 500 q32 20 64 0" stroke="#C26A62" stroke-width="6" fill="none" stroke-linecap="round"/>' +
     '<path d="M' + (150 + dx * 0.3) + ' 250 C200 150 420 140 460 260 C400 210 260 200 150 250 Z" fill="#4A3A33"/>' +
+    '</g>' +
     '<text x="580" y="780" text-anchor="end" font-family="sans-serif" font-size="22" fill="#FFFFFF" opacity=".85" letter-spacing="4">SAMPLE</text>' +
     '</svg>';
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
