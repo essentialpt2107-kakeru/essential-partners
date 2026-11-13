@@ -97,6 +97,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--brand);background:#fff}
 .talk{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
 .talk p{font-size:13.5px;color:var(--ink);margin-top:0}
 .google .sub{display:inline-block;margin-top:6px;font-size:12px;color:var(--ink-sub)}
+.lead.intro{white-space:pre-wrap;text-align:left}
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
 </style>
 </head>
@@ -120,7 +121,17 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 
   <!-- アンケート -->
   <form id="form" hidden novalidate>
-    <p class="lead"><b>本日はご来店<br>ありがとうございました</b>よりよいお店にするため、1分ほどのアンケートにご協力ください。</p>
+    <p class="lead" id="lead"><b>本日はご来店<br>ありがとうございました</b>よりよいお店にするため、1分ほどのアンケートにご協力ください。</p>
+
+    <section class="q" id="nameBox" hidden>
+      <h2>お名前 <span class="req">必須</span></h2>
+      <input type="text" id="nameTop" maxlength="50" autocomplete="name">
+    </section>
+
+    <section class="q" id="staffBox" hidden>
+      <h2>担当スタッフ <span class="opt">任意</span></h2>
+      <div class="chips" id="staff"></div>
+    </section>
 
     <section class="q">
       <h2>本日のご満足度 <span class="req">必須</span></h2>
@@ -128,13 +139,24 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <div class="picked" id="picked" aria-live="polite"></div>
     </section>
 
+    <section class="q" id="ratingBox" hidden>
+      <h2>スタッフの対応はいかがでしたか？ <span class="opt">任意</span></h2>
+      <div class="chips" id="rating"></div>
+    </section>
+
     <section class="q" id="menuBox" hidden>
       <h2>受けたメニュー <span class="opt">あてはまるものすべて・任意</span></h2>
       <div class="chips" id="menus"></div>
     </section>
 
+    <section class="q" id="changeBox" hidden>
+      <h2>施術のあと、どんな変化を感じましたか？ <span class="opt">任意</span></h2>
+      <p class="sub">通い始めてからの、小さな変化でも大丈夫です☺️</p>
+      <textarea id="change" maxlength="2000"></textarea>
+    </section>
+
     <section class="q">
-      <h2>ご感想 <span class="opt">任意</span></h2>
+      <h2 id="commentTitle">ご感想 <span class="opt">任意</span></h2>
       <textarea id="comment" maxlength="2000" placeholder="ご自由にお書きください"></textarea>
     </section>
 
@@ -144,7 +166,12 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <textarea id="request" maxlength="2000"></textarea>
     </section>
 
-    <section class="q">
+    <section class="q" id="caresBox" hidden>
+      <h2>これから気になっている美容やケアはありますか？ <span class="opt">いくつでも・任意</span></h2>
+      <div class="chips" id="cares"></div>
+    </section>
+
+    <section class="q" id="nameBottom">
       <h2>お名前 <span class="opt">任意</span></h2>
       <input type="text" id="name" maxlength="50" autocomplete="name">
     </section>
@@ -187,7 +214,8 @@ const DEMO = !API || params.get('demo') === '1';
 const STORE = params.get('s') || '';
 const LABELS = ['不満', 'やや不満', 'ふつう', '満足', 'とても満足'];
 const $ = id => document.getElementById(id);
-const state = { stars: 0, menus: [], sending: false };
+const state = { stars: 0, menus: [], cares: [], staff: '', rating: '', needName: false, sending: false };
+const RATINGS = ['とても良い', '良い', '少し悪い', '悪い'];
 
 function call(body) {
   if (DEMO) return demo(body);
@@ -197,7 +225,7 @@ function call(body) {
 
 function demo(body) {
   return new Promise(resolve => setTimeout(() => {
-    if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'] });
+    if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'], staff: ['スタッフA', 'スタッフB'], cares: ['小顔', '毛穴ケア', 'ニキビ/肌荒れケア'], intro: '', nameRequired: true });
     else resolve({ ok: true, reviewUrl: 'https://www.google.com/maps', talkUrl: body.stars <= 2 ? 'https://line.me/' : '' });
   }, 500));
 }
@@ -258,6 +286,40 @@ function buildMenus(menus) {
   $('menuBox').hidden = false;
 }
 
+// 1つだけ選ぶチップ（担当・スタッフの対応）
+function buildPick(box, list, key) {
+  list.forEach(v => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = v;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      [...$(box).children].forEach(x => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', String(on));
+      state[key] = on ? v : '';
+    });
+    $(box).append(b);
+  });
+}
+
+// いくつでも選べるチップ（気になるケア）
+function buildCares(list) {
+  list.forEach(v => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = v;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', String(on));
+      state.cares = on ? state.cares.concat(v) : state.cares.filter(x => x !== v);
+    });
+    $('cares').append(b);
+  });
+  $('caresBox').hidden = false;
+}
+
 function start() {
   $('demo').hidden = !DEMO;
   if (!STORE && !DEMO) return message('アンケートが見つかりませんでした', 'お店の QR コードから、もう一度開いてください。');
@@ -271,6 +333,20 @@ function start() {
       $('foot').hidden = false;
       buildStars();
       buildMenus(res.menus || []);
+      if (res.intro) {
+        $('lead').textContent = res.intro;
+        $('lead').classList.add('intro');
+      }
+      state.needName = !!res.nameRequired;
+      $('nameBox').hidden = !state.needName;
+      $('nameBottom').hidden = state.needName;
+      if ((res.staff || []).length) {
+        buildPick('staff', res.staff, 'staff');
+        buildPick('rating', RATINGS, 'rating');
+        $('staffBox').hidden = $('ratingBox').hidden = $('changeBox').hidden = false;
+        $('commentTitle').firstChild.textContent = '良かった点を教えてください ';
+      }
+      if ((res.cares || []).length) buildCares(res.cares);
       show('form');
     })
     .catch(() => message('つながりませんでした', '電波のよいところで、ページを開き直してください。'));
@@ -279,11 +355,18 @@ function start() {
 $('form').addEventListener('submit', e => {
   e.preventDefault();
   if (!state.stars || state.sending) return;
+  const name = (state.needName ? $('nameTop') : $('name')).value.trim();
+  if (state.needName && !name) {
+    $('err').textContent = 'お名前を入れてください。';
+    $('nameTop').focus();
+    return;
+  }
   state.sending = true;
   $('send').disabled = true;
   $('send').textContent = '送っています…';
   $('err').textContent = '';
   const comment = $('comment').value.trim();
+  const change = $('change').value.trim();
   call({
     action: 'answer',
     s: STORE,
@@ -291,12 +374,18 @@ $('form').addEventListener('submit', e => {
     menus: state.menus,
     comment: comment,
     request: $('request').value.trim(),
-    name: $('name').value.trim(),
+    name: name,
+    staff: state.staff,
+    staffRating: state.rating,
+    change: change,
+    cares: state.cares,
     website: $('website').value,
   })
     .then(res => {
       if (res.error) throw new Error(res.error);
-      thanks(res.reviewUrl, comment, res.talkUrl);
+      // Google の口コミ画面に貼れるよう、お客様が自分で書いた言葉だけを並べる（お店や AI は文章を足さない）
+      const own = [state.menus.length ? state.menus.join('・') + 'を受けました。' : '', change, comment].filter(Boolean).join('\n');
+      thanks(res.reviewUrl, change || comment ? own : '', res.talkUrl);
     })
     .catch(err => {
       state.sending = false;
@@ -323,12 +412,12 @@ function thanks(reviewUrl, comment, talkUrl) {
   } else if (reviewUrl) {
     $('review').href = reviewUrl;
     $('google').hidden = false;
+    // ボタンを押すと、アンケートに書いた言葉をコピーしてから Google の口コミ画面を開く
     if (comment && navigator.clipboard) {
-      $('copy').hidden = false;
-      $('copy').addEventListener('click', () => {
+      $('review').addEventListener('click', () => {
         navigator.clipboard.writeText(comment)
-          .then(() => { $('copied').textContent = 'コピーしました。Google の画面で貼り付けられます。'; })
-          .catch(() => { $('copied').textContent = 'コピーできませんでした。'; });
+          .then(() => { $('copied').textContent = 'アンケートに書いた内容をコピーしました。Google の画面で貼り付けて、自由に直してください。'; })
+          .catch(() => {});
       });
     }
   }
