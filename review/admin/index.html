@@ -327,6 +327,13 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <textarea class="in" id="f_features" style="min-height:120px"></textarea>
         <label class="f" for="f_contact">お問い合わせ先<small>低い星の口コミへの返信で案内する電話・LINE など</small></label>
         <input class="in" id="f_contact" maxlength="200">
+        <label class="f" for="f_talkUrl">お店に直接相談するリンク<small>公式LINE（https://line.me/R/ti/p/@…）か電話（tel:…）。低い星のお客様のお礼の画面に出します</small></label>
+        <input class="in" id="f_talkUrl" inputmode="url" placeholder="https://line.me/R/ti/p/@…">
+        <label class="f" for="f_talkAt">直接相談を案内する星</label>
+        <select class="in" id="f_talkAt">
+          <option value="0">案内しない</option><option value="1">★1</option><option value="2">★2 以下</option><option value="3">★3 以下</option>
+        </select>
+        <p class="help">この星以下のお客様には「お店に直接相談する」ボタンをいちばん上に出します。Google の口コミへの案内も小さく残します（星で Google の案内を消すと規約違反になるため）。</p>
         <label class="f" for="f_avoid">使わない表現<small>1行に1つ。法律や方針で使えない言葉</small></label>
         <textarea class="in" id="f_avoid" placeholder="例: 脂肪燃焼"></textarea>
         <label class="f" for="f_replyStyle">返信のお手本<small>いつも Google に書いている返信を2〜3件。口コミへの返信の下書きが、この書き方に合わせます</small></label>
@@ -709,7 +716,7 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'pass'];
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
@@ -722,6 +729,7 @@ function fillInfo(res) {
   S.info = res.store;
   FIELDS.forEach(k => { if ($('f_' + k)) $('f_' + k).value = res.store[k] === undefined ? '' : res.store[k]; });
   $('f_notifyAt').value = String(Math.min(5, Math.max(0, Number(res.store.notifyAt) || 0)));
+  $('f_talkAt').value = res.store.talkAt === '' || res.store.talkAt === undefined ? '2' : String(Math.min(3, Math.max(0, Number(res.store.talkAt) || 0)));
   $('passBox').hidden = !res.master;
   $('keyState').textContent = res.hasKey ? '登録済み' : '未登録（スプレッドシートのメニューから登録）';
   $('keyState').className = res.hasKey ? 'on' : 'off';
