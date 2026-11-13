@@ -334,6 +334,14 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
           <option value="0">案内しない</option><option value="1">★1</option><option value="2">★2 以下</option><option value="3">★3 以下</option>
         </select>
         <p class="help">この星以下のお客様には「お店に直接相談する」ボタンをいちばん上に出します。Google の口コミへの案内も小さく残します（星で Google の案内を消すと規約違反になるため）。</p>
+        <label class="f" for="f_intro">アンケートの最初の案内文<small>空なら「本日はご来店ありがとうございました…」の決まった文</small></label>
+        <textarea class="in" id="f_intro"></textarea>
+        <label class="f" for="f_staff">担当スタッフ<small>1行に1人。入れると「担当」「スタッフの対応」「施術のあとの変化」も聞きます</small></label>
+        <textarea class="in" id="f_staff"></textarea>
+        <label class="f" for="f_cares">気になるケアの選択肢<small>1行に1つ。入れると「これから気になっているケア」を聞きます</small></label>
+        <textarea class="in" id="f_cares"></textarea>
+        <label class="f" for="f_nameRequired">お名前</label>
+        <select class="in" id="f_nameRequired"><option value="">任意</option><option value="必須">必須</option></select>
         <label class="f" for="f_avoid">使わない表現<small>1行に1つ。法律や方針で使えない言葉</small></label>
         <textarea class="in" id="f_avoid" placeholder="例: 脂肪燃焼"></textarea>
         <label class="f" for="f_replyStyle">返信のお手本<small>いつも Google に書いている返信を2〜3件。口コミへの返信の下書きが、この書き方に合わせます</small></label>
@@ -549,7 +557,7 @@ document.querySelectorAll('#ansFilter button').forEach(b => b.addEventListener('
 
 function renderAnswers() {
   const f = S.filter;
-  const list = S.answers.filter(a => f === 'all' || (f === 'open' && a.status === '未対応') || (f === 'low' && a.low) || (f === 'comment' && (a.comment || a.request)));
+  const list = S.answers.filter(a => f === 'all' || (f === 'open' && a.status === '未対応') || (f === 'low' && a.low) || (f === 'comment' && (a.comment || a.request || a.change)));
   if (!list.length) return $('ansList').replaceChildren(el('div', { class: 'empty', text: S.answers.length ? 'この条件の回答はありません。' : 'まだ回答はありません。QR コードを店内に置くと、ここに届きます。' }));
   $('ansList').replaceChildren(...list.map(answerCard));
 }
@@ -562,9 +570,12 @@ function answerCard(a) {
       el('span', { class: 'at', text: a.at }),
       a.name ? el('span', { class: 'who', text: a.name + ' 様' }) : null,
       status),
+    a.staff || a.staffRating ? el('div', { class: 'menus', text: [a.staff ? '担当: ' + a.staff : '', a.staffRating ? '対応: ' + a.staffRating : ''].filter(Boolean).join('　') }) : null,
     a.menus ? el('div', { class: 'menus', text: a.menus }) : null,
+    a.change ? el('div', { class: 'req' }, el('b', { text: '施術のあとの変化' }), a.change) : null,
     a.comment ? el('div', { class: 'body', text: a.comment }) : null,
-    a.request ? el('div', { class: 'req' }, el('b', { text: 'お店へのご要望' }), a.request) : null);
+    a.request ? el('div', { class: 'req' }, el('b', { text: 'お店へのご要望' }), a.request) : null,
+    a.cares ? el('div', { class: 'menus', text: '気になるケア: ' + a.cares }) : null);
   if (a.low || a.status) {
     const sel = el('select', { 'aria-label': '対応' }, ['未対応', '対応済み'].map(v => el('option', { value: v, text: v })));
     sel.value = a.status || '未対応';
@@ -716,7 +727,7 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'staff', 'cares', 'nameRequired', 'pass'];
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
