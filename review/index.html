@@ -101,7 +101,10 @@ textarea:focus,input[type=text]:focus{border-color:var(--brand);background:#fff}
 .draft label{display:block;font-weight:700;font-size:14px;color:var(--ink)}
 .draft .draftNote{font-size:12px;color:var(--ink-sub);margin-top:4px;line-height:1.7}
 .draft textarea{min-height:140px}
+.draft textarea.wait{background:linear-gradient(90deg,#F3F7F7 0%,#E7F8F7 50%,#F3F7F7 100%);background-size:200% 100%;animation:shine 1.4s linear infinite}
+@keyframes shine{to{background-position:-200% 0}}
 .draft .btn{margin-top:10px}
+.draft .btn:disabled{opacity:.5;cursor:default}
 .lead.intro{white-space:pre-wrap;text-align:left}
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
 </style>
@@ -149,6 +152,16 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <div class="chips" id="rating"></div>
     </section>
 
+    <section class="q" id="visitBox" hidden>
+      <h2>このお店のご利用は？ <span class="opt">任意</span></h2>
+      <div class="chips" id="visit"></div>
+    </section>
+
+    <section class="q" id="worryBox" hidden>
+      <h2>ご来店前に、気になっていたことはありますか？ <span class="opt">あてはまるものすべて・任意</span></h2>
+      <div class="chips" id="worries"></div>
+    </section>
+
     <section class="q" id="menuBox" hidden>
       <h2>受けたメニュー <span class="opt">あてはまるものすべて・任意</span></h2>
       <div class="chips" id="menus"></div>
@@ -158,6 +171,12 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <h2>施術のあと、どんな変化を感じましたか？ <span class="opt">任意</span></h2>
       <p class="sub">通い始めてからの、小さな変化でも大丈夫です☺️</p>
       <textarea id="change" maxlength="2000"></textarea>
+    </section>
+
+    <section class="q" id="anxietyBox" hidden>
+      <h2>ご来店前に不安だったことはありますか？ 実際はいかがでしたか？ <span class="opt">任意</span></h2>
+      <p class="sub">例: 初めてで緊張していた、痛みが心配だった など</p>
+      <textarea id="anxiety" maxlength="2000"></textarea>
     </section>
 
     <section class="q">
@@ -203,7 +222,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <!-- お客様がアンケートに書いた言葉だけを並べた下書き（お店や AI は文章を足さない） -->
       <div class="draft" id="draftBox" hidden>
         <label for="draft">口コミの下書き</label>
-        <p class="draftNote">アンケートに書いていただいた内容です。<br>自由に直して、Google に貼り付けてください。</p>
+        <p class="draftNote">アンケートの答えをもとにした文章です。<br>自由に直して、Google に貼り付けてください。<br>口コミは公開されるので、載せたくないことは消してからお使いください。</p>
         <textarea id="draft" maxlength="4000"></textarea>
         <button type="button" class="btn ghost" id="copy">この文章をコピーする</button>
       </div>
@@ -225,8 +244,9 @@ const DEMO = !API || params.get('demo') === '1';
 const STORE = params.get('s') || '';
 const LABELS = ['不満', 'やや不満', 'ふつう', '満足', 'とても満足'];
 const $ = id => document.getElementById(id);
-const state = { stars: 0, menus: [], cares: [], staff: '', rating: '', needName: false, sending: false };
+const state = { stars: 0, menus: [], cares: [], worries: [], staff: '', rating: '', visit: '', needName: false, sending: false };
 const RATINGS = ['とても良い', '良い', '少し悪い', '悪い'];
+const VISITS = ['今回が初めて', '何回か来ている', '半年以上通っている'];
 
 function call(body) {
   if (DEMO) return demo(body);
@@ -236,9 +256,31 @@ function call(body) {
 
 function demo(body) {
   return new Promise(resolve => setTimeout(() => {
-    if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'], staff: ['スタッフA', 'スタッフB'], cares: ['小顔', '毛穴ケア', 'ニキビ/肌荒れケア'], intro: '', nameRequired: true });
-    else resolve({ ok: true, reviewUrl: 'https://www.google.com/maps', talkUrl: body.stars <= 2 ? 'https://line.me/' : '' });
-  }, 500));
+    if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'], staff: ['スタッフA', 'スタッフB'], cares: ['小顔', '毛穴ケア', 'ニキビ/肌荒れケア'], intro: '', nameRequired: true, reviewHelp: true });
+    else if (body.action === 'polish') resolve({ text: demoDraft(state.last) });
+    else {
+      state.last = body;
+      const own = body.change || body.comment || body.anxiety;
+      resolve({ ok: true, reviewUrl: 'https://www.google.com/maps', talkUrl: body.stars <= 2 ? 'https://line.me/' : '', polish: body.stars > 2 && own ? 'demo' : undefined });
+    }
+  }, body.action === 'polish' ? 1500 : 500));
+}
+
+// 見本のページだけで使う、つなぎ方の例（本番は AI がつなぎ、書かれていない言葉が入っていないか確かめてから出す）
+function demoDraft(b) {
+  const end = s => /[。！？!?]$/.test(s) ? s : s + '。';
+  const visit = { '今回が初めて': '今回が初めての来店でした。', '何回か来ている': '何回か通っています。', '半年以上通っている': '半年以上通っています。' }[b.visit] || '';
+  const menus = b.menus.length ? b.menus.join('と') + 'を受けました。' : '';
+  const worry = b.worries.length ? b.worries.join('や') + 'が気になっていて、' + (menus || '伺いました。') : menus;
+  const rating = { 'とても良い': 'とても良かった', '良い': '良かった', '少し悪い': '少し悪かった', '悪い': '悪かった' }[b.staffRating];
+  return [
+    visit + worry,
+    '全体として' + LABELS[b.stars - 1] + 'です。',
+    b.change ? '施術のあとは、' + end(b.change) : '',
+    b.anxiety ? end(b.anxiety) : '',
+    b.comment ? end(b.comment) : '',
+    rating ? 'スタッフの対応は' + rating + 'です。' : '',
+  ].filter(Boolean).join('');
 }
 
 function show(id) {
@@ -314,8 +356,8 @@ function buildPick(box, list, key) {
   });
 }
 
-// いくつでも選べるチップ（気になるケア）
-function buildCares(list) {
+// いくつでも選べるチップ（来店前に気になっていたこと・これから気になっているケア）
+function buildMulti(box, list, key) {
   list.forEach(v => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -324,11 +366,10 @@ function buildCares(list) {
     b.addEventListener('click', () => {
       const on = b.getAttribute('aria-pressed') !== 'true';
       b.setAttribute('aria-pressed', String(on));
-      state.cares = on ? state.cares.concat(v) : state.cares.filter(x => x !== v);
+      state[key] = on ? state[key].concat(v) : state[key].filter(x => x !== v);
     });
-    $('cares').append(b);
+    $(box).append(b);
   });
-  $('caresBox').hidden = false;
 }
 
 function start() {
@@ -357,7 +398,19 @@ function start() {
         $('staffBox').hidden = $('ratingBox').hidden = $('changeBox').hidden = false;
         $('commentTitle').firstChild.textContent = '良かった点を教えてください ';
       }
-      if ((res.cares || []).length) buildCares(res.cares);
+      if ((res.cares || []).length) {
+        buildMulti('cares', res.cares, 'cares');
+        $('caresBox').hidden = false;
+      }
+      // 口コミの材料になる質問（どれも任意。良い答えだけを選ばせる聞き方にはしない）
+      if (res.reviewHelp) {
+        buildPick('visit', VISITS, 'visit');
+        $('visitBox').hidden = $('anxietyBox').hidden = false;
+        if ((res.cares || []).length) {
+          buildMulti('worries', res.cares, 'worries');
+          $('worryBox').hidden = false;
+        }
+      }
       show('form');
     })
     .catch(() => message('つながりませんでした', '電波のよいところで、ページを開き直してください。'));
@@ -378,6 +431,7 @@ $('form').addEventListener('submit', e => {
   $('err').textContent = '';
   const comment = $('comment').value.trim();
   const change = $('change').value.trim();
+  const anxiety = $('anxiety').value.trim();
   call({
     action: 'answer',
     s: STORE,
@@ -390,13 +444,16 @@ $('form').addEventListener('submit', e => {
     staffRating: state.rating,
     change: change,
     cares: state.cares,
+    visit: state.visit,
+    worries: state.worries,
+    anxiety: anxiety,
     website: $('website').value,
   })
     .then(res => {
       if (res.error) throw new Error(res.error);
-      // Google の口コミ画面に貼れるよう、お客様が自分で書いた言葉だけを並べる（お店や AI は文章を足さない）
-      const own = [state.menus.length ? state.menus.join('・') + 'を受けました。' : '', change, comment].filter(Boolean).join('\n');
-      thanks(res.reviewUrl, change || comment ? own : '', res.talkUrl);
+      // AI で整えられないときの下書き: お客様が自分で書いた言葉だけを並べる（お店は文章を足さない）
+      const own = [state.menus.length ? state.menus.join('・') + 'を受けました。' : '', change, anxiety, comment].filter(Boolean).join('\n');
+      thanks(res.reviewUrl, change || comment || anxiety ? own : '', res.talkUrl, res.polish);
     })
     .catch(err => {
       state.sending = false;
@@ -409,7 +466,7 @@ $('form').addEventListener('submit', e => {
 });
 
 // Google の案内は星に関係なく全員に出す。低い星のときは、お店に直接相談する道を一番目立つところに出す
-function thanks(reviewUrl, comment, talkUrl) {
+function thanks(reviewUrl, comment, talkUrl, polish) {
   if (talkUrl) {
     $('talkLink').href = talkUrl;
     $('talk').hidden = false;
@@ -423,16 +480,38 @@ function thanks(reviewUrl, comment, talkUrl) {
   } else if (reviewUrl) {
     $('review').href = reviewUrl;
     $('google').hidden = false;
-    // アンケートに書いた言葉を下書きの欄に出す。直したあとの文章をコピーボタンか Google のボタンでコピーする
+    // アンケートの答えを下書きの欄に出す。直したあとの文章をコピーボタンか Google のボタンでコピーする
     if (comment) {
-      $('draft').value = comment;
       $('draftBox').hidden = false;
       $('copy').addEventListener('click', () => copyDraft('コピーしました。下の「Googleでも応援口コミを書く」から貼り付けてください。'));
       $('review').addEventListener('click', () => copyDraft('下書きをコピーしました。Google の画面で貼り付けて、自由に直してください。'));
+      if (polish) polishDraft(polish, comment);
+      else $('draft').value = comment;
     }
   }
   show('thanks');
   window.scrollTo(0, 0);
+}
+
+// 答えをつないで読みやすくした文章を待つ。整えられなかったり時間がかかったりしたら、並べただけの文章を出す
+function polishDraft(token, plain) {
+  const box = $('draft');
+  let done = false;
+  const fill = text => {
+    if (done) return;
+    done = true;
+    box.value = text || plain;
+    box.disabled = $('copy').disabled = false;
+    box.classList.remove('wait');
+  };
+  box.value = '';
+  box.placeholder = '文章を整えています…';
+  box.disabled = $('copy').disabled = true;
+  box.classList.add('wait');
+  setTimeout(() => fill(''), 25000);
+  call({ action: 'polish', s: STORE, t: token })
+    .then(res => fill(res && !res.error ? res.text : ''))
+    .catch(() => fill(''));
 }
 
 function copyDraft(done) {
