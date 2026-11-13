@@ -97,6 +97,11 @@ textarea:focus,input[type=text]:focus{border-color:var(--brand);background:#fff}
 .talk{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
 .talk p{font-size:13.5px;color:var(--ink);margin-top:0}
 .google .sub{display:inline-block;margin-top:6px;font-size:12px;color:var(--ink-sub)}
+.draft{margin-top:16px;text-align:left}
+.draft label{display:block;font-weight:700;font-size:14px;color:var(--ink)}
+.draft .draftNote{font-size:12px;color:var(--ink-sub);margin-top:4px;line-height:1.7}
+.draft textarea{min-height:140px}
+.draft .btn{margin-top:10px}
 .lead.intro{white-space:pre-wrap;text-align:left}
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
 </style>
@@ -195,7 +200,13 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     </div>
     <div class="google" id="google" hidden>
       <p id="googleLead">よろしければ、Google にも<br>ご感想をお寄せください。<br>これからお店を選ぶ方の参考になります。</p>
-      <button type="button" class="btn ghost" id="copy" hidden>書いたご感想をコピーする</button>
+      <!-- お客様がアンケートに書いた言葉だけを並べた下書き（お店や AI は文章を足さない） -->
+      <div class="draft" id="draftBox" hidden>
+        <label for="draft">口コミの下書き</label>
+        <p class="draftNote">アンケートに書いていただいた内容です。<br>自由に直して、Google に貼り付けてください。</p>
+        <textarea id="draft" maxlength="4000"></textarea>
+        <button type="button" class="btn ghost" id="copy">この文章をコピーする</button>
+      </div>
       <div class="copied" id="copied" aria-live="polite"></div>
       <a class="btn primary" id="review" target="_blank" rel="noopener">Googleでも応援口コミを書く</a>
       <a class="sub" id="reviewSub" target="_blank" rel="noopener" hidden>Google の口コミはこちら</a>
@@ -412,17 +423,35 @@ function thanks(reviewUrl, comment, talkUrl) {
   } else if (reviewUrl) {
     $('review').href = reviewUrl;
     $('google').hidden = false;
-    // ボタンを押すと、アンケートに書いた言葉をコピーしてから Google の口コミ画面を開く
-    if (comment && navigator.clipboard) {
-      $('review').addEventListener('click', () => {
-        navigator.clipboard.writeText(comment)
-          .then(() => { $('copied').textContent = 'アンケートに書いた内容をコピーしました。Google の画面で貼り付けて、自由に直してください。'; })
-          .catch(() => {});
-      });
+    // アンケートに書いた言葉を下書きの欄に出す。直したあとの文章をコピーボタンか Google のボタンでコピーする
+    if (comment) {
+      $('draft').value = comment;
+      $('draftBox').hidden = false;
+      $('copy').addEventListener('click', () => copyDraft('コピーしました。下の「Googleでも応援口コミを書く」から貼り付けてください。'));
+      $('review').addEventListener('click', () => copyDraft('下書きをコピーしました。Google の画面で貼り付けて、自由に直してください。'));
     }
   }
   show('thanks');
   window.scrollTo(0, 0);
+}
+
+function copyDraft(done) {
+  const text = $('draft').value.trim();
+  if (!text) return;
+  const ok = () => { $('copied').textContent = done; };
+  const fallback = () => {
+    // 古いブラウザやアプリ内ブラウザ向け: 欄を選んでコピーする
+    const t = $('draft');
+    t.focus();
+    t.select();
+    t.setSelectionRange(0, t.value.length);
+    try {
+      if (document.execCommand('copy')) return ok();
+    } catch (e) {}
+    $('copied').textContent = '自動でコピーできませんでした。欄の文章を長押ししてコピーしてください。';
+  };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, fallback);
+  else fallback();
 }
 
 start();
