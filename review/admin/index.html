@@ -105,6 +105,8 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
 .ans .body{white-space:pre-wrap;margin-top:6px;font-size:14px}
 .ans .req{white-space:pre-wrap;margin-top:8px;font-size:13px;background:#F7F9F9;border-radius:10px;padding:8px 10px}
 .ans .req b{display:block;font-size:11px;color:var(--ink-sub);font-weight:500}
+.ans .draftLog{margin-top:8px}
+.ans .draftLog summary{font-size:12px;color:var(--ink-sub);cursor:pointer}
 .follow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;margin-top:10px}
 .follow select,.follow input{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;width:100%}
 .empty{text-align:center;color:var(--ink-sub);font-size:13px;padding:24px 12px}
@@ -342,6 +344,9 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <textarea class="in" id="f_cares"></textarea>
         <label class="f" for="f_nameRequired">お名前</label>
         <select class="in" id="f_nameRequired"><option value="">任意</option><option value="必須">必須</option></select>
+        <label class="f" for="f_reviewHelp">口コミの下書きを手伝う</label>
+        <select class="in" id="f_reviewHelp"><option value="">手伝わない</option><option value="する">手伝う</option></select>
+        <p class="help">「手伝う」にすると、アンケートで「ご利用の回数」「来店前に気になっていたこと」「来店前の不安と実際」も聞き、お礼の画面の下書きを AI が読みやすくつなぎます。AI が足してよいのはつなぎの言葉と語尾だけで、書かれていない言葉が入ったり、書いた言葉が抜けたりした文章は使いません。お客様が自分の言葉を1つも書いていないときは、下書きを出しません。</p>
         <label class="f" for="f_avoid">使わない表現<small>1行に1つ。法律や方針で使えない言葉</small></label>
         <textarea class="in" id="f_avoid" placeholder="例: 脂肪燃焼"></textarea>
         <label class="f" for="f_replyStyle">返信のお手本<small>いつも Google に書いている返信を2〜3件。口コミへの返信の下書きが、この書き方に合わせます</small></label>
@@ -557,7 +562,7 @@ document.querySelectorAll('#ansFilter button').forEach(b => b.addEventListener('
 
 function renderAnswers() {
   const f = S.filter;
-  const list = S.answers.filter(a => f === 'all' || (f === 'open' && a.status === '未対応') || (f === 'low' && a.low) || (f === 'comment' && (a.comment || a.request || a.change)));
+  const list = S.answers.filter(a => f === 'all' || (f === 'open' && a.status === '未対応') || (f === 'low' && a.low) || (f === 'comment' && (a.comment || a.request || a.change || a.anxiety)));
   if (!list.length) return $('ansList').replaceChildren(el('div', { class: 'empty', text: S.answers.length ? 'この条件の回答はありません。' : 'まだ回答はありません。QR コードを店内に置くと、ここに届きます。' }));
   $('ansList').replaceChildren(...list.map(answerCard));
 }
@@ -571,11 +576,14 @@ function answerCard(a) {
       a.name ? el('span', { class: 'who', text: a.name + ' 様' }) : null,
       status),
     a.staff || a.staffRating ? el('div', { class: 'menus', text: [a.staff ? '担当: ' + a.staff : '', a.staffRating ? '対応: ' + a.staffRating : ''].filter(Boolean).join('　') }) : null,
+    a.visit || a.worries ? el('div', { class: 'menus', text: [a.visit, a.worries ? '来店前に気になっていたこと: ' + a.worries : ''].filter(Boolean).join('　') }) : null,
     a.menus ? el('div', { class: 'menus', text: a.menus }) : null,
     a.change ? el('div', { class: 'req' }, el('b', { text: '施術のあとの変化' }), a.change) : null,
+    a.anxiety ? el('div', { class: 'req' }, el('b', { text: '来店前の不安と実際' }), a.anxiety) : null,
     a.comment ? el('div', { class: 'body', text: a.comment }) : null,
     a.request ? el('div', { class: 'req' }, el('b', { text: 'お店へのご要望' }), a.request) : null,
-    a.cares ? el('div', { class: 'menus', text: '気になるケア: ' + a.cares }) : null);
+    a.cares ? el('div', { class: 'menus', text: '気になるケア: ' + a.cares }) : null,
+    a.draft ? el('details', { class: 'draftLog' }, el('summary', { text: 'お客様に出した口コミの下書き' }), el('div', { class: 'req', text: a.draft })) : null);
   if (a.low || a.status) {
     const sel = el('select', { 'aria-label': '対応' }, ['未対応', '対応済み'].map(v => el('option', { value: v, text: v })));
     sel.value = a.status || '未対応';
@@ -727,7 +735,7 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'staff', 'cares', 'nameRequired', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'staff', 'cares', 'nameRequired', 'reviewHelp', 'pass'];
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
