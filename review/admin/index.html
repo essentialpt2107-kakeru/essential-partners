@@ -245,6 +245,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         </div>
 
         <div data-for="reply">
+          <label class="f" for="rName">投稿者の名前<small>Google に出ている名前。入れると「〇〇様」で書き出します（任意）</small></label>
+          <input class="in" id="rName" maxlength="50" autocomplete="off">
           <label class="f" for="rStars">口コミの星</label>
           <select class="in" id="rStars"><option value="5">★5</option><option value="4">★4</option><option value="3">★3</option><option value="2">★2</option><option value="1">★1</option></select>
           <label class="f" for="rText">口コミの本文<small>Google から写して貼る。星だけなら空でよい</small></label>
@@ -327,6 +329,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <input class="in" id="f_contact" maxlength="200">
         <label class="f" for="f_avoid">使わない表現<small>1行に1つ。法律や方針で使えない言葉</small></label>
         <textarea class="in" id="f_avoid" placeholder="例: 脂肪燃焼"></textarea>
+        <label class="f" for="f_replyStyle">返信のお手本<small>いつも Google に書いている返信を2〜3件。口コミへの返信の下書きが、この書き方に合わせます</small></label>
+        <textarea class="in" id="f_replyStyle" style="min-height:160px"></textarea>
         <div id="passBox" hidden>
           <label class="f" for="f_pass">このお店の合言葉<small>全店舗の管理用の合言葉で開いたときだけ表示</small></label>
           <input class="in" id="f_pass" maxlength="40" autocomplete="off" spellcheck="false">
@@ -665,7 +669,7 @@ document.querySelectorAll('#kindSeg button').forEach(b => b.addEventListener('cl
 
 $('write').addEventListener('click', () => {
   const k = S.kind;
-  const input = k === 'reply' ? { stars: Number($('rStars').value), review: $('rText').value }
+  const input = k === 'reply' ? { name: $('rName').value, stars: Number($('rStars').value), review: $('rText').value }
     : k === 'post' ? { theme: $('pTheme').value }
     : k === 'description' ? { note: $('dNote').value }
     : { service: $('svName').value, note: $('svNote').value };
@@ -705,7 +709,7 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'pass'];
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
