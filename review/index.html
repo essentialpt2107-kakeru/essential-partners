@@ -94,6 +94,9 @@ textarea:focus,input[type=text]:focus{border-color:var(--brand);background:#fff}
 .btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line)}
 .copied{font-size:12px;color:var(--brand-dark);min-height:1.75em;margin-top:6px}
 .google .free{font-size:11.5px;color:var(--ink-sub);margin-top:14px;line-height:1.8}
+.talk{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
+.talk p{font-size:13.5px;color:var(--ink);margin-top:0}
+.google .sub{display:inline-block;margin-top:6px;font-size:12px;color:var(--ink-sub)}
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
 </style>
 </head>
@@ -159,11 +162,16 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
     <h1>アンケートのご回答<br>ありがとうございました</h1>
     <p>いただいた声は、スタッフ一同で読ませていただきます。</p>
+    <div class="talk" id="talk" hidden>
+      <p>ご期待に添えず、申し訳ありませんでした。<br>よろしければ、お店から直接<br>お話を伺わせてください。</p>
+      <a class="btn primary" id="talkLink" target="_blank" rel="noopener">お店に直接相談する</a>
+    </div>
     <div class="google" id="google" hidden>
-      <p>よろしければ、Google にも<br>ご感想をお寄せください。<br>これからお店を選ぶ方の参考になります。</p>
+      <p id="googleLead">よろしければ、Google にも<br>ご感想をお寄せください。<br>これからお店を選ぶ方の参考になります。</p>
       <button type="button" class="btn ghost" id="copy" hidden>書いたご感想をコピーする</button>
       <div class="copied" id="copied" aria-live="polite"></div>
       <a class="btn primary" id="review" target="_blank" rel="noopener">Googleでも応援口コミを書く</a>
+      <a class="sub" id="reviewSub" target="_blank" rel="noopener" hidden>Google の口コミはこちら</a>
       <p class="free">Google への投稿は任意です。星の数や内容は、ご自由にお選びください。</p>
     </div>
   </div>
@@ -190,7 +198,7 @@ function call(body) {
 function demo(body) {
   return new Promise(resolve => setTimeout(() => {
     if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'] });
-    else resolve({ ok: true, reviewUrl: 'https://www.google.com/maps' });
+    else resolve({ ok: true, reviewUrl: 'https://www.google.com/maps', talkUrl: body.stars <= 2 ? 'https://line.me/' : '' });
   }, 500));
 }
 
@@ -288,7 +296,7 @@ $('form').addEventListener('submit', e => {
   })
     .then(res => {
       if (res.error) throw new Error(res.error);
-      thanks(res.reviewUrl, comment);
+      thanks(res.reviewUrl, comment, res.talkUrl);
     })
     .catch(err => {
       state.sending = false;
@@ -300,9 +308,19 @@ $('form').addEventListener('submit', e => {
     });
 });
 
-// 星に関係なく、全員に同じお礼と Google の案内を出す
-function thanks(reviewUrl, comment) {
-  if (reviewUrl) {
+// Google の案内は星に関係なく全員に出す。低い星のときは、お店に直接相談する道を一番目立つところに出す
+function thanks(reviewUrl, comment, talkUrl) {
+  if (talkUrl) {
+    $('talkLink').href = talkUrl;
+    $('talk').hidden = false;
+  }
+  if (reviewUrl && talkUrl) {
+    $('reviewSub').href = reviewUrl;
+    $('reviewSub').hidden = false;
+    $('review').hidden = true;
+    $('googleLead').hidden = true;
+    $('google').hidden = false;
+  } else if (reviewUrl) {
     $('review').href = reviewUrl;
     $('google').hidden = false;
     if (comment && navigator.clipboard) {
