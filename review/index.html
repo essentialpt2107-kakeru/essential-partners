@@ -6,6 +6,11 @@
 <!-- お店ごとのアンケート（?s=店舗ID）。店内の QR コードから開く。検索結果には出さない -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
+<!-- LINE などでリンクを送ったときに出る紹介の欄（どのお店でも同じ文）。ないとページの中の文字が拾われてしまう -->
+<meta name="description" content="ご来店ありがとうございました。よろしければ、アンケートにご協力ください。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ご来店アンケートのお願い">
+<meta property="og:description" content="ご来店ありがとうございました。よろしければ、アンケートにご協力ください。">
 <title>アンケート</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,7 +124,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 </header>
 
 <main>
-  <div class="demo" id="demo" hidden>これは見本です。送っても保存されません。</div>
+  <!-- 見本（?demo=1）のときだけ文字を入れて出す。リンクの紹介の欄に拾われないよう、ここには書かない -->
+  <div class="demo" id="demo" hidden></div>
 
   <!-- 読み込み中・見つからない・つながらない -->
   <div class="panel" id="msg">
@@ -247,6 +253,9 @@ const $ = id => document.getElementById(id);
 const state = { stars: 0, menus: [], cares: [], worries: [], staff: '', rating: '', visit: '', needName: false, sending: false };
 const RATINGS = ['とても良い', '良い', '少し悪い', '悪い'];
 const VISITS = ['今回が初めて', '何回か来ている', '半年以上通っている'];
+// 「特になし」「なし」など、書くことがないという意味だけの答えは、下書きでは書かなかったのと同じに扱う（データ係と同じ決まり）
+const NOTHING = /^(?:特に|とくに|今のところ|いまのところ|今は|いまは|別に|べつに)*(?:何も|なにも|なんにも)?(?:なし|無し|ナシ|ない|無い|ありません|ございません)?(?:です|でした|かな|かも)?$|^(?:以上|無|none|nothing|n\/?a)$/i;
+const words = s => NOTHING.test(String(s || '').normalize('NFKC').replace(/[\s。、，．.,!?！？〜~ー\-・…]/g, '')) ? '' : String(s || '');
 
 function call(body) {
   if (DEMO) return demo(body);
@@ -260,7 +269,7 @@ function demo(body) {
     else if (body.action === 'polish') resolve({ text: demoDraft(state.last) });
     else {
       state.last = body;
-      const own = body.change || body.comment || body.anxiety;
+      const own = words(body.change) || words(body.comment) || words(body.anxiety);
       resolve({ ok: true, reviewUrl: 'https://www.google.com/maps', talkUrl: body.stars <= 2 ? 'https://line.me/' : '', polish: body.stars > 2 && own ? 'demo' : undefined });
     }
   }, body.action === 'polish' ? 1500 : 500));
@@ -273,12 +282,13 @@ function demoDraft(b) {
   const menus = b.menus.length ? b.menus.join('と') + 'を受けました。' : '';
   const worry = b.worries.length ? b.worries.join('や') + 'が気になっていて、' + (menus || '伺いました。') : menus;
   const rating = { 'とても良い': 'とても良かった', '良い': '良かった', '少し悪い': '少し悪かった', '悪い': '悪かった' }[b.staffRating];
+  const change = words(b.change), anxiety = words(b.anxiety), comment = words(b.comment);
   return [
     visit + worry,
     '全体として' + LABELS[b.stars - 1] + 'です。',
-    b.change ? '施術のあとは、' + end(b.change) : '',
-    b.anxiety ? end(b.anxiety) : '',
-    b.comment ? end(b.comment) : '',
+    change ? '施術のあとは、' + end(change) : '',
+    anxiety ? end(anxiety) : '',
+    comment ? end(comment) : '',
     rating ? 'スタッフの対応は' + rating + 'です。' : '',
   ].filter(Boolean).join('');
 }
@@ -373,7 +383,10 @@ function buildMulti(box, list, key) {
 }
 
 function start() {
-  $('demo').hidden = !DEMO;
+  if (DEMO) {
+    $('demo').textContent = 'これは見本です。送っても保存されません。';
+    $('demo').hidden = false;
+  }
   if (!STORE && !DEMO) return message('アンケートが見つかりませんでした', 'お店の QR コードから、もう一度開いてください。');
   call({ action: 'store', s: STORE })
     .then(res => {
@@ -452,8 +465,10 @@ $('form').addEventListener('submit', e => {
     .then(res => {
       if (res.error) throw new Error(res.error);
       // AI で整えられないときの下書き: お客様が自分で書いた言葉だけを並べる（お店は文章を足さない）
-      const own = [state.menus.length ? state.menus.join('・') + 'を受けました。' : '', change, anxiety, comment].filter(Boolean).join('\n');
-      thanks(res.reviewUrl, change || comment || anxiety ? own : '', res.talkUrl, res.polish);
+      // 「特になし」などだけの欄は使わない
+      const mine = [words(change), words(anxiety), words(comment)];
+      const own = [state.menus.length ? state.menus.join('・') + 'を受けました。' : ''].concat(mine).filter(Boolean).join('\n');
+      thanks(res.reviewUrl, mine.some(Boolean) ? own : '', res.talkUrl, res.polish);
     })
     .catch(err => {
       state.sending = false;
