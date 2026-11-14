@@ -573,7 +573,7 @@ function answerCard(a) {
     el('div', { class: 'top' },
       el('span', { class: 'st', text: '★'.repeat(a.stars) + '☆'.repeat(5 - a.stars) }),
       el('span', { class: 'at', text: a.at }),
-      a.name ? el('span', { class: 'who', text: a.name + ' 様' }) : null,
+      a.name ? el('span', { class: 'who', text: a.name + ' 様' + (a.reward ? '（' + a.reward + '）' : '') }) : null,
       status),
     a.staff || a.staffRating ? el('div', { class: 'menus', text: [a.staff ? '担当: ' + a.staff : '', a.staffRating ? '対応: ' + a.staffRating : ''].filter(Boolean).join('　') }) : null,
     a.visit || a.worries ? el('div', { class: 'menus', text: [a.visit, a.worries ? '来店前に気になっていたこと: ' + a.worries : ''].filter(Boolean).join('　') }) : null,
