@@ -164,6 +164,13 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .viewer-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .viewer-btns button{padding:11px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700}
 .viewer-btns .danger{background:var(--warn);color:#fff}
+.viewer-btns label{padding:11px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;position:relative}
+.viewer-btns label:focus-within{outline:3px solid var(--brand);outline-offset:2px}
+.viewer-btns label.off{opacity:.5;pointer-events:none}
+.viewer-order{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 12px;color:#fff}
+.viewer-order button{padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.45);color:#fff;font-size:13.5px;font-weight:700;min-width:96px}
+.viewer-order button:disabled{opacity:.3}
+.viewer-order span{font-size:13px;min-width:64px;text-align:center;opacity:.9}
 .vw-note{color:rgba(255,255,255,.75);font-size:12px;text-align:center;margin:-4px auto 10px;max-width:620px;line-height:1.6}
 .face-note{font-size:12px;color:var(--ink-sub);margin:-4px 2px 10px}
 
@@ -264,7 +271,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
           </label>
         </div>
         <div class="progress" id="progress" hidden><div class="track"><i></i></div><p></p></div>
-        <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。ビフォーとアフターを同じ順番で撮ると、1枚目どうし・2枚目どうしが組になります。<br>
+        <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。写真は<b>入れた順（アルバムから選んだ順）</b>に並びます。ビフォーとアフターを同じ順番で入れると、1枚目どうし・2枚目どうしが組になります。<br>
+          並びを直したいときや、間違えたときは、下の「これまでの写真」で写真を押すと、<b>前へ・後ろへ（入れ替え）・差し替え・移す・消す</b>ができます。<br>
           入れるときに顔の位置（眉・目・鼻・口）を読み取り、お客様のページでは顔の位置と大きさをそろえて出します（アフターは少し明るく）。元の写真はそのまま残ります。<br>
           <b>明るさは写真アプリで変えずに、撮ったまま入れてください</b>（変えてから入れると、二重に明るくなります）。</p>
       </div>
@@ -296,7 +304,13 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
   <div class="viewer-top"><span id="vw-title"></span><button type="button" id="vw-close">閉じる</button></div>
   <div class="viewer-img" id="vw-img"></div>
   <p class="vw-note" id="vw-note"></p>
+  <div class="viewer-order" id="vw-order">
+    <button type="button" id="vw-prev" aria-label="1つ前へ（左へ）">‹ 前へ</button>
+    <span id="vw-pos"></span>
+    <button type="button" id="vw-next" aria-label="1つ後ろへ（右へ）">後ろへ ›</button>
+  </div>
   <div class="viewer-btns">
+    <label id="vw-replace-btn"><input class="vh" type="file" accept="image/*" id="vw-replace">差し替える</label>
     <button type="button" id="vw-move"></button>
     <button type="button" id="vw-trash" class="danger">この写真を消す</button>
   </div>
@@ -819,9 +833,30 @@ function copyText(text) {
 
 /* ---------- 写真を大きく見る・移す・消す ---------- */
 let viewing = null;
+function viewingList() {
+  const v = viewing && state.cur && (state.cur.visits || []).find(v => v.n === viewing.n);
+  return v ? v[viewing.side] : [];
+}
+function viewerHead() {
+  const list = viewingList();
+  viewing.i = Math.max(0, list.indexOf(viewing.id));
+  $('#vw-title').textContent = viewing.n + '回目 ' + SIDE[viewing.side] + ' ' + (viewing.i + 1) + '枚目';
+  $('#vw-order').hidden = list.length < 2;
+  $('#vw-pos').textContent = (viewing.i + 1) + ' / ' + list.length + '枚';
+  $('#vw-prev').disabled = viewing.i <= 0 || viewerBusy;
+  $('#vw-next').disabled = viewing.i >= list.length - 1 || viewerBusy;
+}
+let viewerBusy = false;
+function setViewerBusy(on) {
+  viewerBusy = on;
+  $('#vw-move').disabled = $('#vw-trash').disabled = on;
+  $('#vw-replace-btn').classList.toggle('off', on);
+  if (viewing) viewerHead();
+}
 function openViewer(p) {
   viewing = p;
-  $('#vw-title').textContent = p.n + '回目 ' + SIDE[p.side] + ' ' + (p.i + 1) + '枚目';
+  viewerBusy = false;
+  viewerHead();
   const frame = $('#vw-img');
   frame.innerHTML = '';
   frame.appendChild(photo(state.cur.k, p.id, frame, 'sm'));
@@ -830,12 +865,13 @@ function openViewer(p) {
   $('#vw-note').textContent = m === 'none' ? '顔が見つからなかったため、お客様のページでは位置をそろえずに出します'
     : m ? '顔の位置を読み取りました。お客様のページでは、ほかの写真と顔の位置・大きさをそろえて出します'
     : '顔の位置はまだ読み取っていません（このお客様を開いておくと読み取ります）';
-  $('#vw-move').disabled = $('#vw-trash').disabled = false;
+  setViewerBusy(false);
   $('#viewer').hidden = false;
   document.body.style.overflow = 'hidden';
   $('#vw-close').focus();
 }
 function closeViewer() {
+  flushOrder();
   viewing = null;
   $('#viewer').hidden = true;
   $('#vw-img').innerHTML = '';
@@ -847,16 +883,85 @@ window.addEventListener('hashchange', () => { if (viewing) closeViewer(); });
 
 function photoAction(body, done) {
   const k = state.cur.k;
-  $('#vw-move').disabled = $('#vw-trash').disabled = true;
+  flushOrder();
+  setViewerBusy(true);
   call(Object.assign({ k, id: viewing.id }, body))
     .then(res => {
-      if (res.error) { $('#vw-move').disabled = $('#vw-trash').disabled = false; return fail(res.error); }
+      if (res.error) { setViewerBusy(false); return fail(res.error); }
       closeViewer();
       toast(done);
       loadDetail(k);
     })
-    .catch(() => { $('#vw-move').disabled = $('#vw-trash').disabled = false; netErr(); });
+    .catch(() => { setViewerBusy(false); netErr(); });
 }
+
+/* ---------- 並びを入れ替える（前へ・後ろへ） ----------
+ * 画面はすぐに並べ替え、続けて押しても大丈夫なように、押し終わって少ししてからまとめて保存する */
+let orderTimer = null, pendingOrder = null;
+function shiftViewing(step) {
+  const list = viewingList();
+  const i = list.indexOf(viewing.id), j = i + step;
+  if (i < 0 || j < 0 || j >= list.length || viewerBusy) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  renderDetail();
+  viewerHead();
+  pendingOrder = { k: state.cur.k, ids: list.slice() };
+  clearTimeout(orderTimer);
+  orderTimer = setTimeout(flushOrder, 900);
+}
+function flushOrder() {
+  clearTimeout(orderTimer);
+  const job = pendingOrder;
+  pendingOrder = null;
+  if (!job) return;
+  call({ action: 'a_order', k: job.k, ids: job.ids })
+    .then(res => {
+      if (res.error) { fail(res.error, '並びを保存できませんでした。もう一度お試しください'); if (state.cur && state.cur.k === job.k) loadDetail(job.k); }
+      else toast('並びを保存しました');
+    })
+    .catch(() => { netErr(); if (state.cur && state.cur.k === job.k) loadDetail(job.k); });
+}
+$('#vw-prev').addEventListener('click', () => shiftViewing(-1));
+$('#vw-next').addEventListener('click', () => shiftViewing(1));
+document.addEventListener('keydown', e => {
+  if (!viewing || e.target.closest('input')) return;
+  if (e.key === 'ArrowLeft') shiftViewing(-1);
+  if (e.key === 'ArrowRight') shiftViewing(1);
+});
+window.addEventListener('pagehide', flushOrder);
+
+/* ---------- 差し替える（同じ回・同じ側・同じ位置に新しい写真を入れ、元の写真はゴミ箱へ） ---------- */
+$('#vw-replace').addEventListener('change', async e => {
+  const input = e.target;
+  const f = (input.files || [])[0];
+  input.value = '';
+  if (!f || !viewing || viewerBusy) return;
+  const mime = f.type || MIME_BY_EXT[(f.name.split('.').pop() || '').toLowerCase()] || '';
+  if (!/^image\//.test(mime) || f.size > MAX_BYTES) { toast('写真でないファイルか、20MBより大きい写真です'); return; }
+  const k = state.cur.k, id = viewing.id;
+  flushOrder();
+  setViewerBusy(true);
+  state.busy = true;
+  const note = $('#vw-note');
+  try {
+    note.textContent = '顔の位置を読み取っています…';
+    const name = 'IMG_' + await shotStamp(f) + '_01' + (EXT_BY_MIME[mime] || '.jpg');
+    const marks = await marksForFile(f, () => { note.textContent = '顔の位置を読み取る準備をしています（はじめてのときだけ少しかかります）'; });
+    note.textContent = '差し替えています…';
+    const data = (await readAs(f, 'DataURL')).split(',')[1];
+    const res = await call({ action: 'a_replace', k, id, name, mime, data, marks });
+    state.busy = false;
+    if (res.error) { setViewerBusy(false); note.textContent = ''; return fail(res.error, '差し替えられませんでした。もう一度お試しください'); }
+    closeViewer();
+    toast('写真を差し替えました（元の写真はドライブのゴミ箱にあります）');
+    if (state.cur && state.cur.k === k) loadDetail(k);
+  } catch (err) {
+    state.busy = false;
+    setViewerBusy(false);
+    note.textContent = '';
+    netErr();
+  }
+});
 $('#vw-move').addEventListener('click', () => {
   const to = viewing.side === 'before' ? 'after' : 'before';
   photoAction({ action: 'a_move', to }, SIDE[to] + 'に移しました');
@@ -899,13 +1004,15 @@ const demo = { seq: 0, customers: [
 function demoVisits(c) {
   const byDate = {};
   c.photos.forEach(p => {
-    const d = p.time.slice(0, 10);
+    const d = p.day || p.time.slice(0, 10);
     byDate[d] = byDate[d] || { date: d, before: [], after: [] };
     byDate[d][p.side].push(p);
   });
-  const byTime = (a, b) => a.time < b.time ? -1 : a.time > b.time ? 1 : 0;
+  // データ係と同じ: 順番の数字（なければ撮った時刻）の小さい順
+  const key = p => p.ord != null ? p.ord : new Date(p.time.slice(0, 19).replace(' ', 'T') + '+09:00').getTime();
+  const byOrder = (a, b) => key(a) - key(b) || (a.time < b.time ? -1 : a.time > b.time ? 1 : 0);
   return Object.keys(byDate).sort().map((d, i) => ({ n: i + 1, date: d,
-    before: byDate[d].before.sort(byTime).map(p => p.id), after: byDate[d].after.sort(byTime).map(p => p.id) }));
+    before: byDate[d].before.sort(byOrder).map(p => p.id), after: byDate[d].after.sort(byOrder).map(p => p.id) }));
 }
 function demoCall(b) {
   return new Promise(resolve => setTimeout(() => resolve(demoAnswer(b)), b.action === 'a_img' ? 150 + Math.random() * 300 : 400));
@@ -939,12 +1046,25 @@ function demoAnswer(b) {
     const m = b.name.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
     const id = 'p' + (++demo.seq);
     // 同じ秒に撮った写真はファイル名の順（データ係と同じ）
-    c.photos.push({ id, side: b.side, time: m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' ' + b.name, url: 'data:' + b.mime + ';base64,' + b.data, marks: b.marks || '' });
+    c.photos.push({ id, side: b.side, time: m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' ' + b.name, url: 'data:' + b.mime + ';base64,' + b.data, marks: b.marks || '', ord: Date.now() + demo.seq });
     return { id };
+  }
+  if (b.action === 'a_order') {
+    const ps = (b.ids || []).map(id => c.photos.find(p => p.id === id));
+    if (!ps.length || ps.some(p => !p) || ps.some(p => p.side !== ps[0].side)) return { error: 'not_found' };
+    ps.forEach((p, i) => { p.ord = i + 1; });
+    return { ok: true };
   }
   if (!p) return { error: 'not_found' };
   if (b.action === 'a_marks') { p.marks = b.marks; return { ok: true }; }
-  if (b.action === 'a_move') { p.side = b.to; return { ok: true }; }
+  if (b.action === 'a_move') { p.side = b.to; p.ord = Date.now(); return { ok: true }; }
+  if (b.action === 'a_replace') {
+    const id = 'p' + (++demo.seq);
+    const key = p.ord != null ? p.ord : new Date(p.time.slice(0, 19).replace(' ', 'T') + '+09:00').getTime();
+    c.photos.splice(c.photos.indexOf(p), 1, { id, side: p.side, time: p.time, day: p.day || p.time.slice(0, 10), ord: key,
+      url: 'data:' + b.mime + ';base64,' + b.data, marks: b.marks || '' });
+    return { id };
+  }
   if (b.action === 'a_trash') { c.photos.splice(c.photos.indexOf(p), 1); return { ok: true }; }
   return { error: 'bad_request' };
 }
