@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>インボイス領収書</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap">
+<style>
+/* Layout: 左に入力フォーム、右に A4 の見本（そのまま PDF になる）。狭い画面では縦に積む */
+:root {
+  --bg: #f6f3ec;
+  --surface: #ffffff;
+  --fg: #2a2620;
+  --muted: #776f62;
+  --line: #e2dacb;
+  --accent: #9c7c36;
+  --accent-ink: #ffffff;
+  --accent-soft: #f1e8d3;
+  --danger: #b0473a;
+  --ok: #3f7a52;
+  /* 領収書の紙はどちらの画面でも白 */
+  --paper: #ffffff;
+  --ink: #1d1b18;
+  --ink-muted: #5d574e;
+  --paper-line: #c9bfac;
+  --gold: #a1823d;
+  --font-ui: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --font-doc: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1815; --surface: #24211d; --fg: #ece5d8; --muted: #a59c8d; --line: #3a342c;
+    --accent: #d2b26c; --accent-ink: #1a1815; --accent-soft: #3a3122; --danger: #e48173; --ok: #7cc495;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a1815; --surface: #24211d; --fg: #ece5d8; --muted: #a59c8d; --line: #3a342c;
+  --accent: #d2b26c; --accent-ink: #1a1815; --accent-soft: #3a3122; --danger: #e48173; --ok: #7cc495;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 14px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.app { max-width: 1320px; margin: 0 auto; display: grid; gap: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+header.top h1 { font-family: var(--font-doc); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: .06em; text-wrap: balance; }
+header.top p { margin: 0; color: var(--muted); font-size: 13px; }
+.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1040px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: start; } .preview-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; min-width: 0; }
+.panel h2 { margin: 0; font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+.fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+label, .label { font-size: 12px; color: var(--muted); font-weight: 500; }
+input[type="text"], input[type="date"], select {
+  width: 100%; min-width: 0; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; height: 38px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.inline { display: flex; gap: 8px; align-items: center; }
+.inline > input { flex: 1; }
+.inline > select { width: auto; }
+.seg { display: inline-flex; justify-self: start; max-width: 100%; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { white-space: nowrap; border: 0; background: var(--bg); color: var(--fg); font: inherit; padding: 7px 18px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); }
+.check input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+/* 明細 */
+.items { display: grid; gap: 8px; }
+.item-head, .item { display: grid; gap: 8px; align-items: center; grid-template-columns: minmax(0, 1fr) 6.5rem 3.6rem 6.6rem 6.4rem 2rem; }
+.item-head { font-size: 11px; color: var(--muted); padding-inline: 2px; }
+.item-head span:nth-child(n+2) { text-align: right; }
+.item input.num { text-align: right; font-variant-numeric: tabular-nums; }
+.item .amt { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.icon-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; }
+.icon-btn:hover { border-color: var(--line); color: var(--danger); }
+@media (max-width: 620px) {
+  .item-head { display: none; }
+  .item { grid-template-columns: minmax(0, 1fr) 3.6rem 6.4rem 2rem; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+  .item .name { grid-column: 1 / -1; }
+  .item .amt { grid-column: 1 / 4; text-align: right; }
+  .item .amt::before { content: "金額 "; color: var(--muted); font-weight: 400; font-size: 12px; }
+}
+.btn { font: inherit; font-weight: 500; border-radius: 7px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; padding: 11px 22px; }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn:disabled { opacity: .6; cursor: progress; }
+.btn.small { padding: 5px 10px; font-size: 12px; }
+.btn.danger { color: var(--danger); }
+.add-row { justify-self: start; }
+
+.totals { display: grid; gap: 4px; background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; font-variant-numeric: tabular-nums; }
+.totals .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.totals .row.grand { font-size: 17px; font-weight: 700; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px; }
+.notice { font-size: 12px; border-left: 3px solid var(--accent); padding: 6px 10px; background: var(--bg); border-radius: 0 6px 6px 0; }
+.notice.stamp { border-left-color: var(--danger); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.status { font-size: 13px; min-height: 1.6em; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--danger); }
+
+details.issuer summary { cursor: pointer; font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+details.issuer summary::-webkit-details-marker { display: none; }
+details.issuer summary .fixed { font-weight: 500; letter-spacing: 0; color: var(--fg); font-size: 13px; }
+details.issuer[open] summary { margin-bottom: 12px; }
+.seal-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.seal-row img { width: 56px; height: 56px; object-fit: contain; border: 1px dashed var(--line); border-radius: 4px; background: #fff; }
+
+/* 履歴 */
+.history { display: grid; gap: 6px; }
+.history .empty { color: var(--muted); font-size: 13px; }
+.h-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; }
+.h-item .meta { min-width: 0; font-size: 13px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.h-item .meta small { display: block; color: var(--muted); font-size: 11px; }
+.h-item .ops { display: flex; gap: 6px; }
+
+/* 見本 */
+.preview-col { display: grid; gap: 10px; min-width: 0; }
+.preview-col .cap { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--muted); }
+.paper-frame { width: 100%; overflow: hidden; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.08); background: var(--paper); }
+.paper-scale { transform-origin: top left; width: 794px; }
+#capture { position: fixed; left: -12000px; top: 0; pointer-events: none; }
+
+/* ===== 領収書（A4 = 794 × 1123px） ===== */
+.rc { width: 794px; height: 1123px; background: var(--paper); color: var(--ink); font-family: var(--font-doc); padding: 68px 72px 56px; display: flex; flex-direction: column; gap: 26px; position: relative; font-size: 13px; line-height: 1.6; }
+.rc .num { font-variant-numeric: tabular-nums; font-family: var(--font-ui); }
+.rc-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.rc-title { font-size: 38px; font-weight: 700; letter-spacing: .6em; margin: 0; padding-left: .3em; border-bottom: 3px double var(--gold); line-height: 1.3; padding-bottom: 4px; }
+.rc-reissue { display: inline-block; margin-left: 12px; font-size: 13px; letter-spacing: .2em; border: 1.5px solid var(--ink); padding: 1px 8px; vertical-align: middle; font-family: var(--font-ui); font-weight: 700; }
+.rc-meta { text-align: right; font-size: 13px; display: grid; gap: 2px; font-family: var(--font-ui); color: var(--ink-muted); }
+.rc-meta b { color: var(--ink); font-weight: 500; }
+.rc-to { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--ink); width: 64%; padding: 0 4px 6px; font-size: 22px; font-weight: 500; min-height: 46px; }
+.rc-to .nm { flex: 1; overflow-wrap: anywhere; }
+.rc-to .hn { font-size: 18px; }
+.rc-amount { display: flex; align-items: center; gap: 20px; border: 1.5px solid var(--ink); padding: 14px 26px; background: #faf7f0; }
+.rc-amount .lb { font-size: 15px; letter-spacing: .4em; }
+.rc-amount .val { flex: 1; text-align: center; font-size: 38px; font-weight: 700; letter-spacing: .04em; font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
+.rc-amount .tx { font-size: 13px; color: var(--ink-muted); }
+.rc-for { display: grid; gap: 6px; font-size: 15px; }
+.rc-for .tadashi { border-bottom: 1px solid var(--paper-line); padding-bottom: 4px; }
+.rc-mid { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.rc-stamp { width: 96px; height: 116px; border: 1px dashed var(--ink-muted); display: grid; place-items: center; text-align: center; font-size: 11px; color: var(--ink-muted); font-family: var(--font-ui); line-height: 1.5; flex: none; }
+.rc-issuer { margin-left: auto; position: relative; min-width: 330px; padding-right: 76px; font-size: 13px; display: grid; gap: 1px; }
+.rc-issuer .shop { font-size: 12px; color: var(--ink-muted); }
+.rc-issuer .co { font-size: 17px; font-weight: 700; margin: 2px 0 4px; }
+.rc-issuer .reg { margin-top: 6px; font-family: var(--font-ui); font-weight: 500; font-size: 13px; letter-spacing: .02em; border-top: 1px solid var(--paper-line); padding-top: 6px; }
+.rc-issuer .seal { position: absolute; right: 0; top: 4px; width: 70px; height: 70px; object-fit: contain; opacity: .92; }
+.rc table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rc th { font-weight: 500; text-align: left; border-bottom: 1px solid var(--ink); padding: 6px 8px; font-size: 12px; color: var(--ink-muted); background: #faf7f0; }
+.rc td { padding: 7px 8px; border-bottom: 1px solid var(--paper-line); vertical-align: top; }
+.rc td.r, .rc th.r { text-align: right; }
+.rc td.c, .rc th.c { text-align: center; }
+.rc .sec-title { font-size: 13px; letter-spacing: .3em; margin: 0 0 6px; font-weight: 700; }
+.rc-bottom { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; font-size: 12px; color: var(--ink-muted); font-family: var(--font-ui); }
+.rc-sum { width: 100%; }
+.rc-sum td { font-variant-numeric: tabular-nums; font-family: var(--font-ui); }
+.rc-sum tr.total td { font-weight: 700; color: var(--ink); border-bottom: 1.5px solid var(--ink); }
+
+/* テンプレート・まとめて作る */
+.tpls { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 6px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip:hover { border-color: var(--accent); }
+.chip small { font-size: 11px; color: var(--muted); }
+.chip-wrap { display: inline-flex; align-items: center; }
+.chip-del { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; padding: 0 4px 0 2px; }
+.chip-del:hover { color: var(--danger); }
+.tpl-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+textarea { width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-height: 110px; resize: vertical; }
+.hint { font-size: 12px; color: var(--muted); }
+
+/* ===== 簡易の領収書（A5 横 = 794 × 559px） ===== */
+.rc.simple { height: 559px; padding: 40px 56px 34px; gap: 16px; }
+.rc.simple .rc-title { font-size: 30px; }
+.rc.simple .rc-to { font-size: 20px; min-height: 40px; width: 58%; }
+.rc.simple .rc-to .hn { font-size: 16px; }
+.rc.simple .rc-amount { padding: 10px 22px; }
+.rc.simple .rc-amount .val { font-size: 32px; }
+.rc.simple .rc-for { font-size: 14px; gap: 4px; }
+.rc.simple .rc-issuer { min-width: 300px; font-size: 12px; }
+.rc.simple .rc-issuer .co { font-size: 15px; }
+.rc.simple .rc-issuer .seal { width: 62px; height: 62px; }
+.rc.simple .rc-stamp { width: 78px; height: 94px; }
+.rc-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+.rc-foot-left { display: flex; gap: 16px; align-items: flex-end; }
+.rc-tax { font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted); display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.rc-tax b { color: var(--ink); font-weight: 500; }
+
+@media (prefers-reduced-motion: no-preference) { .btn, .icon-btn { transition: border-color .15s, filter .15s; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1>インボイス領収書</h1>
+    <p>適格簡易請求書の記載事項（登録番号・税率ごとの合計・消費税額）を自動で入れて PDF にします</p>
+  </header>
+
+  <div class="layout">
+    <div class="form-col" style="display:grid;gap:20px;min-width:0">
+
+      <section class="panel" aria-labelledby="h-tpl">
+        <h2 id="h-tpl">テンプレート</h2>
+        <div class="tpls" id="tpl-list"></div>
+        <div class="tpl-foot">
+          <button type="button" class="btn small" id="btn-tpl-save">いまの内容をテンプレートにする</button>
+          <span class="hint">宛名・日付・番号はそのまま。但し書き・明細・形を入れ替えます</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-basic">
+        <div class="inline" style="justify-content:space-between">
+          <h2 id="h-basic">領収書の内容</h2>
+          <button type="button" class="btn small" id="btn-new">新しく作る</button>
+        </div>
+        <div class="fields">
+          <div class="field wide">
+            <span class="label">形</span>
+            <div class="seg" role="group" aria-label="領収書の形">
+              <button type="button" id="l-full" aria-pressed="true">詳しい（A4・内訳つき）</button>
+              <button type="button" id="l-simple" aria-pressed="false">簡易（A5横）</button>
+            </div>
+          </div>
+          <div class="field wide" id="to-single">
+            <label for="f-to">宛名（空欄なら名前の欄だけ残します）</label>
+            <div class="inline">
+              <input type="text" id="f-to" placeholder="例：株式会社〇〇 / 山田 花子" autocomplete="off">
+              <select id="f-honor" aria-label="敬称"><option>様</option><option>御中</option><option value="">なし</option></select>
+            </div>
+          </div>
+          <div class="field wide">
+            <label class="check"><input type="checkbox" id="f-batch-on"> 何人分かまとめて作る（交流会など）</label>
+            <div id="batch-box" hidden style="display:grid;gap:4px">
+              <label for="f-batch">宛名を1行に1人ずつ（敬称は上で選んだもの）</label>
+              <textarea id="f-batch" placeholder="山田 花子&#10;佐藤 太郎&#10;株式会社〇〇"></textarea>
+              <span class="hint" id="batch-hint">1人1枚、番号を続けて振り、1つの PDF にまとめます</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-date">発行日</label>
+            <input type="date" id="f-date">
+          </div>
+          <div class="field">
+            <label for="f-no">領収書番号</label>
+            <input type="text" id="f-no" autocomplete="off">
+          </div>
+          <div class="field wide">
+            <label for="f-purpose">但し書き</label>
+            <input type="text" id="f-purpose" list="purpose-list" autocomplete="off">
+            <datalist id="purpose-list">
+              <option value="施術代として"></option>
+              <option value="お品代として"></option>
+              <option value="化粧品代として"></option>
+              <option value="施術代および化粧品代として"></option>
+              <option value="交流会費として"></option>
+              <option value="セミナー参加費として"></option>
+              <option value="コンサルティング料として"></option>
+              <option value="入会金として"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="f-pay">お支払い方法</label>
+            <select id="f-pay">
+              <option>現金</option><option>PayPay</option><option>クレジットカード</option><option>電子マネー</option><option>QRコード決済</option><option>銀行振込</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="label">単価の入れ方</span>
+            <div class="seg" role="group" aria-label="単価の入れ方">
+              <button type="button" id="m-incl" aria-pressed="true">税込</button>
+              <button type="button" id="m-excl" aria-pressed="false">税抜</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-round">消費税の端数</label>
+            <select id="f-round"><option value="floor">切り捨て</option><option value="round">四捨五入</option><option value="ceil">切り上げ</option></select>
+          </div>
+          <div class="field" style="align-self:end">
+            <label class="check"><input type="checkbox" id="f-reissue"> 再発行として出す</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-items">
+        <h2 id="h-items">明細</h2>
+        <div class="items">
+          <div class="item-head" aria-hidden="true"><span>品名</span><span id="hd-price">単価（税込）</span><span>数量</span><span>税率</span><span>金額</span><span></span></div>
+          <div id="item-list" class="items"></div>
+          <button type="button" class="btn small add-row" id="btn-add">＋ 行を足す</button>
+        </div>
+        <div class="totals" id="ui-totals"></div>
+        <div id="ui-notices" style="display:grid;gap:8px"></div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="btn-pdf">PDF を保存</button>
+          <span class="status" id="status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <details class="issuer" id="issuer-box">
+          <summary><span>発行者（いつも同じ）</span><span class="fixed" id="issuer-summary"></span></summary>
+          <div class="fields">
+            <div class="field wide"><label for="i-name">会社名</label><input type="text" id="i-name"></div>
+            <div class="field wide"><label for="i-shop">店舗名（任意）</label><input type="text" id="i-shop" placeholder="例：美yond"></div>
+            <div class="field"><label for="i-zip">郵便番号</label><input type="text" id="i-zip"></div>
+            <div class="field"><label for="i-tel">電話番号</label><input type="text" id="i-tel"></div>
+            <div class="field wide"><label for="i-addr">所在地</label><input type="text" id="i-addr"></div>
+            <div class="field wide"><label for="i-reg">登録番号（インボイス）</label><input type="text" id="i-reg"></div>
+            <div class="field wide">
+              <span class="label">社印の画像（任意・この端末にだけ保存）</span>
+              <div class="seal-row">
+                <img id="seal-thumb" alt="社印" hidden>
+                <input type="file" id="i-seal" accept="image/*">
+                <button type="button" class="btn small danger" id="btn-seal-clear" hidden>外す</button>
+              </div>
+            </div>
+            <div class="field wide"><button type="button" class="btn small" id="btn-issuer-reset" style="justify-self:start">最初の会社情報に戻す</button></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel" aria-labelledby="h-hist">
+        <h2 id="h-hist">発行した領収書（この端末）</h2>
+        <div class="history" id="history"></div>
+      </section>
+    </div>
+
+    <div class="preview-col">
+      <div class="cap"><span id="cap-text">見本（このまま PDF になります）</span><span id="cap-size">A4</span></div>
+      <div class="paper-frame" id="paper-frame"><div class="paper-scale" id="paper-scale"></div></div>
+    </div>
+  </div>
+</div>
+<div id="capture" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var DEFAULT_ISSUER = {
+    name: "エッセンシャルパートナーズ合同会社",
+    shop: "",
+    zip: "〒158-0094",
+    addr: "東京都世田谷区玉川1-8-15 アノンテラス二子玉川101",
+    tel: "050-8886-1735",
+    reg: "T1011103010850",
+    seal: ""
+  };
+  var K = { issuer: "rcpt.issuer.v1", draft: "rcpt.draft.v1", hist: "rcpt.history.v1", tpl: "rcpt.templates.v1" };
+  var BUILTIN_TEMPLATES = [
+    { id: "b-koryu", label: "交流会費", layout: "simple", purpose: "交流会費として", items: [{ name: "交流会費", price: "", qty: "1", rate: 10 }] },
+    { id: "b-seminar", label: "セミナー参加費", layout: "simple", purpose: "セミナー参加費として", items: [{ name: "セミナー参加費", price: "", qty: "1", rate: 10 }] },
+    { id: "b-sejutsu", label: "施術代", layout: "full", purpose: "施術代として", items: [{ name: "施術代", price: "", qty: "1", rate: 10 }] },
+    { id: "b-cosme", label: "化粧品", layout: "full", purpose: "化粧品代として", items: [{ name: "化粧品", price: "", qty: "1", rate: 10 }] },
+    { id: "b-set", label: "施術＋化粧品", layout: "full", purpose: "施術代および化粧品代として", items: [{ name: "施術代", price: "", qty: "1", rate: 10 }, { name: "化粧品", price: "", qty: "1", rate: 10 }] },
+    { id: "b-food", label: "健康食品（8%）", layout: "full", purpose: "お品代として", items: [{ name: "健康食品", price: "", qty: "1", rate: 8 }] }
+  ];
+
+  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { return false; } }
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function yen(n) { return "¥" + Math.round(n).toLocaleString("ja-JP"); }
+  function pad(n, w) { n = String(n); while (n.length < w) n = "0" + n; return n; }
+  function today() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1, 2) + "-" + pad(d.getDate(), 2); }
+  function jpDate(iso) { if (!iso) return ""; var p = iso.split("-"); return Number(p[0]) + "年" + Number(p[1]) + "月" + Number(p[2]) + "日"; }
+  function parseNum(s) {
+    s = String(s == null ? "" : s).replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[，,¥￥円\s]/g, "").replace(/[－ー−]/g, "-");
+    var m = s.match(/^-?\d+/); return m ? parseInt(m[0], 10) : 0;
+  }
+
+  var issuer = Object.assign({}, DEFAULT_ISSUER, load(K.issuer, {}));
+  var history = load(K.hist, []);
+  if (!Array.isArray(history)) history = [];
+
+  function nextNo(dateIso) {
+    var base = (dateIso || today()).replace(/-/g, "");
+    var max = 0;
+    history.forEach(function (h) { var m = String(h.doc.no || "").match(/^(\d{8})-(\d+)$/); if (m && m[1] === base) max = Math.max(max, parseInt(m[2], 10)); });
+    return base + "-" + pad(max + 1, 3);
+  }
+  function blankDoc() {
+    var d = today();
+    return { to: "", honor: "様", date: d, no: nextNo(d), purpose: "施術代として", pay: "現金", mode: "incl", rounding: "floor", reissue: false,
+      layout: "full", batchOn: false, batchNames: "",
+      items: [{ name: "", price: "", qty: "1", rate: 10 }] };
+  }
+  var doc = load(K.draft, null);
+  if (!doc || !Array.isArray(doc.items)) {
+    doc = blankDoc();
+    doc.items = [{ name: "フェイシャル施術（見本）", price: "11000", qty: "1", rate: 10 }, { name: "ホームケア化粧品（見本）", price: "5500", qty: "1", rate: 10 }];
+  }
+  if (doc.layout !== "simple") doc.layout = "full";
+  if (typeof doc.batchNames !== "string") doc.batchNames = "";
+  doc.batchOn = !!doc.batchOn;
+  var userTemplates = load(K.tpl, []);
+  if (!Array.isArray(userTemplates)) userTemplates = [];
+
+  /* まとめて作るときの宛名と番号 */
+  function batchNames(d) { return d.batchOn ? d.batchNames.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean) : []; }
+  function seqNo(no, k) {
+    if (!k) return no;
+    var m = String(no).match(/^(.*?)(\d+)$/);
+    if (!m) return no + "-" + (k + 1);
+    return m[1] + pad(parseInt(m[2], 10) + k, m[2].length);
+  }
+  function docsToIssue(d) {
+    var names = batchNames(d);
+    if (!names.length) return [d];
+    return names.map(function (nm, k) { var x = JSON.parse(JSON.stringify(d)); x.to = nm; x.no = seqNo(d.no, k); return x; });
+  }
+
+  /* ---------- 計算（1枚の領収書につき、税率ごとに1回だけ端数処理） ---------- */
+  function roundFn(mode) {
+    if (mode === "round") return function (x) { return Math.round(x); };
+    if (mode === "ceil") return function (x) { return Math.ceil(x - 1e-9); };
+    return function (x) { return Math.floor(x + 1e-9); };
+  }
+  function calc(d) {
+    var R = roundFn(d.rounding);
+    var groups = {};
+    var lines = d.items.map(function (it) {
+      var price = parseNum(it.price), qty = parseNum(it.qty === "" ? "1" : it.qty);
+      var amt = price * qty, rate = Number(it.rate) === 8 ? 8 : 10;
+      if (it.name || price) { groups[rate] = (groups[rate] || 0) + amt; }
+      return { name: it.name, price: price, qty: qty, rate: rate, amt: amt, empty: !it.name && !price };
+    });
+    var rates = [10, 8].filter(function (r) { return groups[r] !== undefined; });
+    var byRate = rates.map(function (r) {
+      var sum = groups[r], tax, incl, excl;
+      if (d.mode === "incl") { tax = R(sum * r / (100 + r)); incl = sum; excl = sum - tax; }
+      else { tax = R(sum * r / 100); excl = sum; incl = sum + tax; }
+      return { rate: r, tax: tax, incl: incl, excl: excl };
+    });
+    var t = byRate.reduce(function (a, g) { a.incl += g.incl; a.excl += g.excl; a.tax += g.tax; return a; }, { incl: 0, excl: 0, tax: 0 });
+    return { lines: lines, byRate: byRate, total: t.incl, totalExcl: t.excl, totalTax: t.tax, hasReduced: groups[8] !== undefined };
+  }
+  function stampTax(excl) {
+    if (excl < 50000) return 0;
+    var table = [[1000000, 200], [2000000, 400], [3000000, 600], [5000000, 1000], [10000000, 2000], [30000000, 6000], [50000000, 10000], [100000000, 20000]];
+    for (var i = 0; i < table.length; i++) if (excl <= table[i][0]) return table[i][1];
+    return 40000;
+  }
+  function needsStamp(d, c) { return d.pay !== "クレジットカード" && c.totalExcl >= 50000; }
+
+  /* ---------- 領収書の HTML ---------- */
+  function receiptHTML(d, c) {
+    var to = d.to ? esc(d.to) : "";
+    var rows = c.lines.filter(function (l) { return !l.empty; }).map(function (l) {
+      return "<tr><td>" + esc(l.name) + (l.rate === 8 ? " ※" : "") + "</td><td class=\"r num\">" + yen(l.price) + "</td><td class=\"c num\">" + l.qty +
+        "</td><td class=\"c num\">" + l.rate + "%" + "</td><td class=\"r num\">" + yen(l.amt) + "</td></tr>";
+    }).join("");
+    if (!rows) rows = "<tr><td colspan=\"5\" style=\"color:#9a9286\">（明細なし）</td></tr>";
+    var sumRows = c.byRate.map(function (g) {
+      return "<tr><td>" + g.rate + "%対象" + (g.rate === 8 ? "（軽減税率）" : "") + "</td><td class=\"r\">" + yen(g.excl) + "</td><td class=\"r\">" + yen(g.tax) + "</td><td class=\"r\">" + yen(g.incl) + "</td></tr>";
+    }).join("");
+    sumRows += "<tr class=\"total\"><td>合計</td><td class=\"r\">" + yen(c.totalExcl) + "</td><td class=\"r\">" + yen(c.totalTax) + "</td><td class=\"r\">" + yen(c.total) + "</td></tr>";
+    var stamp = needsStamp(d, c) ? "<div class=\"rc-stamp\">収入印紙<br>" + stampTax(c.totalExcl) + "円</div>" : "";
+    var seal = issuer.seal ? "<img class=\"seal\" src=\"" + issuer.seal + "\" alt=\"\">" : "";
+    var issuerBlock = "<div class=\"rc-issuer\">" + (issuer.shop ? "<div class=\"shop\">" + esc(issuer.shop) + "</div>" : "") +
+      "<div class=\"co\">" + esc(issuer.name) + "</div><div>" + esc(issuer.zip) + "</div><div>" + esc(issuer.addr) + "</div>" +
+      (issuer.tel ? "<div>TEL " + esc(issuer.tel) + "</div>" : "") +
+      "<div class=\"reg\">登録番号　" + esc(issuer.reg) + "</div>" + seal + "</div>";
+    var payText = esc(d.pay) + (d.pay === "クレジットカード" ? "（クレジットカード利用）" : "");
+    if (d.layout === "simple") {
+      var taxLines = c.byRate.map(function (g) {
+        return "<div>" + g.rate + "%対象" + (g.rate === 8 ? "※" : "") + "　<b>" + yen(g.incl) + "</b>（うち消費税 " + yen(g.tax) + "）</div>";
+      }).join("");
+      if (c.hasReduced) taxLines += "<div>※は軽減税率（8%）対象です</div>";
+      return "<div class=\"rc simple\">" +
+        "<div class=\"rc-head\"><div><h1 class=\"rc-title\">領収書" + (d.reissue ? "<span class=\"rc-reissue\">再発行</span>" : "") + "</h1></div>" +
+        "<div class=\"rc-meta\"><div>No. <b class=\"num\">" + esc(d.no) + "</b></div><div>発行日 <b>" + esc(jpDate(d.date)) + "</b></div></div></div>" +
+        "<div class=\"rc-to\"><span class=\"nm\">" + to + "</span><span class=\"hn\">" + esc(d.honor) + "</span></div>" +
+        "<div class=\"rc-amount\"><span class=\"lb\">金額</span><span class=\"val\">" + yen(c.total) + "-</span><span class=\"tx\">（税込）</span></div>" +
+        "<div class=\"rc-for\"><div class=\"tadashi\">但し　" + esc(d.purpose) + "</div><div>上記正に領収いたしました。</div></div>" +
+        "<div class=\"rc-foot\"><div class=\"rc-foot-left\">" + stamp + "<div class=\"rc-tax\">" + taxLines + "<div>お支払い方法：" + payText + "</div></div></div>" +
+        issuerBlock + "</div></div>";
+    }
+    var priceHead = d.mode === "incl" ? "単価（税込）" : "単価（税抜）";
+    var amtHead = d.mode === "incl" ? "金額（税込）" : "金額（税抜）";
+    return "<div class=\"rc\">" +
+      "<div class=\"rc-head\"><div><h1 class=\"rc-title\">領収書" + (d.reissue ? "<span class=\"rc-reissue\">再発行</span>" : "") + "</h1></div>" +
+      "<div class=\"rc-meta\"><div>No. <b class=\"num\">" + esc(d.no) + "</b></div><div>発行日 <b>" + esc(jpDate(d.date)) + "</b></div></div></div>" +
+      "<div class=\"rc-to\"><span class=\"nm\">" + to + "</span><span class=\"hn\">" + esc(d.honor) + "</span></div>" +
+      "<div class=\"rc-amount\"><span class=\"lb\">金額</span><span class=\"val\">" + yen(c.total) + "-</span><span class=\"tx\">（税込）<br>うち消費税 " + yen(c.totalTax) + "</span></div>" +
+      "<div class=\"rc-for\"><div class=\"tadashi\">但し　" + esc(d.purpose) + "</div><div>上記正に領収いたしました。</div></div>" +
+      "<div class=\"rc-mid\">" + stamp + issuerBlock + "</div>" +
+      "<div><p class=\"sec-title\">内訳</p><table><thead><tr><th>品名</th><th class=\"r\">" + priceHead + "</th><th class=\"c\">数量</th><th class=\"c\">税率</th><th class=\"r\">" + amtHead + "</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+      "<div><p class=\"sec-title\">税率ごとの内訳</p><table class=\"rc-sum\"><thead><tr><th>区分</th><th class=\"r\">税抜金額</th><th class=\"r\">消費税額</th><th class=\"r\">税込金額</th></tr></thead><tbody>" + sumRows + "</tbody></table></div>" +
+      "<div class=\"rc-bottom\"><div>お支払い方法：" + payText + "</div><div>" + (c.hasReduced ? "※印は軽減税率（8%）対象です" : "") + "</div></div>" +
+      "</div>";
+  }
+
+  /* ---------- 画面 ---------- */
+  function renderItems() {
+    var list = $("item-list");
+    list.innerHTML = doc.items.map(function (it, i) {
+      return "<div class=\"item\" data-i=\"" + i + "\">" +
+        "<input class=\"name\" type=\"text\" id=\"it-name-" + i + "\" aria-label=\"品名\" placeholder=\"品名\" value=\"" + esc(it.name) + "\" data-k=\"name\">" +
+        "<input class=\"num\" type=\"text\" inputmode=\"numeric\" id=\"it-price-" + i + "\" aria-label=\"単価\" placeholder=\"単価\" value=\"" + esc(it.price) + "\" data-k=\"price\">" +
+        "<input class=\"num\" type=\"text\" inputmode=\"numeric\" id=\"it-qty-" + i + "\" aria-label=\"数量\" value=\"" + esc(it.qty) + "\" data-k=\"qty\">" +
+        "<select id=\"it-rate-" + i + "\" aria-label=\"税率\" data-k=\"rate\"><option value=\"10\"" + (Number(it.rate) !== 8 ? " selected" : "") + ">10%</option><option value=\"8\"" + (Number(it.rate) === 8 ? " selected" : "") + ">8% 軽減</option></select>" +
+        "<span class=\"amt\" id=\"it-amt-" + i + "\"></span>" +
+        "<button type=\"button\" class=\"icon-btn\" data-del=\"" + i + "\" aria-label=\"この行を消す\">×</button></div>";
+    }).join("");
+  }
+  function fillForm() {
+    $("f-to").value = doc.to; $("f-honor").value = doc.honor; $("f-date").value = doc.date; $("f-no").value = doc.no;
+    $("f-purpose").value = doc.purpose; $("f-pay").value = doc.pay; $("f-round").value = doc.rounding; $("f-reissue").checked = !!doc.reissue;
+    $("f-batch-on").checked = doc.batchOn; $("f-batch").value = doc.batchNames;
+    setMode(doc.mode, true);
+    setLayout(doc.layout, true);
+    syncBatch();
+    renderItems();
+  }
+  function setLayout(l, silent) {
+    doc.layout = l === "simple" ? "simple" : "full";
+    $("l-full").setAttribute("aria-pressed", String(doc.layout === "full"));
+    $("l-simple").setAttribute("aria-pressed", String(doc.layout === "simple"));
+    $("cap-size").textContent = doc.layout === "simple" ? "A5 横" : "A4";
+    if (!silent) { update(); fitPreview(); }
+  }
+  function syncBatch() {
+    $("batch-box").hidden = !doc.batchOn;
+    $("f-to").disabled = doc.batchOn;
+  }
+  function fillIssuer() {
+    ["name", "shop", "zip", "addr", "tel", "reg"].forEach(function (k) { $("i-" + k).value = issuer[k] || ""; });
+    $("issuer-summary").textContent = issuer.name + "　" + issuer.reg;
+    var t = $("seal-thumb"); if (issuer.seal) { t.src = issuer.seal; t.hidden = false; $("btn-seal-clear").hidden = false; } else { t.hidden = true; $("btn-seal-clear").hidden = true; }
+  }
+  function setMode(m, silent) {
+    doc.mode = m === "excl" ? "excl" : "incl";
+    $("m-incl").setAttribute("aria-pressed", String(doc.mode === "incl"));
+    $("m-excl").setAttribute("aria-pressed", String(doc.mode === "excl"));
+    $("hd-price").textContent = doc.mode === "incl" ? "単価（税込）" : "単価（税抜）";
+    if (!silent) update();
+  }
+
+  function fitPreview() {
+    var frame = $("paper-frame"), sc = $("paper-scale");
+    var s = frame.clientWidth / 794;
+    sc.style.transform = "scale(" + s + ")";
+    frame.style.height = Math.round((doc.layout === "simple" ? 559 : 1123) * s) + "px";
+  }
+
+  function update() {
+    var c = calc(doc);
+    c.lines.forEach(function (l, i) { var el = $("it-amt-" + i); if (el) el.textContent = l.empty ? "" : yen(l.amt); });
+    var ut = c.byRate.map(function (g) {
+      return "<div class=\"row\"><span>" + g.rate + "%対象 " + yen(g.incl) + "（税込）</span><span>うち消費税 " + yen(g.tax) + "</span></div>";
+    }).join("");
+    ut += "<div class=\"row grand\"><span>合計（税込）</span><span>" + yen(c.total) + "</span></div>";
+    $("ui-totals").innerHTML = ut;
+    var notes = [];
+    if (needsStamp(doc, c)) notes.push("<div class=\"notice stamp\">税抜 " + yen(c.totalExcl) + " なので、収入印紙（" + stampTax(c.totalExcl) + "円）を貼って割印してください。クレジットカード払いなら印紙はいりません。</div>");
+    if (c.hasReduced) notes.push("<div class=\"notice\">8% の品目には領収書で「※」が付き、軽減税率の対象だと書き添えます。</div>");
+    $("ui-notices").innerHTML = notes.join("");
+    var list = docsToIssue(doc);
+    $("paper-scale").innerHTML = receiptHTML(list[0], c);
+    var n = batchNames(doc).length;
+    $("btn-pdf").textContent = n > 1 ? "PDF を保存（" + n + "枚）" : "PDF を保存";
+    $("cap-text").textContent = n > 1 ? "見本（1枚目。" + n + "枚まとめて PDF になります）" : "見本（このまま PDF になります）";
+    if (doc.batchOn) $("batch-hint").textContent = n ? n + "人分・番号 " + list[0].no + " 〜 " + list[list.length - 1].no : "1人1枚、番号を続けて振り、1つの PDF にまとめます";
+    save(K.draft, doc);
+    return c;
+  }
+
+  /* ---------- 入力のつなぎ込み ---------- */
+  function bind(id, key, ev) { $(id).addEventListener(ev || "input", function (e) { doc[key] = e.target.type === "checkbox" ? e.target.checked : e.target.value; update(); }); }
+  bind("f-to", "to"); bind("f-honor", "honor", "change"); bind("f-no", "no"); bind("f-purpose", "purpose");
+  bind("f-pay", "pay", "change"); bind("f-round", "rounding", "change"); bind("f-reissue", "reissue", "change");
+  $("f-date").addEventListener("change", function (e) {
+    var old = doc.date; doc.date = e.target.value || today();
+    if (String(doc.no).indexOf(old.replace(/-/g, "")) === 0) { doc.no = nextNo(doc.date); $("f-no").value = doc.no; }
+    update();
+  });
+  $("l-full").addEventListener("click", function () { setLayout("full"); });
+  $("l-simple").addEventListener("click", function () { setLayout("simple"); });
+  $("f-batch-on").addEventListener("change", function (e) { doc.batchOn = e.target.checked; syncBatch(); update(); if (doc.batchOn) $("f-batch").focus(); });
+  $("f-batch").addEventListener("input", function (e) { doc.batchNames = e.target.value; update(); });
+
+  /* ---------- テンプレート ---------- */
+  function allTemplates() { return BUILTIN_TEMPLATES.concat(userTemplates); }
+  function renderTemplates() {
+    $("tpl-list").innerHTML = allTemplates().map(function (t) {
+      var tag = t.layout === "simple" ? "簡易" : "A4";
+      var chip = "<button type=\"button\" class=\"chip\" data-tpl=\"" + esc(t.id) + "\">" + esc(t.label) + " <small>" + tag + "</small></button>";
+      if (t.id.indexOf("u-") !== 0) return chip;
+      return "<span class=\"chip-wrap\">" + chip + "<button type=\"button\" class=\"chip-del\" data-tpldel=\"" + esc(t.id) + "\" aria-label=\"テンプレート「" + esc(t.label) + "」を消す\">×</button></span>";
+    }).join("");
+  }
+  $("tpl-list").addEventListener("click", function (e) {
+    var del = e.target.closest("[data-tpldel]");
+    if (del) { userTemplates = userTemplates.filter(function (t) { return t.id !== del.dataset.tpldel; }); save(K.tpl, userTemplates); renderTemplates(); setStatus("テンプレートを消しました", "ok"); return; }
+    var b = e.target.closest("[data-tpl]"); if (!b) return;
+    var t = allTemplates().find(function (x) { return x.id === b.dataset.tpl; }); if (!t) return;
+    doc.layout = t.layout; doc.purpose = t.purpose;
+    doc.items = JSON.parse(JSON.stringify(t.items));
+    if (t.pay) doc.pay = t.pay;
+    if (t.mode) doc.mode = t.mode;
+    fillForm(); update(); fitPreview();
+    setStatus("「" + t.label + "」を入れました。金額を入れてください", "ok");
+    var p = $("it-price-0"); if (p && !doc.items[0].price) p.focus();
+  });
+  $("btn-tpl-save").addEventListener("click", function () {
+    var label = (doc.purpose || "").replace(/として$/, "") || (doc.items[0] && doc.items[0].name) || "テンプレート";
+    var t = { id: "u-" + Date.now(), label: label, layout: doc.layout, purpose: doc.purpose, pay: doc.pay, mode: doc.mode, items: JSON.parse(JSON.stringify(doc.items)) };
+    userTemplates = userTemplates.filter(function (x) { return !(x.label === t.label && x.layout === t.layout); });
+    userTemplates.push(t);
+    if (!save(K.tpl, userTemplates)) { setStatus("この画面ではテンプレートを残せませんでした", "err"); return; }
+    renderTemplates(); setStatus("テンプレート「" + label + "」を作りました（金額も入ったまま残ります）", "ok");
+  });
+
+  $("m-incl").addEventListener("click", function () { setMode("incl"); });
+  $("m-excl").addEventListener("click", function () { setMode("excl"); });
+  $("item-list").addEventListener("input", function (e) {
+    var row = e.target.closest(".item"); if (!row) return;
+    var i = Number(row.dataset.i), k = e.target.dataset.k; if (!k) return;
+    doc.items[i][k] = k === "rate" ? Number(e.target.value) : e.target.value; update();
+  });
+  $("item-list").addEventListener("change", function (e) {
+    if (e.target.dataset.k === "rate") { var i = Number(e.target.closest(".item").dataset.i); doc.items[i].rate = Number(e.target.value); update(); }
+  });
+  $("item-list").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-del]"); if (!b) return;
+    doc.items.splice(Number(b.dataset.del), 1);
+    if (!doc.items.length) doc.items.push({ name: "", price: "", qty: "1", rate: 10 });
+    renderItems(); update();
+  });
+  $("btn-add").addEventListener("click", function () {
+    var last = doc.items[doc.items.length - 1];
+    doc.items.push({ name: "", price: "", qty: "1", rate: last ? last.rate : 10 });
+    renderItems(); update();
+    var n = $("it-name-" + (doc.items.length - 1)); if (n) n.focus();
+  });
+  $("btn-new").addEventListener("click", function () {
+    var keep = { pay: doc.pay, mode: doc.mode, rounding: doc.rounding, purpose: doc.purpose, layout: doc.layout };
+    doc = Object.assign(blankDoc(), keep);
+    fillForm(); update(); setStatus("新しい領収書にしました（番号 " + doc.no + "）", "ok");
+    $("f-to").focus();
+  });
+
+  ["name", "shop", "zip", "addr", "tel", "reg"].forEach(function (k) {
+    $("i-" + k).addEventListener("input", function (e) { issuer[k] = e.target.value; save(K.issuer, issuer); $("issuer-summary").textContent = issuer.name + "　" + issuer.reg; update(); });
+  });
+  $("btn-issuer-reset").addEventListener("click", function () { var seal = issuer.seal; issuer = Object.assign({}, DEFAULT_ISSUER, { seal: seal }); save(K.issuer, issuer); fillIssuer(); update(); });
+  $("i-seal").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function () {
+      var s = Math.min(1, 320 / Math.max(img.width, img.height)), cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      issuer.seal = cv.toDataURL("image/png"); URL.revokeObjectURL(url);
+      if (!save(K.issuer, issuer)) setStatus("社印の画像をこの端末に残せませんでした（今回の PDF には入ります）", "err");
+      fillIssuer(); update();
+    };
+    img.onerror = function () { setStatus("画像を読み込めませんでした。PNG か JPEG を選んでください", "err"); };
+    img.src = url;
+  });
+  $("btn-seal-clear").addEventListener("click", function () { issuer.seal = ""; save(K.issuer, issuer); $("i-seal").value = ""; fillIssuer(); update(); });
+
+  /* ---------- 履歴 ---------- */
+  var pendingDelete = null;
+  function renderHistory() {
+    var box = $("history");
+    if (!history.length) { box.innerHTML = "<p class=\"empty\">まだありません。PDF を保存すると、ここに残って開き直せます。</p>"; return; }
+    box.innerHTML = history.slice(0, 50).map(function (h) {
+      var del = pendingDelete === h.id ? "<button type=\"button\" class=\"btn small danger\" data-hdel2=\"" + h.id + "\">本当に消す</button>" : "<button type=\"button\" class=\"btn small\" data-hdel=\"" + h.id + "\">消す</button>";
+      return "<div class=\"h-item\"><div class=\"meta\">" + esc(h.doc.no) + "　" + esc(h.doc.to ? h.doc.to + " " + h.doc.honor : "（宛名なし）") + "　<b>" + yen(h.total) + "</b><small>" + esc(jpDate(h.doc.date)) + "・" + esc(h.doc.purpose) + "</small></div>" +
+        "<div class=\"ops\"><button type=\"button\" class=\"btn small\" data-hopen=\"" + h.id + "\">開く</button>" + del + "</div></div>";
+    }).join("");
+  }
+  $("history").addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.hopen) {
+      var h = history.find(function (x) { return x.id === t.dataset.hopen; }); if (!h) return;
+      doc = JSON.parse(JSON.stringify(h.doc)); fillForm(); update(); setStatus("「" + doc.no + "」を開きました。出し直すときは「再発行として出す」にチェック", "ok");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (t.dataset.hdel) { pendingDelete = t.dataset.hdel; renderHistory(); }
+    else if (t.dataset.hdel2) { history = history.filter(function (x) { return x.id !== t.dataset.hdel2; }); pendingDelete = null; save(K.hist, history); renderHistory(); }
+  });
+  function remember(list, c) {
+    list.slice().reverse().forEach(function (d, k) {
+      var copy = JSON.parse(JSON.stringify(d)); copy.batchOn = false; copy.batchNames = "";
+      var existing = history.findIndex(function (h) { return h.doc.no === copy.no; });
+      var entry = { id: existing >= 0 ? history[existing].id : String(Date.now()) + "-" + k, savedAt: new Date().toISOString(), total: c.total, doc: copy };
+      if (existing >= 0) history.splice(existing, 1);
+      history.unshift(entry);
+    });
+    history = history.slice(0, 500);
+    save(K.hist, history); renderHistory();
+  }
+
+  /* ---------- PDF ---------- */
+  function setStatus(msg, kind) { var s = $("status"); s.textContent = msg; s.className = "status" + (kind ? " " + kind : ""); }
+  var dlPromise = null;
+  function getDownloads() {
+    if (!dlPromise) dlPromise = (window.claude && typeof window.claude.use === "function") ? window.claude.use("downloads").catch(function () { return null; }) : Promise.resolve(null);
+    return dlPromise;
+  }
+  getDownloads();
+  function inViewer() { try { return window.self !== window.top; } catch (e) { return true; } }
+
+  async function makePdf(list, c) {
+    if (!window.html2canvas || !window.jspdf) throw new Error("lib");
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    var simple = doc.layout === "simple";
+    var h = simple ? 559 : 1123;
+    var pdf = new window.jspdf.jsPDF(simple ? { unit: "mm", format: "a5", orientation: "landscape", compress: true } : { unit: "mm", format: "a4", orientation: "portrait", compress: true });
+    var cap = $("capture");
+    for (var i = 0; i < list.length; i++) {
+      if (list.length > 1) setStatus("PDF を作っています… " + (i + 1) + " / " + list.length);
+      cap.innerHTML = receiptHTML(list[i], c);
+      var canvas = await window.html2canvas(cap.firstElementChild, { scale: 2.5, backgroundColor: "#ffffff", logging: false, width: 794, height: h, windowWidth: 1200 });
+      if (i > 0) pdf.addPage();
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, simple ? 210 : 210, simple ? 148 : 297);
+    }
+    cap.innerHTML = "";
+    pdf.setProperties({ title: "領収書 " + list[0].no, author: issuer.name, subject: "領収書（適格簡易請求書）" });
+    return pdf.output("blob");
+  }
+  function fileName(list) {
+    var d = list[0], n;
+    if (list.length > 1) n = "領収書_" + d.no + "〜" + list[list.length - 1].no + "_" + (d.purpose || "").replace(/として$/, "") + "_" + list.length + "枚";
+    else n = "領収書_" + d.no + (d.to ? "_" + d.to + (d.honor || "") : "");
+    n += d.reissue ? "_再発行" : "";
+    return n.replace(/[\\/:*?"<>|]/g, "_") + ".pdf";
+  }
+  $("btn-pdf").addEventListener("click", async function () {
+    var c = calc(doc);
+    if (!c.byRate.length) { setStatus("明細を1行以上入れてください", "err"); return; }
+    if (!issuer.reg || !/^T\d{13}$/.test(issuer.reg.trim())) { setStatus("登録番号は T と13桁の数字で入れてください", "err"); return; }
+    if (doc.batchOn && !batchNames(doc).length) { setStatus("まとめて作る宛名を1行に1人ずつ入れてください", "err"); return; }
+    var btn = this; btn.disabled = true; setStatus("PDF を作っています…");
+    var list = docsToIssue(doc);
+    try {
+      var blob = await makePdf(list, c);
+      var dl = await getDownloads();
+      var name = fileName(list);
+      if (dl) {
+        try { await dl.save({ filename: name, data: blob }); remember(list, c); setStatus("保存しました：" + name, "ok"); }
+        catch (err) {
+          var code = err && err.code;
+          if (code === "declined") setStatus("保存をやめました", "");
+          else if (code === "rate_limited") setStatus("確認の画面がまだ開いています。少し待ってからもう一度押してください", "err");
+          else setStatus("この画面では PDF を保存できませんでした（" + (code || "unknown") + "）", "err");
+        }
+      } else if (!inViewer() || !window.claude) {
+        var url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        remember(list, c); setStatus("保存しました：" + name, "ok");
+      } else {
+        setStatus("この画面では PDF を保存できません。ブラウザで開き直してください", "err");
+      }
+    } catch (e) {
+      setStatus(e && e.message === "lib" ? "PDF の部品を読み込めませんでした。通信を確かめて、ページを開き直してください" : "PDF を作れませんでした：" + (e && e.message || e), "err");
+    } finally { cap_clear(); btn.disabled = false; }
+  });
+  function cap_clear() { $("capture").innerHTML = ""; }
+
+  /* ---------- 起動 ---------- */
+  fillIssuer(); renderTemplates(); fillForm(); update(); renderHistory(); fitPreview();
+  window.addEventListener("resize", fitPreview);
+  if (window.ResizeObserver) new ResizeObserver(fitPreview).observe($("paper-frame"));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPreview);
+})();
+</script>
+
+</body>
+</html>
