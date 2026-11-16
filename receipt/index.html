@@ -8,6 +8,56 @@
 <style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+
+<style>
+body.locked .app, body.locked #capture { display: none !important; }
+.gate { display: none; min-height: 70vh; place-items: center; }
+body.locked .gate { display: grid; }
+.gate form { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 28px 24px; width: min(360px, 100%); display: grid; gap: 14px; }
+.gate h1 { font-family: var(--font-doc); font-size: 20px; margin: 0; letter-spacing: .06em; }
+.gate p { margin: 0; color: var(--muted); font-size: 13px; }
+.gate input { width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.gate input:focus-visible, .gate button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.gate button { font: inherit; font-weight: 700; border: 0; border-radius: 7px; padding: 11px; cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+.gate .err { color: var(--danger); font-size: 13px; min-height: 1.4em; }
+</style>
+<script>document.body.classList.add("locked");</script>
+<div class="gate" id="gate">
+  <form id="gate-form" autocomplete="on">
+    <h1>インボイス領収書</h1>
+    <p>エッセンシャルパートナーズ合同会社の社内用です。合言葉を入れてください。</p>
+    <label for="gate-pw" style="font-size:12px;color:var(--muted)">合言葉</label>
+    <input type="password" id="gate-pw" autocomplete="current-password" required>
+    <button type="submit" id="gate-btn">開く</button>
+    <div class="err" id="gate-err" role="alert"></div>
+  </form>
+</div>
+<script>
+(function () {
+  var G = {"salt": "3a38f5a703fdcacc538c411b05fea17c", "iterations": 200000, "hash": "4c15693e2c893df63b952175f644d7710afc2b56a8ed6e2325244e6daf37d0ec"};
+  var KEY = "rcpt.gate.v1";
+  function unlock() { document.body.classList.remove("locked"); window.dispatchEvent(new Event("resize")); }
+  try { if (localStorage.getItem(KEY) === G.hash) { unlock(); return; } } catch (e) {}
+  function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ("0" + b.toString(16)).slice(-2); }).join(""); }
+  function fromHex(h) { var a = new Uint8Array(h.length / 2); for (var i = 0; i < a.length; i++) a[i] = parseInt(h.substr(i * 2, 2), 16); return a; }
+  async function derive(pw) {
+    var key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+    var bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: fromHex(G.salt), iterations: G.iterations }, key, 256);
+    return hex(bits);
+  }
+  var form = document.getElementById("gate-form"), err = document.getElementById("gate-err"), btn = document.getElementById("gate-btn");
+  setTimeout(function () { var i = document.getElementById("gate-pw"); if (i) i.focus(); }, 0);
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault(); err.textContent = ""; btn.disabled = true; btn.textContent = "確かめています…";
+    try {
+      var h = await derive(document.getElementById("gate-pw").value.trim());
+      if (h === G.hash) { try { localStorage.setItem(KEY, G.hash); } catch (x) {} unlock(); }
+      else { err.textContent = "合言葉が違います"; }
+    } catch (x) { err.textContent = "このブラウザでは確かめられませんでした。https の住所で開いてください"; }
+    btn.disabled = false; btn.textContent = "開く";
+  });
+})();
+</script>
 <title>インボイス領収書</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
