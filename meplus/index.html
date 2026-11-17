@@ -51,6 +51,15 @@ b.hl{font-weight:500;color:var(--accent-d)}
 .brand small{font-family:"Noto Sans JP",sans-serif;font-size:10px;letter-spacing:.12em;color:var(--sub);margin-left:8px}
 .gnav a.mini{font-size:12px;text-decoration:none;color:#fff;background:var(--ink);padding:7px 14px;border-radius:2px;letter-spacing:.1em}
 
+/* 導入希望の方への案内（上部の細い帯と、下部のリンク） */
+.biz-bar{background:var(--ink);color:#fff;font-size:12px;letter-spacing:.06em;text-align:center}
+.biz-bar a{display:block;padding:8px 16px;text-decoration:none;color:#fff}
+.biz-bar a span{color:#a9c3d1;margin-left:6px}
+.biz{display:block;margin-top:24px;padding:18px 20px;border:1px solid var(--line);background:var(--bg);text-decoration:none;color:var(--ink)}
+.biz .k{font-family:"Jost",sans-serif;font-size:11px;letter-spacing:.3em;color:var(--accent)}
+.biz b{display:block;margin-top:2px;font-size:15px;font-weight:500;letter-spacing:.06em}
+.biz small{display:block;font-size:12px;color:var(--sub)}
+
 /* ファーストビュー */
 .hero{position:relative;overflow:hidden;padding:56px 0 72px;background:#fff}
 .orb{position:absolute;border-radius:50%;pointer-events:none}
@@ -199,6 +208,8 @@ footer .notes{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
 </style>
 </head>
 <body>
+
+<div class="biz-bar"><a href="salon/">ミプラス導入希望の方はこちら<span>（サロン・治療院の方へ）→</span></a></div>
 
 <nav class="gnav">
   <div class="wrap">
@@ -399,6 +410,7 @@ footer .notes{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
       <dt>営業時間</dt><dd>10:30〜22:00（最終受付21:00）</dd>
       <dt>運営</dt><dd>エッセンシャルパートナーズ合同会社</dd>
     </dl>
+    <a class="biz" href="salon/"><span class="k">FOR PROFESSIONALS</span><b>ミプラス導入希望の方はこちら</b><small>サロン・治療院向けの説明会（30分・オンライン）とお問い合わせ</small></a>
     <p class="notes">
       ※医療行為ではありません。<br>
       ※効果・感じ方には個人差があります。<br>
