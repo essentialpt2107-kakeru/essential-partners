@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- SPINDLE（Threads 運用ツール。knowledge-os/tools/spindle）の連携の戻り先ページ。公開URL: https://essential-partners.co.jp/spindle/callback
+     Threads の許可画面で「許可する」を押すと、Meta がこのページに ?code=…&state=… を付けて戻してくる。
+     state の「.」より後ろに、SPINDLE をどのアドレスで開いていたか（例 http://localhost:8765）が入っているので、
+     そこの /oauth/callback へ ? 以降をそのまま渡す。転送先は Mac の中・家の Wi-Fi の中のアドレスだけ（よそへの転送には使わせない）。
+     転送できなかったときのために、このページのアドレスをコピーするボタンを出す（SPINDLE の画面に貼れば連携できる）。
+     外部の読み込み（解析タグ・フォントなど）は入れない。アドレスに付いた code をよそへ送らないため。 -->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>SPINDLE｜Threads と連携</title>
+<style>
+  :root { color-scheme: light; --bg: #fff8f1; --card: #ffffff; --line: #f3e6d9; --text: #5b4a41; --muted: #9a8578; --accent: #ff8fab; --accent-text: #e5658b; --red: #ef7080; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(700px 420px at 92% -6%, rgba(255,196,214,.55), transparent 62%), radial-gradient(640px 420px at -8% 104%, rgba(190,230,214,.55), transparent 62%), var(--bg); color: var(--text); font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.7; }
+  .card { width: 100%; max-width: 460px; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 28px 24px; box-shadow: 0 10px 30px rgba(170,120,90,.14); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .16em; font-size: 14px; margin-bottom: 18px; color: var(--accent-text); }
+  .brand svg { width: 34px; height: 34px; }
+  h1 { font-size: 20px; margin: 0 0 6px; letter-spacing: -.01em; }
+  p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+  .spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); animation: r .8s linear infinite; display: inline-block; vertical-align: -3px; margin-right: 8px; }
+  @keyframes r { to { transform: rotate(360deg); } }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line); background: #fff6ee; color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; font-family: inherit; }
+  .btn.primary { background: linear-gradient(135deg, #ffb3c6, var(--accent)); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(255,143,171,.35); }
+  .stack { display: grid; gap: 10px; }
+  textarea { width: 100%; min-height: 84px; resize: none; background: #fffbf7; color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font: 12px/1.5 ui-monospace, Menlo, monospace; word-break: break-all; }
+  .err { color: var(--red); }
+  .hide { display: none; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 14px; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#ffe4ec"/><path d="M44 44c7 3 10 9 7 14" stroke="#ff8fab" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="31" cy="33" r="19" fill="#ff9fb9"/><g stroke="#ffd3de" stroke-width="2" fill="none" stroke-linecap="round"><path d="M15 27c8-6 24-7 33-1"/><path d="M18 20c7-4 19-5 26 0"/><path d="M13 34c3-9 12-17 24-19"/></g><circle cx="24.5" cy="36.5" r="2.3" fill="#5b4a41"/><circle cx="37.5" cy="36.5" r="2.3" fill="#5b4a41"/><path d="M28.5 41.5c1.6 1.5 3.4 1.5 5 0" stroke="#5b4a41" stroke-width="1.8" fill="none" stroke-linecap="round"/><ellipse cx="19.5" cy="41.5" rx="3" ry="1.8" fill="#ff6f93" opacity=".45"/><ellipse cx="42.5" cy="41.5" rx="3" ry="1.8" fill="#ff6f93" opacity=".45"/></svg>
+    SPINDLE
+  </div>
+
+  <section id="going" class="hide">
+    <h1><span class="spin"></span>SPINDLE に戻っています</h1>
+    <p>許可を受け取りました。連携の画面に切り替わります。</p>
+  </section>
+
+  <section id="manual" class="hide">
+    <h1 id="m-title">SPINDLE に戻ります</h1>
+    <p id="m-text">自動で戻れなかったときは、SPINDLE が動いているか確かめて下のボタンを押してください。それでも開かないときは、このページのアドレスをコピーして SPINDLE の「Threads で連携」の画面に貼ってください。</p>
+    <div class="stack">
+      <a id="retry" class="btn primary hide" href="#">SPINDLE に戻る</a>
+      <textarea id="url" readonly aria-label="このページのアドレス"></textarea>
+      <button id="copy" class="btn" type="button">アドレスをコピー</button>
+    </div>
+  </section>
+
+  <section id="denied" class="hide">
+    <h1 class="err">許可がキャンセルされました</h1>
+    <p>連携するときは、SPINDLE の設定から「Threads で連携」をもう一度押してください。</p>
+    <a id="back-denied" class="btn hide" href="#">SPINDLE に戻る</a>
+  </section>
+
+  <section id="empty" class="hide">
+    <h1>Threads と連携するためのページです</h1>
+    <p>SPINDLE の設定から「Threads で連携」を押すと、許可のあとにここへ戻ってきます。</p>
+  </section>
+
+  <p class="note">このページは何も保存しません。アドレスは、連携が終わると使えなくなります。</p>
+</main>
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code");
+  var error = q.get("error");
+  var state = q.get("state") || "";
+  var pageUrl = location.origin + location.pathname + location.search;
+
+  function show(id) { document.getElementById(id).classList.remove("hide"); }
+
+  // state の「.」より後ろ = SPINDLE のアドレス（base64url）。Mac の中・家の Wi-Fi の中だけ通す
+  function backOrigin() {
+    var i = state.lastIndexOf(".");
+    if (i < 0) return null;
+    try {
+      var b = state.slice(i + 1).replace(/-/g, "+").replace(/_/g, "/");
+      while (b.length % 4) b += "=";
+      var u = new URL(atob(b));
+      if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+      if (u.username || u.password || (u.pathname !== "/" && u.pathname !== "") || u.search || u.hash) return null;
+      var h = u.hostname.replace(/^\[|\]$/g, "");
+      var m = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+      var ok = h === "localhost" || /\.local$/.test(h) || h === "::1" ||
+        (m && (m[1] === "127" || m[1] === "10" || (m[1] === "192" && m[2] === "168") || (m[1] === "172" && +m[2] >= 16 && +m[2] <= 31)));
+      return ok ? u.origin : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var origin = backOrigin();
+  var target = origin ? origin + "/oauth/callback" + location.search : null;
+
+  if (!code && !error) { show("empty"); return; }
+
+  if (error) {
+    show("denied");
+    if (origin) {
+      var a = document.getElementById("back-denied");
+      a.href = origin + "/#/settings";
+      a.classList.remove("hide");
+    }
+    return;
+  }
+
+  // 転送できなかったとき用の画面を先に用意しておく（戻るボタンで戻ってきたときに見える）
+  document.getElementById("url").value = pageUrl;
+  document.getElementById("copy").addEventListener("click", function () {
+    var t = document.getElementById("url");
+    var done = function () { document.getElementById("copy").textContent = "コピーしました"; };
+    if (navigator.clipboard) navigator.clipboard.writeText(pageUrl).then(done, function () { t.select(); document.execCommand("copy"); done(); });
+    else { t.select(); document.execCommand("copy"); done(); }
+  });
+  if (target) {
+    var r = document.getElementById("retry");
+    r.href = target;
+    r.classList.remove("hide");
+  } else {
+    document.getElementById("m-title").textContent = "アドレスをコピーして SPINDLE に貼ってください";
+    document.getElementById("m-text").textContent = "どの SPINDLE から来たか分からなかったので、自動では戻れません。下のアドレスをコピーして、SPINDLE の「Threads で連携」の画面に貼ってください。";
+  }
+
+  // 同じ許可で一度転送を試していたら（SPINDLE が開けずに戻ってきたら）、自動ではもう転送しない
+  var key = "spindle-tried:" + state;
+  var tried = false;
+  try { tried = sessionStorage.getItem(key) === "1"; sessionStorage.setItem(key, "1"); } catch (e) { /* 使えないときは毎回転送 */ }
+
+  if (target && !tried) {
+    show("going");
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) { document.getElementById("going").classList.add("hide"); show("manual"); }
+    });
+    setTimeout(function () { location.href = target; }, 300);   // replace ではなく href: 戻るボタンでこのページに戻れるように
+  } else {
+    show("manual");
+  }
+})();
+</script>
+</body>
+</html>
