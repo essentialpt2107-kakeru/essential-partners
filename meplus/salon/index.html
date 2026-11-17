@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- ミプラスを自分のお店で扱いたい方（サロン・治療院など）向けのご案内。2026-11-17 作成
+     お客様向けLP（../）の上部と下部からリンク。問い合わせフォームは口コミ強化システムのデータ係（Apps Script）に送り、
+     スクリプトのプロパティ MEPLUS_NOTIFY_TO のメール宛に届く。説明会の予約は TimeRex「ミプラス説明会（30分）」
+     収入・効果の断定はしない。費用や条件は説明会で個別に説明する -->
+<title>ミプラス導入をご検討の方へ｜サロン・治療院向け説明会</title>
+<meta name="description" content="3型コラーゲンと幹細胞培養上清液の美容液を、針を使わず空気圧で届けるミプラス（MePlus+）。サロン・治療院などでの導入をご検討の方へ、30分のオンライン説明会とお問い合わせフォームをご用意しています。">
+<link rel="canonical" href="https://essential-partners.co.jp/meplus/salon/">
+<meta property="og:title" content="ミプラス導入をご検討の方へ｜サロン・治療院向け説明会">
+<meta property="og:description" content="針を使わない3型コラーゲンケア「ミプラス」。30分のオンライン説明会で、使い方・導入の費用や条件をご説明します。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://essential-partners.co.jp/meplus/salon/">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1d2a36;
+  --sub:#66727d;
+  --mute:#9aa5ae;
+  --accent:#4f7a92;
+  --accent-d:#3a6178;
+  --aqua:#e9f1f4;
+  --bg:#f6f8f9;
+  --line:#dfe5e9;
+  --gold:#b9a27a;
+  --err:#b4534b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;font-weight:400;
+  color:var(--ink);background:#fff;line-height:1.95;font-size:15px;letter-spacing:.03em;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:600px;margin:0 auto;padding:0 24px}
+section{padding:84px 0}
+section.alt{background:var(--bg)}
+
+.label{display:flex;align-items:center;gap:12px;font-family:"Jost",sans-serif;font-size:12px;letter-spacing:.28em;color:var(--accent)}
+.label .no{font-weight:300}
+.label::after{content:"";flex:0 0 36px;height:1px;background:currentColor;opacity:.6}
+h2{margin-top:18px;font-size:22px;line-height:1.7;font-weight:500;letter-spacing:.08em}
+.lead{margin-top:22px;color:#33414d}
+b.hl{font-weight:500;color:var(--accent-d)}
+
+/* ヘッダー */
+.gnav{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.gnav .wrap{display:flex;justify-content:space-between;align-items:center;height:56px}
+.brand{font-family:"Jost","Noto Sans JP",sans-serif;font-size:18px;letter-spacing:.2em;font-weight:400;text-decoration:none}
+.brand small{font-family:"Noto Sans JP",sans-serif;font-size:10px;letter-spacing:.12em;color:var(--sub);margin-left:8px}
+.gnav a.mini{font-size:12px;text-decoration:none;color:#fff;background:var(--ink);padding:7px 14px;border-radius:2px;letter-spacing:.1em}
+
+/* ファーストビュー */
+.hero{position:relative;overflow:hidden;padding:56px 0 72px;background:#fff}
+.orb{position:absolute;border-radius:50%;pointer-events:none}
+.orb.a{width:380px;height:380px;right:-170px;top:-40px;
+  background:radial-gradient(circle at 38% 34%,#fff 0,#f1f6f8 28%,#dbe8ee 62%,rgba(219,232,238,0) 72%)}
+.orb.ring{width:300px;height:300px;right:-130px;top:0;border:1px solid rgba(79,122,146,.18)}
+.hero .tag{position:relative;display:inline-block;font-size:12px;letter-spacing:.14em;color:var(--accent-d);border:1px solid rgba(79,122,146,.45);padding:4px 12px;border-radius:2px}
+.hero .ttl-en{position:relative;margin-top:28px;font-family:"Jost",sans-serif;font-weight:200;font-size:52px;line-height:1;letter-spacing:.04em}
+.hero .ttl-en sup{font-size:24px;font-weight:300;color:var(--accent);vertical-align:24px;margin-left:2px}
+.hero .ttl-ja{position:relative;margin-top:10px;font-family:"Jost",sans-serif;font-size:12px;letter-spacing:.4em;color:var(--sub)}
+.hero h1{position:relative;margin-top:30px;font-size:21px;line-height:1.8;font-weight:500;letter-spacing:.06em}
+.hero .lead{position:relative;font-size:14px}
+
+.btn{display:flex;justify-content:center;align-items:center;gap:12px;width:100%;margin-top:22px;padding:17px 18px;border:0;cursor:pointer;
+  background:var(--ink);color:#fff;text-decoration:none;font-family:inherit;font-size:15px;letter-spacing:.14em;font-weight:500;border-radius:2px;transition:background .2s}
+.btn::after{content:"";width:18px;height:1px;background:currentColor}
+.btn:hover{background:var(--accent-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--ink);margin-top:12px}
+.btn.ghost::after{display:none}
+.btn[disabled]{opacity:.55;cursor:default}
+.note{font-size:11.5px;color:var(--sub);line-height:1.8}
+.hero .note{margin-top:10px;text-align:center}
+
+/* 特長 */
+.feature{margin-top:34px;display:grid;gap:28px}
+.feature .item{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start}
+.feature .icon{width:64px;height:64px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.feature .icon svg{width:30px;height:30px;stroke:var(--accent-d);fill:none;stroke-width:1.3}
+.feature .n{font-family:"Jost",sans-serif;font-size:11px;letter-spacing:.3em;color:var(--accent)}
+.feature h3{font-size:16px;font-weight:500;letter-spacing:.06em;line-height:1.6}
+.feature p{margin-top:4px;font-size:14px;color:#33414d}
+
+/* こんなお店に */
+.for{margin-top:30px;border:1px solid var(--line);background:#fff;padding:22px 20px}
+.for ul{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.for li{list-style:none;font-size:14px;padding-left:16px;position:relative}
+.for li::before{content:"";position:absolute;left:0;top:.95em;width:8px;height:1px;background:var(--accent)}
+.list{margin-top:26px;border-top:1px solid var(--line)}
+.list li{list-style:none;display:flex;gap:14px;align-items:flex-start;padding:15px 2px;border-bottom:1px solid var(--line);font-size:14.5px}
+.list li::before{content:"";flex:0 0 16px;height:16px;margin-top:6px;border:1px solid var(--accent);border-radius:50%;
+  background:radial-gradient(circle,var(--accent) 0 3px,transparent 3.5px)}
+
+/* 説明会 */
+.seminar{margin-top:30px;border:1px solid var(--line);background:#fff;box-shadow:0 20px 50px rgba(29,42,54,.07)}
+.seminar .top{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);
+  font-family:"Jost",sans-serif;font-size:11px;letter-spacing:.3em;color:var(--accent)}
+.seminar .top span:last-child{font-family:"Noto Sans JP",sans-serif;letter-spacing:.1em;color:var(--sub)}
+.seminar .body{padding:18px 20px 22px}
+.seminar .name{font-size:17px;font-weight:500;letter-spacing:.08em}
+.seminar dl{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:13.5px;border-top:1px dashed var(--line);padding-top:12px}
+.seminar dt{color:var(--sub)}
+.seminar .btn{margin-top:18px}
+
+/* 流れ */
+.flow{margin-top:30px}
+.flow .s{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--line)}
+.flow .s:first-child{border-top:1px solid var(--line)}
+.flow .no{font-family:"Jost",sans-serif;font-weight:200;font-size:32px;line-height:1;color:var(--accent)}
+.flow .no small{display:block;font-size:9px;letter-spacing:.3em;font-weight:400;margin-top:6px}
+.flow h3{font-size:15.5px;font-weight:500;letter-spacing:.06em;line-height:1.6}
+.flow p{font-size:13.5px;color:#33414d;margin-top:2px}
+
+/* フォーム */
+form{margin-top:30px;background:#fff;border:1px solid var(--line);padding:24px 20px}
+.f{margin-top:18px}
+.f:first-child{margin-top:0}
+.f label,.f .lb{display:block;font-size:13px;font-weight:500;letter-spacing:.06em}
+.req{display:inline-block;margin-left:8px;font-size:10px;font-weight:400;color:#fff;background:var(--accent);padding:0 6px;border-radius:2px;vertical-align:1px;letter-spacing:.1em}
+.opt{margin-left:8px;font-size:11px;font-weight:400;color:var(--mute)}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;margin-top:6px;padding:12px 12px;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line);border-radius:2px;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.radios{margin-top:8px;display:grid;gap:8px}
+.radios label{display:flex;gap:10px;align-items:center;font-weight:400;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:2px;background:var(--bg);cursor:pointer}
+.radios input{accent-color:var(--accent);width:16px;height:16px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.privacy{margin-top:18px;font-size:11.5px;color:var(--sub);line-height:1.8}
+.msg{margin-top:14px;font-size:13.5px;line-height:1.8}
+.msg.err{color:var(--err)}
+.done{margin-top:30px;background:#fff;border:1px solid var(--line);padding:30px 22px;text-align:center}
+.done .k{font-family:"Jost",sans-serif;font-size:11px;letter-spacing:.3em;color:var(--accent)}
+.done h3{margin-top:8px;font-size:18px;font-weight:500;letter-spacing:.08em}
+.done p{margin-top:10px;font-size:14px;color:#33414d;text-align:left}
+
+/* 最後 */
+.cta{background:var(--ink);color:#fff;text-align:center}
+.cta .label{color:#a9c3d1;justify-content:center}
+.cta .label::before{content:"";flex:0 0 36px;height:1px;background:currentColor;opacity:.6}
+.cta h2{color:#fff}
+.cta p.sum{margin-top:18px;font-size:13.5px;color:rgba(255,255,255,.8)}
+.cta .btn{background:#fff;color:var(--ink)}
+.cta .btn:hover{background:var(--aqua)}
+.cta .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+
+footer{background:#fff;padding:44px 0 60px;font-size:12.5px;color:var(--sub);line-height:1.9}
+footer .brand{color:var(--ink);font-size:15px;letter-spacing:.1em}
+footer dl{margin-top:16px;display:grid;grid-template-columns:5.5em 1fr;gap:6px 10px}
+footer dt{color:var(--ink)}
+footer .notes{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px}
+footer .back{display:inline-block;margin-top:18px;font-size:12.5px;color:var(--accent-d)}
+
+.rv{opacity:0;transform:translateY(14px);transition:opacity .8s ease,transform .8s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media (min-width:600px){
+  .hero .ttl-en{font-size:66px}
+  .hero h1{font-size:25px}
+  h2{font-size:25px}
+}
+</style>
+</head>
+<body>
+
+<nav class="gnav">
+  <div class="wrap">
+    <a class="brand" href="../">MePlus<small>導入のご案内</small></a>
+    <a class="mini" href="#contact">お問い合わせ</a>
+  </div>
+</nav>
+
+<!-- ===== ファーストビュー ===== -->
+<header class="hero">
+  <div class="orb ring"></div>
+  <div class="orb a"></div>
+  <div class="wrap">
+    <span class="tag">サロン・治療院の方へ</span>
+    <p class="ttl-en">MePlus<sup>+</sup></p>
+    <p class="ttl-ja">FOR PROFESSIONALS</p>
+    <h1>針を使わない<br>3型コラーゲンケアを、<br>あなたのお店のメニューに。</h1>
+    <p class="lead">ミプラスは、3型コラーゲンと幹細胞培養上清液の美容液を、空気圧で肌に届けるエイジングケアです。二子玉川の肌管理サロン「美yond」でも、実際にメニューとしてご提供しています。導入をご検討の方に、30分のオンライン説明会をご用意しました。</p>
+    <a class="btn" href="https://timerex.net/s/essential.pt2107_9f5a/25b52756" target="_blank" rel="noopener">説明会（30分）を予約する</a>
+    <a class="btn ghost" href="#contact">まずはフォームで問い合わせる</a>
+    <p class="note">説明会はZoomで行います。毎日9:00〜24:00の空いている時間からお選びいただけます</p>
+  </div>
+</header>
+
+<!-- ===== 特長 ===== -->
+<section class="alt">
+  <div class="wrap rv">
+    <p class="label"><span class="no">01</span>FEATURES</p>
+    <h2>ミプラスの特長</h2>
+    <div class="feature">
+      <div class="item">
+        <div class="icon"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="10"/><path d="M8 22 22 8"/></svg></div>
+        <div><div class="n">POINT 01</div><h3>針・注射を使わない</h3><p>空気の圧で美容液を届けるので、針や注射は使いません。医療行為ではない、サロンで行えるケアです。</p></div>
+      </div>
+      <div class="item">
+        <div class="icon"><svg viewBox="0 0 30 30"><path d="M15 4c4 5.5 7 9.4 7 13a7 7 0 0 1-14 0c0-3.6 3-7.5 7-13z"/><path d="M11.5 18.5a3.6 3.6 0 0 0 3 3"/></svg></div>
+        <div><div class="n">POINT 02</div><h3>3型コラーゲン×幹細胞培養上清液</h3><p>肌のハリを支えるコラーゲンのうち、赤ちゃんの肌に多いことで知られる3型コラーゲンに、幹細胞培養上清液を合わせた美容液を使います。</p></div>
+      </div>
+      <div class="item">
+        <div class="icon"><svg viewBox="0 0 30 30"><path d="M8 25v-3a7 7 0 0 1 14 0v3"/><circle cx="15" cy="11" r="6"/><path d="M10 7.5c2 1.5 6 1.8 10 .5"/></svg></div>
+        <div><div class="n">POINT 03</div><h3>お顔にも、頭皮にも</h3><p>お顔のエイジングケアに加えて、頭皮のケアにも使えます。いまのメニューに組み合わせやすいのも特長です。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== こんな方に ===== -->
+<section>
+  <div class="wrap rv">
+    <p class="label"><span class="no">02</span>FOR</p>
+    <h2>こんなお店・こんな方に</h2>
+    <div class="for">
+      <ul>
+        <li>エステサロン</li>
+        <li>美容室・ヘッドスパ</li>
+        <li>整体院・整骨院</li>
+        <li>リラクゼーションサロン</li>
+      </ul>
+    </div>
+    <ul class="list">
+      <li>針を使わない、新しいエイジングケアのメニューを増やしたい</li>
+      <li>お顔と頭皮、どちらにも使える商材を探している</li>
+      <li>いまのお客様に、次の提案ができるメニューがほしい</li>
+      <li>実際に使っているサロンの話を聞いてから決めたい</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 説明会 ===== -->
+<section class="alt" id="seminar">
+  <div class="wrap rv">
+    <p class="label"><span class="no">03</span>SEMINAR</p>
+    <h2>まずは30分、<br>話を聞いてみませんか。</h2>
+    <p class="lead">ミプラスの特長、施術の流れ、サロンでの使い方、導入の費用や条件などをご説明し、ご質問にお答えします。説明会に参加したからといって、導入を無理におすすめすることはありません。</p>
+    <div class="seminar">
+      <div class="top"><span>ONLINE</span><span>参加無料</span></div>
+      <div class="body">
+        <div class="name">ミプラス説明会</div>
+        <dl>
+          <dt>時間</dt><dd>30分</dd>
+          <dt>方法</dt><dd>Zoom（予約後にURLをお送りします）</dd>
+          <dt>日時</dt><dd>毎日 9:00〜24:00 の空いている時間から</dd>
+        </dl>
+        <a class="btn" href="https://timerex.net/s/essential.pt2107_9f5a/25b52756" target="_blank" rel="noopener">日時を選んで予約する</a>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="s"><div class="no">01<small>STEP</small></div><div><h3>説明会を予約</h3><p>上のボタンから、ご都合のよい日時をお選びください。</p></div></div>
+      <div class="s"><div class="no">02<small>STEP</small></div><div><h3>オンラインでご説明（30分）</h3><p>お店の業態やお客様層をお伺いしながら、ミプラスの使い方をご説明します。</p></div></div>
+      <div class="s"><div class="no">03<small>STEP</small></div><div><h3>ご検討・ご質問</h3><p>持ち帰ってご検討ください。あとからのご質問も、フォームやメールでお受けします。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 問い合わせ ===== -->
+<section id="contact">
+  <div class="wrap rv">
+    <p class="label"><span class="no">04</span>CONTACT</p>
+    <h2>お問い合わせフォーム</h2>
+    <p class="lead">説明会の前に聞いておきたいこと、資料のご希望などはこちらからどうぞ。内容を確認のうえ、担当者からメールでご連絡します。</p>
+
+    <form id="form" novalidate>
+      <div class="f"><label for="company">会社名・屋号<span class="opt">任意</span></label><input type="text" id="company" name="company" maxlength="100" autocomplete="organization"></div>
+      <div class="f"><label for="name">お名前<span class="req">必須</span></label><input type="text" id="name" name="name" maxlength="50" autocomplete="name" required></div>
+      <div class="f"><label for="email">メールアドレス<span class="req">必須</span></label><input type="email" id="email" name="email" maxlength="120" autocomplete="email" inputmode="email" required></div>
+      <div class="f"><label for="tel">電話番号<span class="opt">任意</span></label><input type="tel" id="tel" name="tel" maxlength="30" autocomplete="tel" inputmode="tel"></div>
+      <div class="f"><label for="biz">業種<span class="opt">任意</span></label>
+        <select id="biz" name="biz">
+          <option value="">選んでください</option>
+          <option>エステサロン</option>
+          <option>美容室・ヘッドスパ</option>
+          <option>整体院・整骨院</option>
+          <option>リラクゼーションサロン</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="f"><label for="area">地域（都道府県・市区町村）<span class="opt">任意</span></label><input type="text" id="area" name="area" maxlength="50" autocomplete="address-level1"></div>
+      <div class="f"><span class="lb">ご希望<span class="opt">任意</span></span>
+        <div class="radios">
+          <label><input type="radio" name="interest" value="説明会に参加したい">説明会に参加したい</label>
+          <label><input type="radio" name="interest" value="資料がほしい">資料がほしい</label>
+          <label><input type="radio" name="interest" value="まずは質問したい">まずは質問したい</label>
+        </div>
+      </div>
+      <div class="f"><label for="message">ご質問・ご相談<span class="opt">任意</span></label><textarea id="message" name="message" maxlength="2000" placeholder="例）頭皮ケアにも使いたい／施術時間の目安が知りたい など"></textarea></div>
+      <div class="hp" aria-hidden="true"><label>空欄のままにしてください<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <p class="privacy">ご入力いただいた内容は、ミプラスに関するご案内とご連絡のためだけに使い、ほかの目的には使いません。</p>
+      <button class="btn" type="submit" id="send">送信する</button>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <p class="k">THANK YOU</p>
+      <h3>お問い合わせを受け付けました</h3>
+      <p>内容を確認のうえ、担当者からメールでご連絡します。お急ぎの方は、説明会のご予約もあわせてご利用ください。</p>
+      <a class="btn" href="https://timerex.net/s/essential.pt2107_9f5a/25b52756" target="_blank" rel="noopener">説明会（30分）を予約する</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 最後 ===== -->
+<section class="cta">
+  <div class="wrap">
+    <p class="label"><span class="no">05</span>NEXT</p>
+    <h2>実際に使っているサロンから、<br>直接ご説明します。</h2>
+    <p class="sum">30分・オンライン・参加無料</p>
+    <a class="btn" href="https://timerex.net/s/essential.pt2107_9f5a/25b52756" target="_blank" rel="noopener">説明会を予約する</a>
+    <a class="btn ghost" href="#contact">フォームで問い合わせる</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="brand">エッセンシャルパートナーズ合同会社</span>
+    <dl>
+      <dt>内容</dt><dd>ミプラス（MePlus+）導入のご案内・説明会</dd>
+      <dt>直営店</dt><dd>美yond（ビヨンド）二子玉川<br>東京都世田谷区玉川1-8-15 アノンテラス二子玉川101</dd>
+    </dl>
+    <p class="notes">
+      ※ミプラスの施術は医療行為ではありません。<br>
+      ※効果・感じ方には個人差があります。施術後、一時的に赤みなどが出る場合があります。<br>
+      ※売上や効果をお約束するものではありません。導入の費用・条件は説明会で個別にご説明します。
+    </p>
+    <a class="back" href="../">一般のお客様向けのページ（美yondのお試し体験）はこちら</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* 問い合わせは口コミ強化システムのデータ係（Apps Script のウェブアプリ）が受け取り、メールで届ける */
+  var API='https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwnxBWoWzyY3ExMVtH5OGrhVM0RI-gdKHT6gebIRuPy7g/exec';
+  var form=document.getElementById('form'),msg=document.getElementById('msg'),send=document.getElementById('send');
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var d={action:'meplus_inquiry'};
+    ['company','name','email','tel','biz','area','message','website'].forEach(function(k){d[k]=(form.elements[k].value||'').trim();});
+    var r=form.querySelector('input[name=interest]:checked');d.interest=r?r.value:'';
+    msg.className='msg';msg.textContent='';
+    if(!d.name){return err('お名前を入力してください。',form.elements.name);}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){return err('メールアドレスを正しく入力してください。',form.elements.email);}
+    send.disabled=true;send.textContent='送信しています…';
+    fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)})
+      .then(function(res){return res.json();})
+      .then(function(j){
+        if(j&&j.ok){form.hidden=true;var dn=document.getElementById('done');dn.hidden=false;dn.scrollIntoView({behavior:'smooth',block:'start'});return;}
+        throw new Error(j&&j.error||'error');
+      })
+      .catch(function(e){
+        send.disabled=false;send.textContent='送信する';
+        err(String(e.message)==='busy'?'ただいま混み合っています。少し時間をおいて、もう一度お試しください。':'送信できませんでした。通信状況をご確認のうえ、もう一度お試しください。');
+      });
+  });
+  function err(t,el){msg.className='msg err';msg.textContent=t;if(el)el.focus();}
+  var rv=document.querySelectorAll('.rv');
+  if(!('IntersectionObserver' in window)){rv.forEach(function(e){e.classList.add('in')});return;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{rootMargin:'0px 0px -8% 0px'});
+  rv.forEach(function(e){io.observe(e)});
+})();
+</script>
+</body>
+</html>
