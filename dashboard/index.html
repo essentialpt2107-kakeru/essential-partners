@@ -60,6 +60,33 @@
   .gate .err { color: var(--color-bad); font-size: 13px; min-height: 1.2em; }
   .appbar { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 8px; }
   .appbar button { font: inherit; font-size: 12px; color: var(--color-fg-muted); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+
+  /* AI店長 */
+  .ai-fab { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 50; font: inherit; font-size: 14px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #a96479, #c98f7a); border: 0; border-radius: 999px; padding: 12px 18px; box-shadow: 0 8px 24px rgba(120, 70, 85, .28); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .ai-fab .ai-face { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.25); display: grid; place-items: center; font-family: var(--font-anthropic-serif); }
+  .ai-panel { position: fixed; z-index: 60; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); width: min(420px, calc(100vw - 32px)); height: min(640px, calc(100vh - 32px)); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 18px; box-shadow: 0 16px 48px rgba(120, 70, 85, .22); display: flex; flex-direction: column; overflow: hidden; }
+  @media (max-width: 560px) { .ai-panel { left: 0; right: 0; bottom: 0; width: 100%; height: 88vh; border-radius: 18px 18px 0 0; } }
+  .ai-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(135deg, #9c5f72, #c98f7a); color: #fff; }
+  .ai-head b { font-family: var(--font-anthropic-serif); font-weight: 600; font-size: 16px; letter-spacing: .04em; }
+  .ai-head small { display: block; font-size: 11px; opacity: .85; line-height: 1.4; }
+  .ai-head .ai-sp { flex: 1; }
+  .ai-head button { white-space: nowrap; font: inherit; font-size: 12px; color: #fff; background: rgba(255,255,255,.18); border: 0; border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+  .ai-log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #fcf9f6; }
+  .ai-msg { max-width: 92%; padding: 10px 12px; border-radius: 14px; font-size: 14px; line-height: 1.7; word-break: break-word; }
+  .ai-msg.me { align-self: flex-end; background: #f3e3e6; border-bottom-right-radius: 4px; white-space: pre-wrap; }
+  .ai-msg.bot { align-self: flex-start; background: #fff; border: 1px solid var(--color-border-line); border-bottom-left-radius: 4px; }
+  .ai-msg.bot p { margin: 0 0 6px; } .ai-msg.bot p:last-child { margin: 0; }
+  .ai-msg.bot h4 { margin: 8px 0 4px; font-size: 14px; color: #9c5f72; }
+  .ai-msg.bot ul, .ai-msg.bot ol { margin: 2px 0 6px; padding-left: 20px; }
+  .ai-msg.err { align-self: center; background: none; color: var(--color-bad); font-size: 13px; }
+  .ai-msg.wait { color: var(--color-fg-muted); }
+  .ai-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ai-chips button { font: inherit; font-size: 12px; color: #9c5f72; background: #fff; border: 1px solid #e6cdd3; border-radius: 999px; padding: 5px 10px; cursor: pointer; text-align: left; }
+  .ai-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--color-border-line); background: var(--color-panel); padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .ai-form textarea { flex: 1; resize: none; font: inherit; font-size: 16px; line-height: 1.5; padding: 8px 10px; border: 1px solid var(--color-border-line); border-radius: 10px; min-height: 42px; max-height: 140px; color: var(--color-fg); background: #fff; }
+  .ai-form button { font: inherit; font-size: 14px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #a96479, #c98f7a); border: 0; border-radius: 10px; padding: 0 14px; cursor: pointer; }
+  .ai-form button[disabled] { opacity: .5; cursor: default; }
+  .ai-note { font-size: 11px; color: var(--color-fg-muted); padding: 0 12px 6px; background: var(--color-panel); }
 </style>
 </head>
 <body>
@@ -80,6 +107,13 @@
     <div class="appbar"><button type="button" id="reload">最新にする</button><button type="button" id="logout">この端末から出る</button></div>
     <div id="dash-root"></div>
   </div>
+  <button type="button" class="ai-fab" id="ai-fab" hidden><span class="ai-face" aria-hidden="true">美</span>AI店長に相談</button>
+  <section class="ai-panel" id="ai-panel" hidden aria-label="AI店長">
+    <div class="ai-head"><div><b>AI店長</b><small>お店の数字とこれまでの考え方をふまえて答えます</small></div><span class="ai-sp"></span><button type="button" id="ai-new">新しい相談</button><button type="button" id="ai-close" aria-label="閉じる">閉じる</button></div>
+    <div class="ai-log" id="ai-log" aria-live="polite"></div>
+    <form class="ai-form" id="ai-form"><textarea id="ai-text" rows="1" placeholder="例：来月の売上を上げるには？" aria-label="相談したいこと"></textarea><button type="submit" id="ai-send">送る</button></form>
+    <div class="ai-note">AIの答えはまちがうこともあります。大事な判断は数字を確かめてから。</div>
+  </section>
 </div>
 <script>
 (function () {
@@ -87,6 +121,8 @@
   // データ係（Google Apps Script のウェブアプリ）の住所。gas/Code.gs をデプロイして入れる
   var API = 'https://script.google.com/macros/s/AKfycbyQQD8v_E3dWRNcMfhzeJAiWyrHgn5-yMUkaj6VEfBGhrs6p7rc1asgWk3a8ass5wYrQg/exec';
   var TOKEN_KEY = 'biyond-dash-token';
+  var CHAT_KEY = 'biyond-ai-chat';
+  var memToken = null;
 
   // ---- ダッシュボードの型の代わり（dash.data / onData / calc / setLink） ----
   var D = null, calcs = {}, fns = [];
@@ -145,10 +181,13 @@
     document.getElementById('go').disabled = true;
     document.getElementById('err').textContent = '読み込んでいます…';
     ask(body).then(function (r) {
+      if (r && r.ok && r.answer == null) r = { ok: false, error: 'ai_not_setup' };
       if (!r || !r.ok) { if (body.token) store(TOKEN_KEY, null); fail(r && r.error); return; }
+      if (r.token) memToken = r.token; else if (body.token) memToken = body.token;
       if (r.token && document.getElementById('keep').checked) store(TOKEN_KEY, r.token);
       document.getElementById('err').textContent = '';
       mount(r.bundle);
+      document.getElementById('ai-fab').hidden = false;
     }).catch(function () { fail(); });
   }
 
@@ -157,8 +196,78 @@
     var p = document.getElementById('pass').value;
     if (p) open({ pass: p, keep: document.getElementById('keep').checked });
   });
-  document.getElementById('logout').addEventListener('click', function () { store(TOKEN_KEY, null); location.reload(); });
+  document.getElementById('logout').addEventListener('click', function () { store(TOKEN_KEY, null); store(CHAT_KEY, null); location.reload(); });
   document.getElementById('reload').addEventListener('click', function () { location.reload(); });
+
+
+  // ---- AI店長（相談チャット） ----
+  var chat = [];
+  try { chat = JSON.parse(load(CHAT_KEY) || '[]') || []; } catch (e) { chat = []; }
+  var EXAMPLES = ['来月の売上を上げるために、今週やるべきことを3つ教えて', '新規のお客様を回数券・サブスクにつなげるには？', '空いている時間帯を埋めるアイデアは？', '今期の目標に届くには、月にいくら足りない？', '失客しそうなお客様を呼び戻す方法は？'];
+  var AIMSG = { ai_not_setup: 'AI店長の鍵（APIキー）がまだ登録されていません', ai_limit: '今日の相談の回数の上限に達しました。少し時間をおいてからどうぞ', ai_busy: 'いま混み合っています。少し待ってからもう一度送ってください', ai_key: 'AI店長の鍵（APIキー）が使えませんでした', wrong: 'ログインの期限が切れました。画面を読み込み直してください', locked: 'まちがいが続いたので、15分ほど待ってください' };
+  var logEl = document.getElementById('ai-log'), txt = document.getElementById('ai-text'), sendBtn = document.getElementById('ai-send');
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  // 太字（**…**）だけを安全に描く
+  function inline(parent, s) {
+    var parts = String(s).split(/\*\*(.+?)\*\*/g);
+    parts.forEach(function (p, i) { if (!p) return; if (i % 2) parent.appendChild(el('b', null, p)); else parent.appendChild(document.createTextNode(p)); });
+  }
+  function renderMd(box, text) {
+    var list = null;
+    String(text).split('\n').forEach(function (line) {
+      var t = line.replace(/\s+$/, '');
+      var m;
+      if (!t.trim()) { list = null; return; }
+      if ((m = t.match(/^#{1,6}\s+(.*)/))) { list = null; var h = el('h4'); inline(h, m[1]); box.appendChild(h); return; }
+      if ((m = t.match(/^\s*[-*・]\s+(.*)/)) || (m = t.match(/^\s*\d+[.)．]\s+(.*)/))) {
+        var ordered = /^\s*\d/.test(t);
+        if (!list || list.tagName !== (ordered ? 'OL' : 'UL')) { list = el(ordered ? 'ol' : 'ul'); box.appendChild(list); }
+        var li = el('li'); inline(li, m[1]); list.appendChild(li); return;
+      }
+      list = null; var p = el('p'); inline(p, t); box.appendChild(p);
+    });
+  }
+  function draw() {
+    logEl.replaceChildren();
+    if (!chat.length) {
+      var hi = el('div', 'ai-msg bot');
+      renderMd(hi, 'こんにちは、AI店長です。売上を上げる施策、集客、リピート、メニューや価格のことなど、なんでも相談してください。お店の数字（RING・予約・サブスク）とこれまでの考え方をふまえて答えます。');
+      logEl.appendChild(hi);
+      var chips = el('div', 'ai-chips');
+      EXAMPLES.forEach(function (q) { var b = el('button', null, q); b.type = 'button'; b.addEventListener('click', function () { send(q); }); chips.appendChild(b); });
+      logEl.appendChild(chips);
+    }
+    chat.forEach(function (m) {
+      var d = el('div', 'ai-msg ' + (m.role === 'user' ? 'me' : 'bot'));
+      if (m.role === 'user') d.textContent = m.content; else renderMd(d, m.content);
+      logEl.appendChild(d);
+    });
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function save() { try { store(CHAT_KEY, JSON.stringify(chat.slice(-40))); } catch (e) {} }
+  function send(q) {
+    q = String(q || '').trim();
+    if (!q || sendBtn.disabled) return;
+    var tk = memToken || load(TOKEN_KEY);
+    chat.push({ role: 'user', content: q }); save(); draw();
+    txt.value = ''; fit();
+    var wait = el('div', 'ai-msg bot wait', '考えています…（30秒ほどかかることがあります）');
+    logEl.appendChild(wait); logEl.scrollTop = logEl.scrollHeight;
+    sendBtn.disabled = true;
+    ask({ token: tk, ask: chat.slice(-20) }).then(function (r) {
+      wait.remove();
+      if (!r || !r.ok) { chat.pop(); save(); draw(); txt.value = q; fit(); logEl.appendChild(el('div', 'ai-msg err', AIMSG[r && r.error] || '答えをもらえませんでした（' + ((r && r.error) || '通信') + '）')); return; }
+      chat.push({ role: 'assistant', content: r.answer || '（答えが空でした）' }); save(); draw();
+    }).catch(function () { wait.remove(); chat.pop(); save(); draw(); txt.value = q; fit(); logEl.appendChild(el('div', 'ai-msg err', '通信できませんでした。もう一度送ってください')); })
+      .then(function () { sendBtn.disabled = false; });
+  }
+  function fit() { txt.style.height = 'auto'; txt.style.height = Math.min(txt.scrollHeight, 140) + 'px'; }
+  txt.addEventListener('input', fit);
+  txt.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(txt.value); } });
+  document.getElementById('ai-form').addEventListener('submit', function (e) { e.preventDefault(); send(txt.value); });
+  document.getElementById('ai-fab').addEventListener('click', function () { document.getElementById('ai-panel').hidden = false; document.getElementById('ai-fab').hidden = true; draw(); txt.focus(); });
+  document.getElementById('ai-close').addEventListener('click', function () { document.getElementById('ai-panel').hidden = true; document.getElementById('ai-fab').hidden = false; });
+  document.getElementById('ai-new').addEventListener('click', function () { if (sendBtn.disabled) return; chat = []; save(); draw(); });
 
   var t = load(TOKEN_KEY);
   if (t) open({ token: t });
