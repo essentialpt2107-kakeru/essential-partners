@@ -78,6 +78,10 @@
   .ai-msg.bot p { margin: 0 0 6px; } .ai-msg.bot p:last-child { margin: 0; }
   .ai-msg.bot h4 { margin: 8px 0 4px; font-size: 14px; color: #9c5f72; }
   .ai-msg.bot ul, .ai-msg.bot ol { margin: 2px 0 6px; padding-left: 20px; }
+  .ai-tbl { overflow-x: auto; margin: 4px 0 8px; }
+  .ai-tbl table { border-collapse: collapse; font-size: 13px; }
+  .ai-tbl th, .ai-tbl td { border: 1px solid var(--color-border-line); padding: 4px 8px; text-align: left; white-space: nowrap; }
+  .ai-tbl th { background: #f7eef0; font-weight: 600; }
   .ai-msg.err { align-self: center; background: none; color: var(--color-bad); font-size: 13px; }
   .ai-msg.wait { color: var(--color-fg-muted); }
   .ai-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -213,10 +217,22 @@
     parts.forEach(function (p, i) { if (!p) return; if (i % 2) parent.appendChild(el('b', null, p)); else parent.appendChild(document.createTextNode(p)); });
   }
   function renderMd(box, text) {
-    var list = null;
+    var list = null, tbl = null;
     String(text).split('\n').forEach(function (line) {
       var t = line.replace(/\s+$/, '');
       var m;
+      if (/^\s*\|.*\|\s*$/.test(t)) {
+        list = null;
+        var cells = t.trim().replace(/^\||\|$/g, '').split('|').map(function (c) { return c.trim(); });
+        if (cells.every(function (c) { return /^:?-{2,}:?$/.test(c); })) return;
+        if (!tbl) { var wrap = el('div', 'ai-tbl'); tbl = el('table'); wrap.appendChild(tbl); box.appendChild(wrap); tbl._head = true; }
+        var tr = el('tr');
+        cells.forEach(function (c) { var td = el(tbl._head ? 'th' : 'td'); inline(td, c); tr.appendChild(td); });
+        tbl.appendChild(tr); tbl._head = false;
+        return;
+      }
+      tbl = null;
+      if (/^\s*(-{3,}|\*{3,})\s*$/.test(t)) { list = null; return; }
       if (!t.trim()) { list = null; return; }
       if ((m = t.match(/^#{1,6}\s+(.*)/))) { list = null; var h = el('h4'); inline(h, m[1]); box.appendChild(h); return; }
       if ((m = t.match(/^\s*[-*・]\s+(.*)/)) || (m = t.match(/^\s*\d+[.)．]\s+(.*)/))) {
