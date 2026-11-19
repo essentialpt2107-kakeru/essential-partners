@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#9c5f72">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="美yond 数字">
+<title>美yond 経営ダッシュボード</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<!--
+  美yond の経営ダッシュボード（Webアプリ版）。
+  このページには数字もお客様の名前も入っていない。合言葉を送ると、データ係（Google Apps Script）が
+  Google ドライブの「biyond_dashboard_bundle.json」（画面の中身＋データ）を返し、それをここで表示する。
+  公開の保管庫に置くので、ここに数字・目標・合言葉を書かない。
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --color-fg: #3b2f33; --color-fg-muted: #8a7a7e; --color-bg: #faf6f1; --color-panel: #ffffff; --color-border-line: #eadfd8;
+    --color-ok: #4f9a7a; --color-warn: #c0893a; --color-bad: #c4566b;
+    --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 16px; --cds-gap-xl: 24px;
+    --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px; --cds-radius: 10px;
+    --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 26px;
+    --cds-font-weight-medium: 600; --cds-dur-slow: .4s;
+    --cds-chart-grid: #f1e8e2; --cds-chart-axis: #dccdc4; --cds-chart-muted: #d6c6c9; --cds-chart-reference: #a8939a;
+    --cds-surface-popover: #ffffff; --cds-border: #eadfd8; --cds-text-secondary: #8a7a7e; --cds-shadow-popover: 0 6px 24px rgba(120, 70, 85, .14);
+    --font-anthropic-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-anthropic-serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: 14px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  body { padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+  #app { max-width: 1200px; margin: 0 auto; }
+  .dash-skeleton { color: transparent !important; background: linear-gradient(90deg, #f3ebe6 25%, #faf4f0 50%, #f3ebe6 75%); background-size: 200% 100%; animation: sk 1.4s infinite linear; border-radius: 6px; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  .dash-select { font: inherit; font-size: 13px; color: var(--color-fg); background-color: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 6px; padding: 4px 8px; }
+
+  /* 入口（合言葉） */
+  .gate { min-height: 86vh; display: grid; place-items: center; }
+  .gate-card { width: min(100%, 380px); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 18px; padding: 32px 24px 26px; box-shadow: 0 10px 40px rgba(120, 70, 85, .12); display: grid; gap: 16px; text-align: center; }
+  .gate-logo { width: 64px; height: 64px; margin: 0 auto; border-radius: 16px; background: linear-gradient(135deg, #9c5f72, #d4a37f); color: #fff; font-family: var(--font-anthropic-serif); font-size: 32px; display: grid; place-items: center; }
+  .gate h1 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 600; font-size: 20px; letter-spacing: .06em; }
+  .gate p { margin: 0; color: var(--color-fg-muted); font-size: 13px; }
+  .gate input[type=password] { width: 100%; font: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid var(--color-border-line); border-radius: 10px; background: #fff; color: var(--color-fg); }
+  .gate input:focus-visible, .gate button:focus-visible { outline: 2px solid #b8667c; outline-offset: 2px; }
+  .gate label.keep { display: flex; gap: 8px; align-items: center; justify-content: center; font-size: 13px; color: var(--color-fg-muted); }
+  .gate button { font: inherit; font-size: 15px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #a96479, #c98f7a); border: 0; border-radius: 10px; padding: 12px; cursor: pointer; }
+  .gate button[disabled] { opacity: .6; cursor: default; }
+  .gate .err { color: var(--color-bad); font-size: 13px; min-height: 1.2em; }
+  .appbar { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 8px; }
+  .appbar button { font: inherit; font-size: 12px; color: var(--color-fg-muted); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="gate" id="gate">
+    <form class="gate-card" id="gate-form" autocomplete="on">
+      <div class="gate-logo" aria-hidden="true">美</div>
+      <h1>美yond 経営ダッシュボード</h1>
+      <p>合言葉を入れてください</p>
+      <input type="text" name="username" value="biyond-dashboard" autocomplete="username" hidden>
+      <input type="password" id="pass" name="password" autocomplete="current-password" aria-label="合言葉" required>
+      <label class="keep"><input type="checkbox" id="keep" checked> この端末で30日間おぼえる</label>
+      <button type="submit" id="go">開く</button>
+      <div class="err" id="err" role="alert"></div>
+    </form>
+  </div>
+  <div id="main" hidden>
+    <div class="appbar"><button type="button" id="reload">最新にする</button><button type="button" id="logout">この端末から出る</button></div>
+    <div id="dash-root"></div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  // データ係（Google Apps Script のウェブアプリ）の住所。gas/Code.gs をデプロイして入れる
+  var API = 'https://script.google.com/macros/s/AKfycbyQQD8v_E3dWRNcMfhzeJAiWyrHgn5-yMUkaj6VEfBGhrs6p7rc1asgWk3a8ass5wYrQg/exec';
+  var TOKEN_KEY = 'biyond-dash-token';
+
+  // ---- ダッシュボードの型の代わり（dash.data / onData / calc / setLink） ----
+  var D = null, calcs = {}, fns = [];
+  window.dash = {
+    colors: ['#c76b7e', '#6fa08a', '#c9a050', '#8f7fc0', '#5f94bf', '#e08a68'],
+    data: function (id) {
+      if (!D) return { status: 'loading', data: [] };
+      if (calcs[id]) {
+        var c = calcs[id];
+        try { return { status: 'ok', data: c.fn.apply(null, c.inputs.map(function (i) { return D[i] || []; })) }; }
+        catch (e) { console.error(id, e); return { status: 'error', data: [] }; }
+      }
+      return D[id] ? { status: 'ok', data: D[id] } : { status: 'missing', data: [] };
+    },
+    onData: function (f) { fns.push(f); run(f); },
+    calc: function (id, o) { calcs[id] = o; },
+    setLink: function () {}, loader: function () {}, draw: function () {}, params: function () { return {}; }, setParams: function () {}
+  };
+  function run(f) { try { f(); } catch (e) { console.error('onData', e); } }
+  function redraw() { fns.forEach(run); }
+  var rt;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(redraw, 200); });
+
+  function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  function ask(body) {
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); });
+  }
+
+  function mount(bundle) {
+    D = bundle.data || {};
+    var root = document.getElementById('dash-root');
+    var tpl = document.createElement('template');
+    tpl.innerHTML = bundle.page || '';
+    var scripts = Array.prototype.slice.call(tpl.content.querySelectorAll('script'));
+    scripts.forEach(function (s) { s.parentNode.removeChild(s); });
+    root.replaceChildren(tpl.content);
+    document.getElementById('gate').hidden = true;
+    document.getElementById('main').hidden = false;
+    scripts.forEach(function (s) { var n = document.createElement('script'); n.textContent = s.textContent; document.body.appendChild(n); });
+    requestAnimationFrame(function () { setTimeout(redraw, 60); });
+  }
+
+  var MSG = { wrong: '合言葉がちがいます', locked: 'まちがいが続いたので、15分ほど待ってからもう一度どうぞ', not_setup: 'データ係の合言葉がまだ設定されていません', no_data: 'データのファイルが見つかりません' };
+  function fail(code) {
+    document.getElementById('err').textContent = MSG[code] || '開けませんでした（' + (code || '通信') + '）';
+    document.getElementById('go').disabled = false;
+    document.getElementById('gate').hidden = false;
+    document.getElementById('main').hidden = true;
+  }
+
+  function open(body) {
+    if (!API) { fail('データ係の住所が未設定'); return; }
+    document.getElementById('go').disabled = true;
+    document.getElementById('err').textContent = '読み込んでいます…';
+    ask(body).then(function (r) {
+      if (!r || !r.ok) { if (body.token) store(TOKEN_KEY, null); fail(r && r.error); return; }
+      if (r.token && document.getElementById('keep').checked) store(TOKEN_KEY, r.token);
+      document.getElementById('err').textContent = '';
+      mount(r.bundle);
+    }).catch(function () { fail(); });
+  }
+
+  document.getElementById('gate-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var p = document.getElementById('pass').value;
+    if (p) open({ pass: p, keep: document.getElementById('keep').checked });
+  });
+  document.getElementById('logout').addEventListener('click', function () { store(TOKEN_KEY, null); location.reload(); });
+  document.getElementById('reload').addEventListener('click', function () { location.reload(); });
+
+  var t = load(TOKEN_KEY);
+  if (t) open({ token: t });
+})();
+</script>
+</body>
+</html>
