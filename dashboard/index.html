@@ -185,7 +185,6 @@
     document.getElementById('go').disabled = true;
     document.getElementById('err').textContent = '読み込んでいます…';
     ask(body).then(function (r) {
-      if (r && r.ok && r.answer == null) r = { ok: false, error: 'ai_not_setup' };
       if (!r || !r.ok) { if (body.token) store(TOKEN_KEY, null); fail(r && r.error); return; }
       if (r.token) memToken = r.token; else if (body.token) memToken = body.token;
       if (r.token && document.getElementById('keep').checked) store(TOKEN_KEY, r.token);
@@ -272,6 +271,7 @@
     sendBtn.disabled = true;
     ask({ token: tk, ask: chat.slice(-20) }).then(function (r) {
       wait.remove();
+      if (r && r.ok && r.answer == null) r = { ok: false, error: 'ai_not_setup' };
       if (!r || !r.ok) { chat.pop(); save(); draw(); txt.value = q; fit(); logEl.appendChild(el('div', 'ai-msg err', AIMSG[r && r.error] || '答えをもらえませんでした（' + ((r && r.error) || '通信') + '）')); return; }
       chat.push({ role: 'assistant', content: r.answer || '（答えが空でした）' }); save(); draw();
     }).catch(function () { wait.remove(); chat.pop(); save(); draw(); txt.value = q; fit(); logEl.appendChild(el('div', 'ai-msg err', '通信できませんでした。もう一度送ってください')); })
