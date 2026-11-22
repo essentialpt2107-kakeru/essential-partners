@@ -1,0 +1,177 @@
+/* ソラスパの2枚のページ（/soraspa/ と /soraspa/referral/）の、スマホ（幅760px以下）用の見た目。
+   2026-11-22 かけるの希望「スマホで見にくい、もっと華やかに見やすく」で足した。パソコンの見た目は変えない。
+   方針: 美yond と同じ白×ミント×ティール・明朝の見出しのまま、写真を大きく、まとまりごとに淡い色の面で区切り、
+   大事な数字と「こんな声」を目立たせる。文字は少し大きく濃くする。 */
+
+@media (max-width: 760px){
+  :root{ --ink-sub: #43585A; --soft: 0 6px 22px rgba(11,78,76,.08); --r: 16px; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ink-sub:#B3C6C4; --soft: 0 6px 22px rgba(0,0,0,.35); } }
+  :root[data-theme="dark"]{ --ink-sub:#B3C6C4; --soft: 0 6px 22px rgba(0,0,0,.35); }
+
+  body{ font-size:15.5px; line-height:1.85 }
+
+  /* ---- 上の帯 ---- */
+  .top{ background:linear-gradient(90deg, var(--deep), var(--chip-strong-bg)); border-bottom:none }
+  .top .wrap{ padding-block:10px }
+  .top .co{ color:var(--on-deep); font-size:.74rem; letter-spacing:.06em; line-height:1.6 }
+  .top nav a{ background:transparent; color:var(--on-deep); border-color:color-mix(in srgb, var(--on-deep) 45%, transparent); font-size:.78rem; padding:4px 12px }
+
+  /* ---- 見出し ---- */
+  .sec{ padding-block:56px; border-top:none }
+  .sec-head{ margin-bottom:26px; gap:8px }
+  .sec-head h2, .part2-open h2{ font-size:1.6rem; line-height:1.5 }
+  .sec-head h2::after, .part2-open h2::after{ content:""; display:block; width:44px; height:3px; border-radius:3px; margin-top:14px;
+    background:linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--brand) 25%, transparent)) }
+  .eyebrow{ font-size:1.05rem }
+  /* 見出しは文節で折り返す（対応していない端末では普通に折り返す） */
+  h1, h2, h3, .tbl-caption{ text-wrap:wrap; word-break:auto-phrase }
+  .ref-card h2{ font-size:1.5rem }
+
+  /* 面を交互に色分けして、まとまりを分かりやすく */
+  main > .sec:nth-of-type(odd){ background:linear-gradient(180deg, var(--bg-mint), var(--bg) 85%) }
+
+  /* ---- ファーストビュー（オーナー向け） ---- */
+  .hero{ background:radial-gradient(120% 60% at 100% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 70%), var(--bg) }
+  .hero .wrap{ gap:0; padding-block:0 44px }
+  .hero figure{ order:-1; position:relative;
+    margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px))) }
+  .hero img{ aspect-ratio:5/4; border-radius:0 }
+  .hero figure::after{ content:""; position:absolute; inset:auto 0 0 0; height:45%; background:linear-gradient(180deg, transparent, rgba(6,40,39,.55)) }
+  .hero figcaption{ position:absolute; left:16px; right:16px; bottom:46px; z-index:1; margin:0; color:#fff; font-size:.72rem; line-height:1.6; text-shadow:0 1px 6px rgba(0,0,0,.4) }
+  .hero-text{ position:relative; z-index:2; margin-top:-30px; background:var(--card); border-radius:22px; padding:26px 20px 24px; box-shadow:var(--soft); gap:18px }
+  .hero h1{ font-size:1.72rem; line-height:1.55 }
+  .hero h1 em{ background:linear-gradient(transparent 62%, color-mix(in srgb, var(--brand) 28%, transparent) 62%) }
+  .hero .lead{ font-size:.95rem }
+  .hero-facts{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+  .hero-facts span{ display:flex; align-items:center; gap:6px; font-size:.8rem; line-height:1.45; padding:10px 12px; border-radius:12px; background:var(--bg-mint); color:var(--chip-fg) }
+  .hero-facts span::before{ content:"✓"; font-weight:700; color:var(--brand) }
+  .hero-facts span:last-child{ grid-column:1 / -1; justify-content:center; background:linear-gradient(90deg, var(--chip-strong-bg), var(--brand)); color:#fff; font-size:.88rem; font-weight:700; letter-spacing:.06em }
+  .hero-facts span:last-child::before{ color:#fff }
+
+  /* ---- 判断シート ---- */
+  .sheet{ background:transparent; border:none }
+  .sheet table, .sheet tbody{ display:block }
+  .sheet tr{ display:block; background:var(--card); border:none !important; border-radius:var(--r); box-shadow:var(--soft); margin-bottom:12px; padding:16px 18px; border-left:4px solid var(--brand) !important }
+  .sheet th, .sheet td{ padding:0 !important }
+  .sheet th{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; font-size:1.08rem; color:var(--accent); margin-bottom:6px }
+  .sheet th small{ display:inline; font-size:.72rem }
+  .sheet .ans{ font-size:1.02rem; line-height:1.65; margin-bottom:6px }
+  .sheet td b{ font-family:var(--f-display); font-size:1.3em }
+  .sheet .sub{ font-size:.88rem; line-height:1.8 }
+
+  /* ---- 3つの悩み ---- */
+  .three{ gap:12px }
+  .three > div{ background:var(--card); border:none !important; border-radius:var(--r); box-shadow:var(--soft); padding:20px 18px !important }
+  .three .k{ justify-self:start; font-size:.74rem; color:#fff; background:var(--chip-strong-bg); padding:2px 12px; border-radius:999px; letter-spacing:.1em }
+  .three h3{ font-size:1.18rem }
+
+  /* ---- 実績 ---- */
+  .band{ background:radial-gradient(140% 50% at 0% 0%, color-mix(in srgb, var(--brand) 35%, transparent), transparent 60%), linear-gradient(180deg, var(--deep), color-mix(in srgb, var(--deep) 80%, #000)) }
+  .results{ gap:12px }
+  .result{ border-top:none; border-radius:var(--r); padding:18px; background:color-mix(in srgb, var(--on-deep) 8%, transparent); border:1px solid color-mix(in srgb, var(--on-deep) 16%, transparent) }
+  .result .big{ font-size:1.55rem; color:#fff }
+
+  /* ---- 試算 ---- */
+  .calc{ border:none; border-radius:var(--r); overflow:hidden; box-shadow:var(--soft) }
+  .calc-in{ padding:22px 18px }
+  .field input{ font-size:1.3rem; width:8em; border-radius:10px; padding:10px 14px }
+  .presets button{ padding:7px 14px; font-size:.85rem }
+  .calc-out{ padding:8px 18px 20px }
+  .out-row{ flex-wrap:wrap; gap:4px 12px }
+  .out-row strong{ margin-left:auto }
+  .out-row.key{ margin:12px -6px 6px; padding:14px; border-radius:12px; border-bottom:none; background:linear-gradient(90deg, var(--chip-strong-bg), var(--brand)) }
+  .out-row.key span{ color:#fff; font-weight:500 }
+  .out-row.key strong{ color:#fff; font-size:2rem }
+
+  /* ---- ほかの打ち手との違い（表をカードに組み替える） ---- */
+  table.plain thead{ display:none }
+  table.plain, table.plain tbody, table.plain tr, table.plain th, table.plain td{ display:block; width:auto }
+  table.plain tr{ background:var(--card); border-radius:var(--r); box-shadow:var(--soft); margin-bottom:12px; padding:16px 18px }
+  table.plain th, table.plain td{ border:none; padding:0 }
+  table.plain tbody th{ font-size:1.12rem; margin-bottom:8px }
+  table.plain td.them{ font-size:.88rem; padding-left:1.5em; position:relative; margin-bottom:10px }
+  table.plain td.them::before{ content:"△"; position:absolute; left:0; color:var(--ink-sub) }
+  table.plain td.us{ background:var(--bg-mint); border-radius:10px; padding:10px 12px 10px 2.2em; position:relative; color:var(--chip-fg) }
+  table.plain td.us::before{ content:"◎"; position:absolute; left:.8em; color:var(--brand); font-weight:700 }
+
+  /* ---- 合う・合いにくい ---- */
+  .fit{ gap:14px }
+  .fit > div{ border-radius:var(--r); padding:20px 18px }
+  .fit .yes{ background:var(--card); box-shadow:var(--soft); border-top:4px solid var(--brand) }
+  .fit .no{ background:var(--muted-bg) }
+
+  /* ---- オゾンの5つの力 ---- */
+  .ozone{ border:none; gap:10px }
+  .ozone > div{ border:none !important; background:var(--card); border-radius:14px; box-shadow:var(--soft); padding:16px 14px }
+  .ozone > div:last-child{ grid-column:1 / -1 }
+
+  /* ---- よくあるご質問 ---- */
+  .faq{ gap:10px }
+  .faq > div{ background:var(--card); border-radius:var(--r); box-shadow:var(--soft); padding:16px 18px; gap:8px }
+  .faq dt{ display:grid; grid-template-columns:1.8rem minmax(0,1fr); gap:8px; font-size:1.02rem; line-height:1.6 }
+  .faq dt::before{ content:"Q"; font-family:var(--f-latin); font-style:italic; font-size:1.5rem; line-height:1; color:var(--brand) }
+  .faq dd{ padding-left:2.3rem; font-size:.9rem }
+
+  /* ---- 導入までの流れ（縦のタイムライン） ---- */
+  .flow{ gap:0 !important; position:relative }
+  .flow li{ grid-template-columns:2.6rem minmax(0,1fr) !important; column-gap:12px !important; padding:0 0 22px !important; position:relative }
+  .flow li::before{ grid-row:span 2; width:2.6rem; height:2.6rem; border-radius:50%; display:grid; place-items:center; font-size:1.35rem !important;
+    background:var(--card); border:1.5px solid var(--brand); color:var(--accent) !important; position:relative; z-index:1 }
+  .flow li::after{ display:block !important; left:1.3rem !important; right:auto !important; top:2.6rem !important; bottom:0; width:1.5px; height:auto !important; background:color-mix(in srgb, var(--brand) 45%, transparent) !important }
+  .flow li:last-child::after{ display:none !important }
+  .flow li:last-child::before{ background:linear-gradient(135deg, var(--chip-strong-bg), var(--brand)); color:#fff !important; border-color:transparent }
+  .flow b{ font-size:1.1rem; padding-top:.35rem }
+
+  /* ---- ご案内する人 ---- */
+  .profile{ gap:18px; background:var(--card); border-radius:var(--r); box-shadow:var(--soft); padding:22px 18px }
+  .profile img{ max-width:150px; border-radius:14px }
+
+  /* ===================== 紹介する人向けのページ ===================== */
+  .part2{ background:linear-gradient(180deg, color-mix(in srgb, var(--brand) 12%, var(--bg-mint)), var(--bg-mint) 420px) }
+  .part2-open .wrap{ padding-block:0 8px }
+  .ref-photo{ display:block; margin:0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); position:relative }
+  .ref-photo img{ display:block; width:100%; height:auto; aspect-ratio:16/10; object-fit:cover }
+  .ref-photo::after{ content:""; position:absolute; inset:auto 0 0 0; height:50%; background:linear-gradient(180deg, transparent, rgba(6,40,39,.5)) }
+  .ref-card{ position:relative; z-index:1; margin-top:-30px; background:var(--card); border-radius:22px; padding:26px 20px 24px; box-shadow:var(--soft) }
+  .part2-open .lead{ font-size:.95rem }
+  .part2-open .lead.commit{ background:var(--bg-mint); border-left:4px solid var(--brand); border-radius:0 12px 12px 0; padding:12px 14px; color:var(--ink) }
+  .part2-open .btn{ display:block !important; text-align:center; padding:12px 18px; font-size:.95rem }
+
+  .tbl-caption{ font-size:1.35rem; line-height:1.5 }
+  table.cand{ background:transparent !important }
+  .legend{ gap:8px 14px }
+  table.cand tr{ display:flex !important; flex-direction:column; border:none !important; border-radius:var(--r); box-shadow:var(--soft); padding:18px !important; margin-bottom:14px !important }
+  table.cand td.fitcol{ order:-1 }
+  table.cand tbody th{ font-size:1.22rem !important; padding:6px 0 8px !important; border-bottom:1px solid var(--line) !important; margin-bottom:8px }
+  table.cand td{ font-size:.93rem; padding:5px 0 !important }
+  table.cand td .k{ color:var(--accent) !important; font-size:.72rem !important; margin-bottom:1px }
+  table.cand td.voice{ order:9; margin-top:8px; background:var(--bg-mint); border-radius:14px 14px 14px 4px; padding:12px 14px !important; font-weight:700; color:var(--chip-fg) }
+  table.cand td.voice .k{ color:var(--ink-sub) !important; font-weight:500 }
+
+  .not-fit li{ border:none; border-radius:12px; background:var(--card); padding:12px 14px 12px 2.4em; position:relative; color:var(--ink) }
+  .not-fit li::before{ content:"✕"; position:absolute; left:.95em; color:#B4675C; font-weight:700 }
+
+  .howto{ gap:22px }
+  .howto ol{ gap:18px }
+  .howto ol li{ grid-template-columns:2.4rem minmax(0,1fr); gap:12px }
+  .howto ol li::before{ width:2.4rem; height:2.4rem; border-radius:50%; display:grid; place-items:center; font-size:1.25rem;
+    background:linear-gradient(135deg, var(--chip-strong-bg), var(--brand)); color:#fff }
+  .copybox{ border:none; border-radius:var(--r); box-shadow:var(--soft); padding:18px 16px 16px }
+  .copybox .bar{ flex-direction:column; align-items:stretch }
+  .copybox .bar .btn{ padding:12px; font-size:.98rem }
+  .copybox pre{ background:var(--bg-mint); border-radius:16px 16px 16px 4px; padding:16px 14px; font-size:.9rem; line-height:1.9 }
+
+  /* 紹介文へすぐ飛べるボタン（画面の下に固定） */
+  .jump{ position:fixed; z-index:20; left:16px; right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+    display:block; text-align:center; text-decoration:none; font-weight:700; letter-spacing:.06em; color:#fff; padding:14px;
+    border-radius:999px; background:linear-gradient(90deg, var(--chip-strong-bg), var(--brand)); box-shadow:0 8px 24px rgba(11,78,76,.3);
+    transition:opacity .25s, transform .25s }
+  .jump.hide{ opacity:0; transform:translateY(16px); pointer-events:none }
+  .part2 .foot{ padding-bottom:110px }
+}
+
+/* パソコンでは、スマホ用に足した部品を目立たせない */
+@media (min-width: 761px){
+  .jump{ display:none }
+  .ref-photo{ display:none }
+}
