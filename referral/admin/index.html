@@ -92,6 +92,9 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
 .form .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .form .check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px}
 .form .check input{width:17px;height:17px;accent-color:var(--warn)}
+.form fieldset.show{border:0;margin:4px 0 2px;padding:0;display:grid;gap:6px}
+.form fieldset.show legend{font-weight:700;font-size:13px;margin-bottom:6px;padding:0}
+.form fieldset.show input{accent-color:var(--brand,#0A6F6C)}
 
 /* 紹介者の一覧 */
 .ref{display:block;width:100%;text-align:left;background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(16,80,78,.06);padding:14px 16px;margin-bottom:10px;border:1.5px solid transparent}
@@ -185,16 +188,20 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 3
 
     <div id="tabRefs">
       <div class="tools">
-        <input type="search" id="filter" placeholder="名前・会・お仕事で絞る">
+        <input type="search" id="filter" placeholder="名前・会社名・会で絞る">
         <button class="btn small" type="button" id="addOpen">＋ 紹介者を追加</button>
       </div>
 
       <form class="card form" id="addForm" hidden>
         <h3>紹介者を追加</h3>
-        <label for="aName">お名前<small>「さん」は付けない。ページに「〇〇さんからのご紹介」と出ます</small></label>
+        <label for="aName">お名前（個人名）<small>「さん」は付けない</small></label>
         <input type="text" id="aName" maxlength="30" required placeholder="例: 山田太郎">
-        <label for="aCompany">会社名・お仕事<small>ページには出ません</small></label>
-        <input type="text" id="aCompany" maxlength="60" placeholder="例: 山田工務店（リフォーム）">
+        <label for="aCompany">会社名・屋号<small>ページに会社名・屋号を出すときは必須</small></label>
+        <input type="text" id="aCompany" maxlength="60" placeholder="例: 山田工務店">
+        <fieldset class="show"><legend>ページに出す名前</legend>
+          <label class="check"><input type="radio" name="aShow" value="name" checked>お名前（「山田太郎さんからのご紹介」）</label>
+          <label class="check"><input type="radio" name="aShow" value="company">会社名・屋号（「山田工務店様からのご紹介」）</label>
+        </fieldset>
         <label for="aGroup">会<small>どこで知り合ったか</small></label>
         <input type="text" id="aGroup" maxlength="30" list="groups" placeholder="例: BNIグロース">
         <label for="aMemo">メモ<small>ページには出ません</small></label>
@@ -277,10 +284,14 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 3
     <div class="sec">
       <h4>紹介者の情報</h4>
       <form class="card form" id="editForm" style="margin:0">
-        <label for="eName">お名前<small>「さん」は付けない</small></label>
+        <label for="eName">お名前（個人名）<small>「さん」は付けない</small></label>
         <input type="text" id="eName" maxlength="30" required>
-        <label for="eCompany">会社名・お仕事<small>ページには出ません</small></label>
+        <label for="eCompany">会社名・屋号</label>
         <input type="text" id="eCompany" maxlength="60">
+        <fieldset class="show"><legend>ページに出す名前</legend>
+          <label class="check"><input type="radio" name="eShow" value="name">お名前（〇〇さん）</label>
+          <label class="check"><input type="radio" name="eShow" value="company">会社名・屋号（〇〇様）</label>
+        </fieldset>
         <label for="eGroup">会</label>
         <input type="text" id="eGroup" maxlength="30" list="groups">
         <label for="eMemo">メモ</label>
@@ -302,8 +313,12 @@ const API = 'https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwn
 const params = new URLSearchParams(location.search);
 const DEMO = !API || params.get('demo') === '1';
 const $ = id => document.getElementById(id);
-const PAGE_URL = 'https://essential-partners.co.jp/referral/'; // お客様のページ（旧住所 /shokai/ は新しい住所へ案内するだけ）
-const PASS_KEY = 'shokai_admin_pass'; // 名前は旧住所のまま（変えると保存した合言葉を入れ直すことになるため）
+const PAGE_URL = 'https://essential-partners.co.jp/referral/'; // お客様のページ
+const PASS_KEY = 'referral_admin_pass';
+try { // 2026-11-22 までの名前（shokai_admin_pass）で覚えていた合言葉を引き継ぐ
+  const old = localStorage.getItem('shokai_admin_pass');
+  if (old) { if (!localStorage.getItem(PASS_KEY)) localStorage.setItem(PASS_KEY, old); localStorage.removeItem('shokai_admin_pass'); }
+} catch (e) {}
 const store = {
   get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -313,6 +328,7 @@ const S = { pass: '', referrers: [], records: [], month: '', open: '' };
 
 const ERRORS = {
   need_name: 'お名前を入れてください。',
+  need_company: 'ページに会社名・屋号を出すときは、会社名・屋号を入れてください。',
   bad_amount: '売上は数字で入れてください（例: 10000）。',
   forbidden: 'この画面は「全店舗の管理用の合言葉」で開いたときだけ使えます。お店ごとの合言葉では開けません。',
   not_found: '見つかりませんでした。画面を開き直してください。',
@@ -426,7 +442,7 @@ $('logout').addEventListener('click', () => {
 function load() {
   return call({ action: 'a_ref_list' }).then(res => {
     if (res.error) return toast(errText(res.error));
-    // リンクの住所はここで決める（データ係が古い /shokai/ を返しても /referral/ で出す。2026-11-22 住所を変更）
+    // リンクの住所はここで決める（データ係が古い住所を返しても /referral/ で出す）
     S.referrers = (res.referrers || []).map(r => Object.assign({}, r, { url: PAGE_URL + '?r=' + r.code }));
     S.records = res.records || [];
     S.month = res.month || '';
@@ -469,7 +485,7 @@ function drawRefs() {
   }
   $('refList').replaceChildren(...list.map(r => el('button', { type: 'button', class: 'ref', onclick: () => openDetail(r.code) },
     el('div', { class: 'top' },
-      el('span', { class: 'nm', text: r.name + 'さん' }),
+      el('span', { class: 'nm', text: r.name + 'さん' + (r.show === 'company' && r.company ? '（ページは ' + r.company + '様）' : '') }),
       el('span', { class: 'sub', text: [r.group, r.company].filter(Boolean).join('・') }),
       r.stopped ? el('span', { class: 'stop', text: '止めています' }) : null),
     el('div', { class: 'nums' }, nums(r.counts)))));
@@ -518,7 +534,7 @@ $('addCancel').addEventListener('click', () => { $('addForm').reset(); $('addFor
 $('addForm').addEventListener('submit', e => {
   e.preventDefault();
   $('addBtn').disabled = true;
-  call({ action: 'a_ref_add', ref: { name: $('aName').value, company: $('aCompany').value, group: $('aGroup').value, memo: $('aMemo').value } }).then(res => {
+  call({ action: 'a_ref_add', ref: { name: $('aName').value, company: $('aCompany').value, group: $('aGroup').value, memo: $('aMemo').value, show: showOf('a') } }).then(res => {
     $('addBtn').disabled = false;
     if (res.error) return toast(errText(res.error));
     $('addForm').reset();
@@ -574,13 +590,24 @@ function drawDetail(fillForm) {
     $('eGroup').value = r.group;
     $('eMemo').value = r.memo;
     $('eStopped').checked = r.stopped;
+    document.querySelector('input[name="eShow"][value="' + (r.show === 'company' ? 'company' : 'name') + '"]').checked = true;
   }
   drawQr(r);
+}
+
+/** お客様のページ・QR に出す名前（個人名なら「さん」、会社名・屋号なら「様」） */
+function pageName(r) {
+  return r.show === 'company' && r.company ? r.company + '様' : r.name + 'さん';
+}
+function showOf(form) {
+  const v = (document.querySelector('input[name="' + form + 'Show"]:checked') || {}).value;
+  return v === 'company' ? 'company' : 'name';
 }
 
 /** 紹介者に LINE で送る文（「LINE返信の癖」の③ 協業・交流会の型） */
 function sendText(r) {
   const n = r.name + 'さん';
+  const p = pageName(r);
   return [
     n, '',
     'いつもありがとうございます😊',
@@ -590,7 +617,7 @@ function sendText(r) {
     '肌や毛穴、小顔などが気になっている',
     'お知り合いがいらっしゃったら、',
     'このリンクを送っていただけると嬉しいです。', '',
-    '開くと「' + n + 'からのご紹介」と出て、',
+    '開くと「' + p + 'からのご紹介」と出て、',
     'お好きな施術を2つ選んで',
     '10,000円でお試しいただけます。', '',
     r.url, '',
@@ -618,7 +645,7 @@ function drawQr(r) {
     ctx.fillText('二子玉川', W / 2, 116);
     ctx.fillStyle = '#0A6F6C';
     let size = 34;
-    const title = r.name + 'さんからのご紹介';
+    const title = pageName(r) + 'からのご紹介';
     do { ctx.font = '700 ' + size + 'px "Noto Sans JP", sans-serif'; size -= 2; } while (ctx.measureText(title).width > W - 80 && size > 18);
     ctx.fillText(title, W / 2, 176);
     if (typeof qrcode === 'function') {
@@ -652,7 +679,7 @@ $('dCopyUrl').addEventListener('click', () => copy(current().url, 'リンクを�
 $('dCopyText').addEventListener('click', () => copy(sendText(current()), '文をコピーしました。LINEに貼ってください'));
 $('dSaveQr').addEventListener('click', () => {
   const r = current();
-  const a = el('a', { href: $('dQr').toDataURL('image/png'), download: '美yond紹介QR_' + r.name + '.png' });
+  const a = el('a', { href: $('dQr').toDataURL('image/png'), download: '美yond紹介QR_' + (r.show === 'company' && r.company ? r.company : r.name) + '.png' });
   document.body.append(a);
   a.click();
   a.remove();
@@ -683,7 +710,7 @@ $('editForm').addEventListener('submit', e => {
   e.preventDefault();
   const r = current();
   $('editBtn').disabled = true;
-  call({ action: 'a_ref_save', code: r.code, ref: { name: $('eName').value, company: $('eCompany').value, group: $('eGroup').value, memo: $('eMemo').value, stopped: $('eStopped').checked } }).then(res => {
+  call({ action: 'a_ref_save', code: r.code, ref: { name: $('eName').value, company: $('eCompany').value, group: $('eGroup').value, memo: $('eMemo').value, show: showOf('e'), stopped: $('eStopped').checked } }).then(res => {
     $('editBtn').disabled = false;
     if (res.error) return toast(errText(res.error));
     toast('保存しました');
@@ -696,7 +723,7 @@ $('editForm').addEventListener('submit', e => {
 const D = {
   refs: [
     { code: 'demo2', name: '見本 太郎', company: '見本工務店（リフォーム）', group: 'BNIグロース', memo: '', stopped: false, created: '2026-11-22' },
-    { code: 'demo3', name: '見本 花子', company: '見本保険', group: 'PIC5', memo: '奥さまの知り合いが多い', stopped: false, created: '2026-11-22' },
+    { code: 'demo3', name: '見本 花子', company: '見本保険', show: 'company', group: 'PIC5', memo: '奥さまの知り合いが多い', stopped: false, created: '2026-11-22' },
   ],
   log: [
     ['demo2', '開いた'], ['demo2', '開いた'], ['demo2', '開いた'], ['demo2', 'LINEで予約'], ['demo2', '来店', 'Y様 esV10＋ソラスパ', 10000], ['demo3', '開いた'],
@@ -728,7 +755,8 @@ function demo(req) {
     if (req.action === 'a_ref_add') {
       const name = String(req.ref.name || '').trim().replace(/\s*さん$/, '');
       if (!name) return { error: 'need_name' };
-      const r = { code: 'dm' + String(D.refs.length + 2).padStart(3, '0').replace(/[01]/g, '2'), name, company: req.ref.company || '', group: req.ref.group || '', memo: req.ref.memo || '', stopped: false, created: '2026-11-22' };
+      if (req.ref.show === 'company' && !String(req.ref.company || '').trim()) return { error: 'need_company' };
+      const r = { show: req.ref.show, code: 'dm' + String(D.refs.length + 2).padStart(3, '0').replace(/[01]/g, '2'), name, company: req.ref.company || '', group: req.ref.group || '', memo: req.ref.memo || '', stopped: false, created: '2026-11-22' };
       D.refs.push(r);
       return { referrer: Object.assign({ url: 'https://essential-partners.co.jp/referral/?r=' + r.code }, r) };
     }
