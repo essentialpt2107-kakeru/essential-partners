@@ -160,12 +160,14 @@
   .copybox .bar .btn{ padding:12px; font-size:.98rem }
   .copybox pre{ background:var(--bg-mint); border-radius:16px 16px 16px 4px; padding:16px 14px; font-size:.9rem; line-height:1.9 }
 
-  /* 紹介文へすぐ飛べるボタン（画面の下に固定） */
-  .jump{ position:fixed; z-index:20; left:16px; right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px));
-    display:block; text-align:center; text-decoration:none; font-weight:700; letter-spacing:.06em; color:#fff; padding:14px;
-    border-radius:999px; background:linear-gradient(90deg, var(--chip-strong-bg), var(--brand)); box-shadow:0 8px 24px rgba(11,78,76,.3);
-    transition:opacity .25s, transform .25s }
-  .jump.hide{ opacity:0; transform:translateY(16px); pointer-events:none }
+  /* 画面の下に固定するボタン（左: 根本の LINE、右: 紹介文へ。紹介文が見えているあいだは LINE だけになる） */
+  .dock{ left:16px; right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); gap:8px }
+  .dock .line-cta{ flex:1; padding:13px 10px; font-size:.92rem; gap:6px; letter-spacing:.02em }
+  .dock .line-cta svg{ width:22px; height:22px }
+  .jump{ flex:1.15; display:flex; align-items:center; justify-content:center; text-align:center; text-decoration:none; font-weight:700; font-size:.92rem;
+    letter-spacing:.04em; color:#fff; padding:13px 10px; border-radius:999px; background:linear-gradient(90deg, var(--chip-strong-bg), var(--brand));
+    box-shadow:0 8px 24px rgba(11,78,76,.3) }
+  .jump.hide{ display:none }
   .part2 .foot{ padding-bottom:110px }
 }
 
