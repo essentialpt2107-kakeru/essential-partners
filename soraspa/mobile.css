@@ -1,12 +1,11 @@
 /* ソラスパの2枚のページ（/soraspa/ と /soraspa/referral/）の、スマホ（幅760px以下）用の見た目。
    2026-11-22 かけるの希望「スマホで見にくい、もっと華やかに見やすく」で足した。パソコンの見た目は変えない。
    方針: 美yond と同じ白×ミント×ティール・明朝の見出しのまま、写真を大きく、まとまりごとに淡い色の面で区切り、
-   大事な数字と「こんな声」を目立たせる。文字は少し大きく濃くする。 */
+   大事な数字と「こんな声」を目立たせる。文字は少し大きく濃くする。
+   スマホがダークモードでも背景は白のまま（2026-11-22 かけるの希望。ページ側でダークモードの色を外した）。 */
 
 @media (max-width: 760px){
   :root{ --ink-sub: #43585A; --soft: 0 6px 22px rgba(11,78,76,.08); --r: 16px; }
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ink-sub:#B3C6C4; --soft: 0 6px 22px rgba(0,0,0,.35); } }
-  :root[data-theme="dark"]{ --ink-sub:#B3C6C4; --soft: 0 6px 22px rgba(0,0,0,.35); }
 
   body{ font-size:15.5px; line-height:1.85 }
 
