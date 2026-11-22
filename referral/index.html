@@ -110,6 +110,8 @@ h2{font-family:"Noto Serif JP",serif;font-weight:600;font-size:20px;color:var(--
 .btn-tel{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line)}
 .memo{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12.5px;white-space:pre-wrap;margin-top:12px;color:#333}
 .hint{font-size:11.5px;color:var(--ink-sub);margin-top:8px}
+.btn-copy{background:#fff;color:var(--line-green);border:1.5px solid var(--line-green);margin-top:12px}
+.btn-copy.done{background:#EAF9F0}
 
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 30px}
 
@@ -171,8 +173,9 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 3
     <h2>ご予約</h2>
     <p class="lead" id="contactLead">メニューを2つ選ぶと、ご予約用のメッセージができあがります。</p>
     <div class="memo" id="memo" hidden></div>
-    <button class="btn btn-line" id="lineBtn" type="button">LINEで予約する</button>
-    <p class="hint">メッセージをコピーしてから公式LINEを開きます。トーク画面に貼り付けて送ってください。</p>
+    <button class="btn btn-copy" id="copyBtn" type="button">① 予約用の文章をコピーする</button>
+    <button class="btn btn-line" id="lineBtn" type="button">② LINEを開いて予約する</button>
+    <p class="hint">公式LINEのトーク画面で、コピーした文章を貼り付けて送ってください（②を押したときも自動でコピーされます）。</p>
     <a class="btn btn-web" id="webBtn" href="https://1cs.jp/gcs/user/salons/beyondessential/reservation.do#/salons/beyondessential/reservations" target="_blank" rel="noopener">Web予約はこちら</a>
     <p class="hint" id="webHint">Web予約の場合は、ご来店時に「ご紹介」とお伝えください。</p>
     <a class="btn btn-tel" id="telBtn" href="tel:07023220810">電話で予約する（070-2322-0810）</a>
@@ -204,7 +207,8 @@ var DEMO = params.get("demo") === "1";
 var CODE = (params.get("r") || "").trim().toLowerCase();
 if (!/^[a-z2-9]{5}$/.test(CODE)) CODE = "";
 var PREVIEW = params.get("p") === "1"; // 管理画面の「ページを確認」から開いたときは数えない
-var REF_NAME = ""; // 紹介者のお名前（「さん」は付けない）
+var REF_NAME = ""; // 紹介者のお名前（個人名、または会社名・屋号。敬称は付けない）
+var REF_HONOR = "さん"; // 個人名なら「さん」、会社名・屋号なら「様」（データ係が決める）
 
 /* 選べるメニューは名刺クーポン（site/coupon/index.html）と同じ（2026-11-22 かけるの指示）。
    料金・時間・説明は site/ai-shindan/index.html の MENUS とホームページにそろえている */
@@ -248,7 +252,6 @@ var MENUS = [
 
 var picked = [];
 var yen = function(n){ return n.toLocaleString("ja-JP") + "円"; };
-var who = function(){ return REF_NAME ? REF_NAME + "さんの紹介" : "ご紹介"; };
 
 function post(body, keep){
   if (DEMO || !API) return Promise.resolve({ ok: true });
@@ -264,7 +267,7 @@ function today(){
 
 /** 同じ人が同じ日に何度開いても、「開いた」は1回だけ数える */
 function firstToday(){
-  var key = "shokai_seen_" + CODE;
+  var key = "referral_seen_" + CODE;
   try {
     if (localStorage.getItem(key) === today()) return false;
     localStorage.setItem(key, today());
@@ -274,7 +277,7 @@ function firstToday(){
 
 function showName(){
   if (!REF_NAME) return;
-  var n = REF_NAME + "さん";
+  var n = REF_NAME + REF_HONOR;
   document.getElementById("badge").textContent = n + "からのご紹介";
   document.getElementById("heroText").textContent = n + "からのご紹介の方限定で、美yondの人気メニューから気になる施術を2つお選びいただけます。";
   document.getElementById("webHint").textContent = "Web予約の場合は、ご来店時に「" + n + "の紹介」とお伝えください。";
@@ -321,7 +324,7 @@ function render(){
 }
 
 function message(){
-  var lines = [REF_NAME ? "【ご紹介】" + REF_NAME + "さんの紹介で、お試し2施術 10,000円で予約したいです。" : "【ご紹介】お試し2施術 10,000円で予約したいです。"];
+  var lines = [REF_NAME ? "【ご紹介】" + REF_NAME + REF_HONOR + "の紹介で、お試し2施術 10,000円で予約したいです。" : "【ご紹介】お試し2施術 10,000円で予約したいです。"];
   picked.forEach(function(i, k){ lines.push((k ? "②" : "①") + MENUS[i].name + (MENUS[i].owner ? "（オーナー限定）" : "")); });
   lines.push("ご希望の日時：");
   if (!REF_NAME) lines.push("ご紹介者のお名前：");
@@ -342,14 +345,47 @@ document.getElementById("menus").addEventListener("click", function(e){
   render();
 });
 
+/** LINE に送る文章。2つ選んでいれば予約の文、まだなら相談の文 */
+function lineText(){
+  return picked.length === 2 ? message()
+    : "【ご紹介】お試し2施術 10,000円について相談したいです。" + (REF_NAME ? "（" + REF_NAME + REF_HONOR + "の紹介）" : "") + (CODE ? "\n（紹介コード：" + CODE + "）" : "");
+}
+
+/** コピーできたら true。ブラウザが許さないときは昔のやり方で試す */
+function copyText(text){
+  if (navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(text).then(function(){ return true; }, function(){ return legacyCopy(text); });
+  }
+  return Promise.resolve(legacyCopy(text));
+}
+function legacyCopy(text){
+  var t = document.createElement("textarea");
+  t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+  document.body.appendChild(t); t.select();
+  var ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) {}
+  t.remove();
+  return ok;
+}
+
+document.getElementById("copyBtn").addEventListener("click", function(){
+  var b = this;
+  if (picked.length < 2) toast("メニューを2つ選ぶと、選んだ施術入りの文章になります");
+  copyText(lineText()).then(function(ok){
+    if (!ok) return toast("コピーできませんでした。上の文章を長押ししてコピーしてください");
+    if (picked.length === 2) toast("コピーしました。LINEに貼り付けて送ってください");
+    b.textContent = "✓ コピーしました"; b.classList.add("done");
+    setTimeout(function(){ b.textContent = "① 予約用の文章をコピーする"; b.classList.remove("done"); }, 2500);
+  });
+});
+
 document.getElementById("lineBtn").addEventListener("click", function(){
   tap("line");
-  var text = picked.length === 2 ? message()
-    : "【ご紹介】お試し2施術 10,000円について相談したいです。" + (REF_NAME ? "（" + REF_NAME + "さんの紹介）" : "") + (CODE ? "\n（紹介コード：" + CODE + "）" : "");
   var open = function(){ window.location.href = LINE_URL; };
-  if (navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(text).then(function(){ toast("メッセージをコピーしました"); setTimeout(open, 700); }, open);
-  } else open();
+  copyText(lineText()).then(function(ok){
+    if (ok){ toast("文章をコピーしました。LINEに貼り付けて送ってください"); setTimeout(open, 700); }
+    else open();
+  });
 });
 document.getElementById("webBtn").addEventListener("click", function(){ tap("web"); });
 document.getElementById("telBtn").addEventListener("click", function(){ tap("tel"); });
@@ -366,7 +402,7 @@ if (DEMO){
   showName();
 } else if (CODE){
   post({ action: "ref", r: CODE, count: !PREVIEW && firstToday() }).then(function(res){
-    if (res && res.name){ REF_NAME = String(res.name); showName(); }
+    if (res && res.name){ REF_NAME = String(res.name); REF_HONOR = res.honor === "様" ? "様" : "さん"; showName(); }
   });
 }
 </script>
