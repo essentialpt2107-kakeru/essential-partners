@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 紹介リンクの作成・集計の画面（https://essential-partners.co.jp/referral/admin/）。
+     開くには口コミ強化システムの「全店舗の管理用の合言葉」（スプレッドシートのシート「設定」の B1）が要る。検索結果には出さない -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>紹介リンク｜美yond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* 色と文字はお客様のページ（../index.html）・口コミ強化の管理画面とそろえる */
+:root{
+  --brand:#0ABAB5;
+  --brand-deep:#078F8B;
+  --brand-dark:#0A6F6C;
+  --brand-soft:#E7F8F7;
+  --brand-line:#BFEDEB;
+  --ink:#23211F;
+  --ink-sub:#6B6B6B;
+  --line:#E3ECEB;
+  --bg:#F3F7F7;
+  --card:#FFFFFF;
+  --gold:#B8955A;
+  --warn:#B4473C;
+  --warn-soft:#FBEDEB;
+  --line-green:#06C755;
+  --shadow:0 8px 28px rgba(16,80,78,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:var(--ink);background:var(--bg);
+  line-height:1.75;font-size:14.5px;-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.head{max-width:760px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.logo{font-family:"Noto Serif JP",serif;font-weight:600;font-size:17px;letter-spacing:.05em;white-space:nowrap}
+.head .sep{width:1px;height:20px;background:var(--line)}
+.head .tag{font-size:10.5px;letter-spacing:.14em;color:var(--ink-sub);white-space:nowrap}
+.head .out{margin-left:auto;font-size:12px;color:var(--ink-sub);text-decoration:underline}
+
+main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.demo{background:#FFF6E5;border:1px solid #F1DDB4;color:#7A5A1E;border-radius:12px;padding:10px 14px;font-size:12.5px;margin-bottom:14px}
+
+.panel{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:30px 22px;text-align:center}
+.panel h1{font-family:"Noto Serif JP",serif;font-weight:600;font-size:19px;letter-spacing:.04em}
+.panel p{font-size:13px;color:var(--ink-sub);margin-top:8px}
+.spinner{width:30px;height:30px;border-radius:50%;border:3px solid var(--brand-line);border-top-color:var(--brand-deep);margin:4px auto 12px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pass{display:block;width:100%;max-width:260px;margin:18px auto 0;padding:12px;border:1.5px solid var(--brand-line);border-radius:12px;font-size:18px;
+  letter-spacing:.12em;text-align:center;background:var(--brand-soft);outline:none}
+.pass:focus{border-color:var(--brand-deep);background:#fff}
+.remember{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--ink-sub);margin-top:8px}
+.remember input{accent-color:var(--brand-deep);width:16px;height:16px}
+.err{color:var(--warn);font-size:13px;margin-top:8px;min-height:1.6em}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;padding:11px 20px;font-weight:700;font-size:14px;
+  background:var(--brand-deep);color:#fff;text-decoration:none;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sub{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line)}
+.btn.small{padding:7px 14px;font-size:12.5px}
+.btn.wide{width:100%}
+.btn.line{background:var(--line-green)}
+.btn.danger{background:#fff;color:var(--warn);border:1.5px solid #EBC9C4}
+.panel .btn{margin-top:14px;min-width:180px}
+
+/* 上の数字 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:#fff;border-radius:14px;padding:10px 8px;text-align:center;box-shadow:0 2px 10px rgba(16,80,78,.05)}
+.stat b{display:block;font-family:"Noto Serif JP",serif;font-size:24px;color:var(--brand-dark);line-height:1.3}
+.stat span{display:block;font-size:11px;color:var(--ink-sub);line-height:1.4}
+
+.tabs{display:flex;gap:6px;margin:18px 0 12px;border-bottom:1px solid var(--line)}
+.tabs button{padding:9px 14px;font-size:13.5px;font-weight:700;color:var(--ink-sub);border-bottom:2.5px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--brand-dark);border-bottom-color:var(--brand-deep)}
+
+.tools{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.tools input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13.5px}
+
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(16,80,78,.06);padding:16px;margin-bottom:10px}
+.card h3{font-size:15px;font-weight:700}
+.form label{display:block;font-size:12.5px;font-weight:700;margin-top:12px}
+.form label small{font-weight:400;color:var(--ink-sub);margin-left:6px}
+.form input[type=text],.form input[type=number],.form textarea{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:14.5px}
+.form textarea{min-height:64px;resize:vertical}
+.form .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.form .check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px}
+.form .check input{width:17px;height:17px;accent-color:var(--warn)}
+
+/* 紹介者の一覧 */
+.ref{display:block;width:100%;text-align:left;background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(16,80,78,.06);padding:14px 16px;margin-bottom:10px;border:1.5px solid transparent}
+.ref:hover{border-color:var(--brand-line)}
+.ref .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ref .nm{font-size:15.5px;font-weight:700}
+.ref .sub{font-size:12px;color:var(--ink-sub)}
+.ref .stop{font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0 6px}
+.nums{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.num{font-size:12px;background:var(--bg);border-radius:999px;padding:2px 10px;color:#444;white-space:nowrap}
+.num b{font-weight:700;color:var(--ink)}
+.num.hot{background:var(--brand-soft);color:var(--brand-dark)}
+.num.hot b{color:var(--brand-dark)}
+.empty{text-align:center;color:var(--ink-sub);font-size:13px;padding:30px 10px}
+
+/* 記録 */
+.rec{display:flex;gap:10px;align-items:flex-start;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 10px rgba(16,80,78,.05)}
+.rec .k{flex:none;font-size:11px;font-weight:700;color:#fff;background:var(--brand-deep);border-radius:5px;padding:1px 8px;margin-top:3px}
+.rec .k.c{background:var(--gold)}
+.rec .body{flex:1;min-width:0;font-size:13px}
+.rec .body .t{font-size:11.5px;color:var(--ink-sub)}
+.rec .x{flex:none;font-size:12px;color:var(--warn);text-decoration:underline;padding:2px 0}
+
+/* 紹介者の詳しい画面 */
+.sheet{position:fixed;inset:0;background:rgba(20,40,40,.35);z-index:20;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet .in{max-width:620px;margin:0 auto;min-height:100%;background:var(--bg);padding:0 0 60px}
+.sheet .bar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:12px 16px;z-index:2}
+.sheet .bar h2{flex:1;min-width:0;font-family:"Noto Serif JP",serif;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet .bar button{font-size:13px;color:var(--brand-dark);font-weight:700;padding:4px 2px}
+.sheet .sec{padding:14px 16px 0}
+.sec h4{font-size:13px;font-weight:700;color:var(--brand-deep);letter-spacing:.06em;margin-bottom:8px}
+.url{font-size:13px;word-break:break-all;background:var(--brand-soft);border-radius:10px;padding:10px 12px;color:var(--brand-dark)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.qrwrap{text-align:center}
+.qrwrap canvas{width:100%;max-width:300px;height:auto;border-radius:12px;box-shadow:0 2px 12px rgba(16,80,78,.10);background:#fff}
+.text{white-space:pre-wrap;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.7}
+.kinds{display:flex;gap:8px;margin-top:4px}
+.kinds label{flex:1;margin:0;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--line);border-radius:10px;padding:9px;font-size:13.5px;font-weight:700;cursor:pointer;background:#fff}
+.kinds input{accent-color:var(--brand-deep)}
+.kinds label.on{border-color:var(--brand-deep);background:var(--brand-soft);color:var(--brand-dark)}
+.hint{font-size:12px;color:var(--ink-sub);margin-top:6px}
+
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12.5px;padding:8px 16px;border-radius:999px;z-index:40;max-width:90%}
+footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 30px}
+
+@media (max-width:420px){
+  .stat b{font-size:20px}
+  .stat span{font-size:10.5px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head">
+    <div class="logo">美yond</div>
+    <div class="sep"></div>
+    <div class="tag">紹介リンク</div>
+    <button class="out" id="logout" type="button" hidden>閉じる</button>
+  </div>
+</header>
+
+<main>
+  <div class="demo" id="demoNote" hidden>見本です。何をしても本物の表には入りません（合言葉は demo）。</div>
+
+  <section class="panel" id="msg" hidden></section>
+
+  <section class="panel" id="login" hidden>
+    <h1>紹介リンク</h1>
+    <p>口コミ強化システムの「全店舗の管理用の合言葉」を入れてください。</p>
+    <form id="loginForm">
+      <input class="pass" id="pass" type="password" autocomplete="current-password" placeholder="合言葉" required>
+      <label class="remember"><input type="checkbox" id="remember" checked>この端末で覚えておく</label>
+      <p class="err" id="loginErr"></p>
+      <button class="btn" type="submit" id="loginBtn">開く</button>
+    </form>
+  </section>
+
+  <section id="app" hidden>
+    <div class="stats">
+      <div class="stat"><b id="sRef">0</b><span>紹介者</span></div>
+      <div class="stat"><b id="sOpen">0</b><span>開いた</span></div>
+      <div class="stat"><b id="sMonth">0</b><span id="sMonthLabel">今月の来店</span></div>
+      <div class="stat"><b id="sVisit">0</b><span>累計の来店</span></div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="on" data-tab="refs">紹介者</button>
+      <button type="button" data-tab="recs">来店・契約の記録</button>
+    </div>
+
+    <div id="tabRefs">
+      <div class="tools">
+        <input type="search" id="filter" placeholder="名前・会・お仕事で絞る">
+        <button class="btn small" type="button" id="addOpen">＋ 紹介者を追加</button>
+      </div>
+
+      <form class="card form" id="addForm" hidden>
+        <h3>紹介者を追加</h3>
+        <label for="aName">お名前<small>「さん」は付けない。ページに「〇〇さんからのご紹介」と出ます</small></label>
+        <input type="text" id="aName" maxlength="30" required placeholder="例: 山田太郎">
+        <label for="aCompany">会社名・お仕事<small>ページには出ません</small></label>
+        <input type="text" id="aCompany" maxlength="60" placeholder="例: 山田工務店（リフォーム）">
+        <label for="aGroup">会<small>どこで知り合ったか</small></label>
+        <input type="text" id="aGroup" maxlength="30" list="groups" placeholder="例: BNIグロース">
+        <label for="aMemo">メモ<small>ページには出ません</small></label>
+        <textarea id="aMemo" maxlength="300"></textarea>
+        <p class="hint">ページに名前を出すので、本人の了承をもらってから作ってください。</p>
+        <div class="row">
+          <button class="btn" type="submit" id="addBtn">リンクを作る</button>
+          <button class="btn sub" type="button" id="addCancel">やめる</button>
+        </div>
+      </form>
+
+      <div id="refList"></div>
+    </div>
+
+    <div id="tabRecs" hidden>
+      <p class="hint" style="margin:0 0 10px">来店・契約は、紹介者の画面の「来店・契約を記録」から入れます。まちがえたら「取り消す」。</p>
+      <div id="recList"></div>
+    </div>
+  </section>
+
+  <datalist id="groups">
+    <option value="BNIグロース"><option value="PIC5"><option value="縁結び"><option value="NIC"><option value="その他">
+  </datalist>
+</main>
+<footer>美yond 紹介リンク｜エッセンシャルパートナーズ合同会社</footer>
+
+<!-- 紹介者の詳しい画面 -->
+<div class="sheet" id="sheet" hidden>
+  <div class="in">
+    <div class="bar"><h2 id="dTitle"></h2><button type="button" id="dClose">閉じる</button></div>
+
+    <div class="sec">
+      <h4>紹介リンク</h4>
+      <div class="url" id="dUrl"></div>
+      <div class="btns">
+        <button class="btn small" type="button" id="dCopyUrl">リンクをコピー</button>
+        <a class="btn small sub" id="dPreview" target="_blank" rel="noopener">ページを確認</a>
+      </div>
+      <p class="hint">「ページを確認」から開いた分は数えません。</p>
+    </div>
+
+    <div class="sec">
+      <h4>QRコード</h4>
+      <div class="qrwrap"><canvas id="dQr" width="720" height="900"></canvas></div>
+      <div class="btns" style="justify-content:center">
+        <button class="btn small" type="button" id="dSaveQr">QRの画像を保存</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h4>紹介者に送る文（LINE）</h4>
+      <div class="text" id="dText"></div>
+      <div class="btns">
+        <button class="btn small line" type="button" id="dCopyText">文をコピー</button>
+      </div>
+      <p class="hint">コピーしてLINEに貼り、上のQRの画像も一緒に送ってください。</p>
+    </div>
+
+    <div class="sec">
+      <h4>数</h4>
+      <div class="nums" id="dNums"></div>
+    </div>
+
+    <div class="sec">
+      <h4>来店・契約を記録</h4>
+      <form class="card form" id="markForm" style="margin:0">
+        <div class="kinds" id="kinds">
+          <label class="on"><input type="radio" name="kind" value="visit" checked>来店</label>
+          <label><input type="radio" name="kind" value="contract">契約</label>
+        </div>
+        <label for="mMemo">メモ<small>お客様のイニシャル・受けた施術など</small></label>
+        <input type="text" id="mMemo" maxlength="200" placeholder="例: Y様 esV10＋ソラスパ">
+        <label for="mAmount">売上（円・税込）<small>空でもよい。サンキュースリップの金額に使える</small></label>
+        <input type="text" id="mAmount" inputmode="numeric" placeholder="例: 10000">
+        <div class="row"><button class="btn" type="submit" id="markBtn">記録する</button></div>
+      </form>
+      <div id="dRecs" style="margin-top:10px"></div>
+    </div>
+
+    <div class="sec">
+      <h4>紹介者の情報</h4>
+      <form class="card form" id="editForm" style="margin:0">
+        <label for="eName">お名前<small>「さん」は付けない</small></label>
+        <input type="text" id="eName" maxlength="30" required>
+        <label for="eCompany">会社名・お仕事<small>ページには出ません</small></label>
+        <input type="text" id="eCompany" maxlength="60">
+        <label for="eGroup">会</label>
+        <input type="text" id="eGroup" maxlength="30" list="groups">
+        <label for="eMemo">メモ</label>
+        <textarea id="eMemo" maxlength="300"></textarea>
+        <label class="check"><input type="checkbox" id="eStopped">このリンクを止める（開いても名前が出ず、数えなくなる）</label>
+        <div class="row"><button class="btn" type="submit" id="editBtn">保存</button></div>
+        <p class="hint" id="dCreated"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// データ係（site/review/gas/Code.gs）のウェブアプリの URL。口コミ強化システムと同じもの。空のままだと見本が出る
+const API = 'https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwnxBWoWzyY3ExMVtH5OGrhVM0RI-gdKHT6gebIRuPy7g/exec';
+
+const params = new URLSearchParams(location.search);
+const DEMO = !API || params.get('demo') === '1';
+const $ = id => document.getElementById(id);
+const PAGE_URL = 'https://essential-partners.co.jp/referral/'; // お客様のページ（旧住所 /shokai/ は新しい住所へ案内するだけ）
+const PASS_KEY = 'shokai_admin_pass'; // 名前は旧住所のまま（変えると保存した合言葉を入れ直すことになるため）
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+};
+const S = { pass: '', referrers: [], records: [], month: '', open: '' };
+
+const ERRORS = {
+  need_name: 'お名前を入れてください。',
+  bad_amount: '売上は数字で入れてください（例: 10000）。',
+  forbidden: 'この画面は「全店舗の管理用の合言葉」で開いたときだけ使えます。お店ごとの合言葉では開けません。',
+  not_found: '見つかりませんでした。画面を開き直してください。',
+  bad_request: 'データ係がまだ紹介リンクに対応していないようです。Apps Script に新しい Code.gs を貼って、新バージョンで出し直してください。',
+  network: 'つながりませんでした。電波のよいところで、もう一度お試しください。',
+  server: 'うまくいきませんでした。もう一度お試しください。',
+};
+const errText = code => ERRORS[code] || ERRORS.server;
+
+function call(body) {
+  const req = Object.assign({ pass: S.pass }, body);
+  const p = DEMO ? demo(req) : fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req) })
+    .then(r => r.json());
+  return p.catch(() => ({ error: 'network' })).then(res => {
+    if ((res.error === 'wrong_pass' || res.error === 'locked') && body.action !== 'a_login') stop(res.error);
+    return res;
+  });
+}
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  });
+  kids.flat().forEach(k => { if (k !== null && k !== undefined && k !== false) e.append(k); });
+  return e;
+}
+
+let tId;
+function toast(t) {
+  const e = $('toast');
+  e.textContent = t;
+  e.hidden = false;
+  clearTimeout(tId);
+  tId = setTimeout(() => { e.hidden = true; }, 2400);
+}
+
+function copy(text, done) {
+  const ok = () => toast(done || 'コピーしました');
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(ok, () => fallback());
+  fallback();
+  function fallback() {
+    const t = el('textarea', { style: 'position:fixed;top:-1000px' });
+    t.value = text;
+    document.body.append(t);
+    t.select();
+    try { document.execCommand('copy'); ok(); } catch (e) { toast('コピーできませんでした。長押しで選んでください'); }
+    t.remove();
+  }
+}
+
+const yen = n => Number(n || 0).toLocaleString('ja-JP') + '円';
+
+/* ---------- 合言葉 ---------- */
+
+function showMsg(title, text) {
+  $('msg').replaceChildren(el('h1', { text: title }), el('p', { text: text }));
+  $('msg').hidden = false;
+  $('login').hidden = $('app').hidden = true;
+}
+
+function stop(err) {
+  if (err === 'locked') return showMsg('しばらくお休みしています', '合言葉を続けてまちがえたため、1時間ほど使えないようにしています。時間をおいてお試しください。');
+  store.del(PASS_KEY);
+  S.pass = '';
+  showLogin('合言葉が変わったようです。もう一度入れてください。');
+}
+
+function showLogin(err) {
+  $('msg').hidden = $('app').hidden = $('logout').hidden = true;
+  $('login').hidden = false;
+  $('loginErr').textContent = err || '';
+  $('pass').focus();
+}
+
+function login(pass, remember, saved) {
+  S.pass = pass;
+  $('loginBtn').disabled = true;
+  call({ action: 'a_login' }).then(res => {
+    $('loginBtn').disabled = false;
+    if (res.error === 'locked') return stop('locked');
+    if (res.error) {
+      if (saved) { store.del(PASS_KEY); return showLogin(); }
+      return showLogin(res.error === 'wrong_pass' ? '合言葉がちがいます。' : errText(res.error));
+    }
+    if (!res.master) { store.del(PASS_KEY); return showLogin(ERRORS.forbidden); }
+    if (remember) store.set(PASS_KEY, pass); else store.del(PASS_KEY);
+    $('login').hidden = $('msg').hidden = true;
+    $('app').hidden = $('logout').hidden = false;
+    load();
+  });
+}
+
+$('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  login($('pass').value.trim(), $('remember').checked, false);
+});
+
+$('logout').addEventListener('click', () => {
+  store.del(PASS_KEY);
+  S.pass = '';
+  $('pass').value = '';
+  showLogin();
+});
+
+/* ---------- 一覧 ---------- */
+
+function load() {
+  return call({ action: 'a_ref_list' }).then(res => {
+    if (res.error) return toast(errText(res.error));
+    // リンクの住所はここで決める（データ係が古い /shokai/ を返しても /referral/ で出す。2026-11-22 住所を変更）
+    S.referrers = (res.referrers || []).map(r => Object.assign({}, r, { url: PAGE_URL + '?r=' + r.code }));
+    S.records = res.records || [];
+    S.month = res.month || '';
+    draw();
+    if (S.open) drawDetail();
+  });
+}
+
+function draw() {
+  const live = S.referrers.filter(r => !r.stopped);
+  $('sRef').textContent = live.length;
+  $('sOpen').textContent = S.referrers.reduce((n, r) => n + r.counts.open, 0);
+  $('sMonth').textContent = S.referrers.reduce((n, r) => n + r.counts.visitMonth, 0);
+  $('sMonthLabel').textContent = S.month ? Number(S.month.slice(5)) + '月の来店' : '今月の来店';
+  $('sVisit').textContent = S.referrers.reduce((n, r) => n + r.counts.visit, 0);
+  drawRefs();
+  drawRecs();
+}
+
+function nums(c, full) {
+  const taps = c.line + c.web + c.tel;
+  const list = [
+    ['開いた', c.open, false],
+    ['予約ボタン', taps, false],
+    ['来店', c.visit, c.visit > 0],
+    ['契約', c.contract, c.contract > 0],
+  ];
+  if (full) list.splice(2, 0, ['うちLINE', c.line, false], ['うちWeb', c.web, false], ['うち電話', c.tel, false]);
+  if (full && c.amount) list.push(['売上', yen(c.amount), true]);
+  return list.map(([k, v, hot]) => el('span', { class: 'num' + (hot ? ' hot' : '') }, k + ' ', el('b', { text: String(v) })));
+}
+
+function drawRefs() {
+  const q = $('filter').value.trim().toLowerCase();
+  const list = S.referrers
+    .filter(r => !q || [r.name, r.group, r.company, r.memo].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => (a.stopped - b.stopped) || (b.counts.visit - a.counts.visit) || (b.created < a.created ? -1 : 1));
+  if (!list.length) {
+    return $('refList').replaceChildren(el('div', { class: 'empty', text: S.referrers.length ? '当てはまる紹介者はいません。' : 'まだ紹介者がいません。「＋ 紹介者を追加」から作ってください。' }));
+  }
+  $('refList').replaceChildren(...list.map(r => el('button', { type: 'button', class: 'ref', onclick: () => openDetail(r.code) },
+    el('div', { class: 'top' },
+      el('span', { class: 'nm', text: r.name + 'さん' }),
+      el('span', { class: 'sub', text: [r.group, r.company].filter(Boolean).join('・') }),
+      r.stopped ? el('span', { class: 'stop', text: '止めています' }) : null),
+    el('div', { class: 'nums' }, nums(r.counts)))));
+}
+
+function drawRecs() {
+  if (!S.records.length) return $('recList').replaceChildren(el('div', { class: 'empty', text: 'まだ記録はありません。' }));
+  $('recList').replaceChildren(...S.records.map(recRow));
+}
+
+function recRow(x) {
+  return el('div', { class: 'rec' },
+    el('span', { class: 'k' + (x.kind === '契約' ? ' c' : ''), text: x.kind }),
+    el('div', { class: 'body' },
+      el('div', { text: x.name + 'さんの紹介' + (x.amount ? '｜' + yen(x.amount) : '') }),
+      x.memo ? el('div', { text: x.memo }) : null,
+      el('div', { class: 't', text: x.at })),
+    el('button', { type: 'button', class: 'x', text: '取り消す', onclick: () => unmark(x) }));
+}
+
+function unmark(x) {
+  if (!confirm(x.name + 'さんの「' + x.kind + '」（' + x.at + '）の記録を取り消しますか？')) return;
+  call({ action: 'a_ref_unmark', id: x.id }).then(res => {
+    if (res.error) return toast(errText(res.error));
+    toast('取り消しました');
+    load();
+  });
+}
+
+$('filter').addEventListener('input', drawRefs);
+
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  $('tabRefs').hidden = b.dataset.tab !== 'refs';
+  $('tabRecs').hidden = b.dataset.tab !== 'recs';
+}));
+
+/* ---------- 紹介者を追加 ---------- */
+
+$('addOpen').addEventListener('click', () => {
+  $('addForm').hidden = false;
+  $('aName').focus();
+});
+$('addCancel').addEventListener('click', () => { $('addForm').reset(); $('addForm').hidden = true; });
+
+$('addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  $('addBtn').disabled = true;
+  call({ action: 'a_ref_add', ref: { name: $('aName').value, company: $('aCompany').value, group: $('aGroup').value, memo: $('aMemo').value } }).then(res => {
+    $('addBtn').disabled = false;
+    if (res.error) return toast(errText(res.error));
+    $('addForm').reset();
+    $('addForm').hidden = true;
+    toast('リンクを作りました');
+    S.open = res.referrer.code;
+    load();
+  });
+});
+
+/* ---------- 紹介者の詳しい画面 ---------- */
+
+function openDetail(code) {
+  S.open = code;
+  $('markForm').reset();
+  syncKinds();
+  drawDetail(true);
+  $('sheet').hidden = false;
+  $('sheet').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  S.open = '';
+  $('sheet').hidden = true;
+  document.body.style.overflow = '';
+}
+$('dClose').addEventListener('click', closeDetail);
+
+function current() {
+  return S.referrers.find(r => r.code === S.open);
+}
+
+function drawDetail(fillForm) {
+  const r = current();
+  if (!r) return closeDetail();
+  if ($('sheet').hidden) {
+    $('sheet').hidden = false;
+    document.body.style.overflow = 'hidden';
+    fillForm = true;
+  }
+  $('dTitle').textContent = r.name + 'さん' + (r.stopped ? '（止めています）' : '');
+  $('dUrl').textContent = r.url;
+  $('dPreview').href = r.url + '&p=1';
+  $('dText').textContent = sendText(r);
+  $('dNums').replaceChildren(...nums(r.counts, true));
+  const mine = S.records.filter(x => x.code === r.code);
+  $('dRecs').replaceChildren(...mine.map(recRow));
+  $('dCreated').textContent = '紹介コード ' + r.code + '｜作成 ' + r.created;
+  if (fillForm) {
+    $('eName').value = r.name;
+    $('eCompany').value = r.company;
+    $('eGroup').value = r.group;
+    $('eMemo').value = r.memo;
+    $('eStopped').checked = r.stopped;
+  }
+  drawQr(r);
+}
+
+/** 紹介者に LINE で送る文（「LINE返信の癖」の③ 協業・交流会の型） */
+function sendText(r) {
+  const n = r.name + 'さん';
+  return [
+    n, '',
+    'いつもありがとうございます😊',
+    '美yondの根本です。', '',
+    n + '専用の',
+    '美yondの紹介リンクを作りました✨', '',
+    '肌や毛穴、小顔などが気になっている',
+    'お知り合いがいらっしゃったら、',
+    'このリンクを送っていただけると嬉しいです。', '',
+    '開くと「' + n + 'からのご紹介」と出て、',
+    'お好きな施術を2つ選んで',
+    '10,000円でお試しいただけます。', '',
+    r.url, '',
+    '対面のときは、QRコードの画像を',
+    '見せていただくだけでも大丈夫です😊', '',
+    'よろしくお願いいたします🙇‍♂️',
+  ].join('\n');
+}
+
+function drawQr(r) {
+  const c = $('dQr');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const paint = () => {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#0A6F6C';
+    ctx.fillRect(0, 0, W, 14);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#23211F';
+    ctx.font = '600 44px "Noto Serif JP", serif';
+    ctx.fillText('美yond', W / 2, 84);
+    ctx.fillStyle = '#6B6B6B';
+    ctx.font = '500 20px "Noto Sans JP", sans-serif';
+    ctx.fillText('二子玉川', W / 2, 116);
+    ctx.fillStyle = '#0A6F6C';
+    let size = 34;
+    const title = r.name + 'さんからのご紹介';
+    do { ctx.font = '700 ' + size + 'px "Noto Sans JP", sans-serif'; size -= 2; } while (ctx.measureText(title).width > W - 80 && size > 18);
+    ctx.fillText(title, W / 2, 176);
+    if (typeof qrcode === 'function') {
+      const qr = qrcode(0, 'M');
+      qr.addData(r.url);
+      qr.make();
+      const n = qr.getModuleCount();
+      const box = 500;
+      const cell = Math.floor(box / (n + 4));
+      const off = Math.floor((W - cell * n) / 2);
+      const top = 206 + Math.floor((box - cell * n) / 2);
+      ctx.fillStyle = '#000';
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.isDark(y, x)) ctx.fillRect(off + x * cell, top + y * cell, cell, cell);
+    }
+    ctx.fillStyle = '#23211F';
+    ctx.font = '700 30px "Noto Sans JP", sans-serif';
+    ctx.fillText('お試し2施術 10,000円', W / 2, 770);
+    ctx.fillStyle = '#6B6B6B';
+    ctx.font = '400 21px "Noto Sans JP", sans-serif';
+    ctx.fillText('読み取って、施術を2つ選んでご予約ください', W / 2, 816);
+    ctx.font = '400 17px "Noto Sans JP", sans-serif';
+    ctx.fillText('紹介コード ' + r.code, W / 2, 862);
+  };
+  paint();
+  if (document.fonts && document.fonts.load) {
+    Promise.all([document.fonts.load('700 30px "Noto Sans JP"'), document.fonts.load('600 44px "Noto Serif JP"')]).then(() => { if (current() === r) paint(); }, () => {});
+  }
+}
+
+$('dCopyUrl').addEventListener('click', () => copy(current().url, 'リンクをコピーしました'));
+$('dCopyText').addEventListener('click', () => copy(sendText(current()), '文をコピーしました。LINEに貼ってください'));
+$('dSaveQr').addEventListener('click', () => {
+  const r = current();
+  const a = el('a', { href: $('dQr').toDataURL('image/png'), download: '美yond紹介QR_' + r.name + '.png' });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  toast('保存しました。開かないときは画像を長押しして保存してください');
+});
+
+function syncKinds() {
+  document.querySelectorAll('#kinds label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+}
+$('kinds').addEventListener('change', syncKinds);
+
+$('markForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const r = current();
+  const kind = document.querySelector('#kinds input:checked').value;
+  $('markBtn').disabled = true;
+  call({ action: 'a_ref_mark', code: r.code, kind: kind, memo: $('mMemo').value, amount: $('mAmount').value }).then(res => {
+    $('markBtn').disabled = false;
+    if (res.error) return toast(errText(res.error));
+    $('markForm').reset();
+    syncKinds();
+    toast(r.name + 'さんの紹介で「' + (kind === 'visit' ? '来店' : '契約') + '」を記録しました');
+    load();
+  });
+});
+
+$('editForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const r = current();
+  $('editBtn').disabled = true;
+  call({ action: 'a_ref_save', code: r.code, ref: { name: $('eName').value, company: $('eCompany').value, group: $('eGroup').value, memo: $('eMemo').value, stopped: $('eStopped').checked } }).then(res => {
+    $('editBtn').disabled = false;
+    if (res.error) return toast(errText(res.error));
+    toast('保存しました');
+    load().then(() => drawDetail(true));
+  });
+});
+
+/* ---------- 見本（?demo=1。合言葉 demo） ---------- */
+
+const D = {
+  refs: [
+    { code: 'demo2', name: '見本 太郎', company: '見本工務店（リフォーム）', group: 'BNIグロース', memo: '', stopped: false, created: '2026-11-22' },
+    { code: 'demo3', name: '見本 花子', company: '見本保険', group: 'PIC5', memo: '奥さまの知り合いが多い', stopped: false, created: '2026-11-22' },
+  ],
+  log: [
+    ['demo2', '開いた'], ['demo2', '開いた'], ['demo2', '開いた'], ['demo2', 'LINEで予約'], ['demo2', '来店', 'Y様 esV10＋ソラスパ', 10000], ['demo3', '開いた'],
+  ].map((l, i) => ({ id: 'd' + i, at: '2026-11-22 1' + i + ':00', code: l[0], kind: l[1], memo: l[2] || '', amount: l[3] || 0 })),
+};
+
+function demo(req) {
+  const out = (() => {
+    if (req.pass !== 'demo') return { error: 'wrong_pass' };
+    if (req.action === 'a_login') return { master: true, stores: [] };
+    if (req.action === 'a_ref_list') {
+      const month = '2026-11';
+      const referrers = D.refs.map(r => {
+        const c = { open: 0, line: 0, web: 0, tel: 0, visit: 0, contract: 0, visitMonth: 0, amount: 0, last: '' };
+        D.log.filter(l => l.code === r.code).forEach(l => {
+          if (l.kind === '開いた') c.open++;
+          if (l.kind === 'LINEで予約') c.line++;
+          if (l.kind === 'Web予約') c.web++;
+          if (l.kind === '電話') c.tel++;
+          if (l.kind === '来店') { c.visit++; c.visitMonth++; }
+          if (l.kind === '契約') c.contract++;
+          c.amount += l.amount || 0;
+        });
+        return Object.assign({}, r, { url: 'https://essential-partners.co.jp/referral/?r=' + r.code, counts: c });
+      });
+      const records = D.log.filter(l => l.kind === '来店' || l.kind === '契約').map(l => Object.assign({ name: D.refs.find(r => r.code === l.code).name }, l)).reverse();
+      return { referrers, records, month };
+    }
+    if (req.action === 'a_ref_add') {
+      const name = String(req.ref.name || '').trim().replace(/\s*さん$/, '');
+      if (!name) return { error: 'need_name' };
+      const r = { code: 'dm' + String(D.refs.length + 2).padStart(3, '0').replace(/[01]/g, '2'), name, company: req.ref.company || '', group: req.ref.group || '', memo: req.ref.memo || '', stopped: false, created: '2026-11-22' };
+      D.refs.push(r);
+      return { referrer: Object.assign({ url: 'https://essential-partners.co.jp/referral/?r=' + r.code }, r) };
+    }
+    if (req.action === 'a_ref_save') {
+      const r = D.refs.find(x => x.code === req.code);
+      Object.assign(r, req.ref, { name: String(req.ref.name || '').trim().replace(/\s*さん$/, '') });
+      return { referrer: r };
+    }
+    if (req.action === 'a_ref_mark') {
+      const amount = Number(String(req.amount || '').replace(/[,，円\s]/g, ''));
+      if (String(req.amount || '').trim() && !(amount >= 0)) return { error: 'bad_amount' };
+      D.log.push({ id: 'd' + D.log.length, at: '2026-11-22 20:00', code: req.code, kind: req.kind === 'visit' ? '来店' : '契約', memo: req.memo || '', amount: amount || 0 });
+      return { ok: true };
+    }
+    if (req.action === 'a_ref_unmark') {
+      D.log = D.log.filter(l => l.id !== req.id);
+      return { ok: true };
+    }
+    return { error: 'bad_request' };
+  })();
+  return new Promise(res => setTimeout(() => res(JSON.parse(JSON.stringify(out))), 150));
+}
+
+/* ---------- はじめ ---------- */
+
+if (DEMO) $('demoNote').hidden = false;
+const saved = store.get(PASS_KEY);
+if (saved) {
+  showMsg('読み込んでいます', '');
+  $('msg').prepend(el('div', { class: 'spinner' }));
+  login(saved, true, true);
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
