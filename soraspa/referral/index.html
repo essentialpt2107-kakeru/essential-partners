@@ -257,12 +257,19 @@ table.cand td .k{display:none}
   table.cand td.fitcol{width:auto;order:-1}
   table.cand td .k{display:block;font-size:.75rem;font-weight:700;color:var(--ink-sub);letter-spacing:.08em}
 }
+/* ---------- 画面の下に固定するボタン（根本の個人 LINE・紹介文へ。2026-11-22） ---------- */
+.dock{position:fixed;z-index:30;right:24px;bottom:calc(24px + env(safe-area-inset-bottom, 0px));display:flex;gap:10px}
+.line-cta{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:#fff;background:#06C755;font-weight:700;letter-spacing:.06em;
+  padding:14px 26px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.18);line-height:1.35}
+.line-cta:hover{filter:brightness(1.05)}
+.line-cta svg{width:24px;height:24px;flex:none}
+.foot{padding-bottom:120px}
 @media (prefers-reduced-motion: no-preference){
   html{scroll-behavior:smooth}
 }
 </style>
 <style>body{margin:0;padding:0}img{max-width:100%}</style>
-<link rel="stylesheet" href="../mobile.css?v=2">
+<link rel="stylesheet" href="../mobile.css?v=3">
 </head>
 <body>
 <header class="top">
@@ -413,7 +420,7 @@ table.cand td .k{display:none}
       <div class="howto">
         <ol>
           <li><div><b>まず個別に声をかける</b><br><span style="color:var(--ink-sub)">「こういう人がいるけど、話を聞いてみる？」と、お相手に聞いてください。</span></div></li>
-          <li><div><b>了承をもらえたら、グループでつなぐ</b><br><span style="color:var(--ink-sub)">LINE などで、お相手と根本の3人のグループを作ってください。</span></div></li>
+          <li><div><b>了承をもらえたら、グループでつなぐ</b><br><span style="color:var(--ink-sub)">LINE などで、お相手と根本の3人のグループを作ってください。根本の LINE は<a href="https://line.me/ti/p/E30fE-GkL4" target="_blank" rel="noopener">こちら</a>から友だち追加できます。</span></div></li>
           <li><div><b>根本がオンラインでお話しする</b><br><span style="color:var(--ink-sub)">合いそうなら、無料の体験へ。合わなければ、そこで終わりで大丈夫です。</span></div></li>
         </ol>
         <div class="copybox" id="copy-sec">
@@ -451,7 +458,13 @@ table.cand td .k{display:none}
   </footer>
 </div>
 
-<a class="jump" id="jump" href="#copy-sec">紹介文をコピーする</a>
+<div class="dock">
+  <a class="line-cta" href="https://line.me/ti/p/E30fE-GkL4" target="_blank" rel="noopener" aria-label="LINEで根本に連絡する">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 3C6.48 3 2 6.64 2 11.13c0 4.02 3.56 7.39 8.37 8.03.33.07.77.22.88.5.1.25.07.65.03.9l-.14.86c-.04.25-.2.99.87.54 1.07-.45 5.76-3.39 7.86-5.81C21.33 14.56 22 12.93 22 11.13 22 6.64 17.52 3 12 3z"/><path fill="#06C755" d="M7.2 13.4H5.6a.4.4 0 0 1-.4-.4V9.6a.4.4 0 0 1 .8 0v3h1.2a.4.4 0 0 1 0 .8zm1.6-.4a.4.4 0 0 1-.8 0V9.6a.4.4 0 0 1 .8 0V13zm3.9 0a.4.4 0 0 1-.72.24L10.4 11v2a.4.4 0 0 1-.8 0V9.6a.4.4 0 0 1 .72-.24L11.9 11.6V9.6a.4.4 0 0 1 .8 0V13zm2.6-2.1a.4.4 0 0 1 0 .8h-1.2v.9h1.2a.4.4 0 0 1 0 .8h-1.6a.4.4 0 0 1-.4-.4V9.6c0-.22.18-.4.4-.4h1.6a.4.4 0 0 1 0 .8h-1.2v.9h1.2z"/></svg>
+    <span>LINEで連絡</span>
+  </a>
+  <a class="jump" id="jump" href="#copy-sec">紹介文をコピー</a>
+</div>
 
 <script>
 (function(){
