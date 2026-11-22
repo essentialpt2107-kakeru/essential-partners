@@ -274,6 +274,7 @@ table.cand td .k{display:none}
 }
 </style>
 <style>body{margin:0;padding:0}img{max-width:100%}</style>
+<link rel="stylesheet" href="../mobile.css?v=1">
 </head>
 <body>
 <header class="top">
@@ -286,12 +287,15 @@ table.cand td .k{display:none}
 <div class="part2">
   <section class="part2-open" aria-labelledby="ref-title">
     <div class="wrap">
+      <figure class="ref-photo" style="margin-top:0;margin-bottom:0"><img src="../img/face.jpg" alt="顔全体をオゾンの泡で包んで洗うソラスパの施術" width="828" height="620"></figure>
+      <div class="ref-card">
       <div class="eyebrow">For referral partners</div>
       <h2 id="ref-title">こんな方が周りにいたら、<br>根本につないでください</h2>
       <p class="lead">話を聞いていただくだけでも大丈夫です。売り込みはしません。ご紹介くださる方も、まず無料で体験していただけます。</p>
-      <p class="lead" style="margin-top:10px">根本は、導入して終わりにはしません。ソラスパでそのサロンの売上が上がるところまでコミットし、メニュー作りや集客も一緒に考えます。安心してご紹介ください。</p>
+      <p class="lead commit" style="margin-top:10px">根本は、導入して終わりにはしません。ソラスパでそのサロンの売上が上がるところまでコミットし、メニュー作りや集客も一緒に考えます。安心してご紹介ください。</p>
       <p class="lead" style="margin-top:10px">ソラスパの費用・原価・元が取れるかの試算は、サロンオーナー向けのページにまとめています。紹介するお相手には、こちらをお送りください。</p>
       <p style="margin-top:18px"><a class="btn" style="display:inline-block;text-decoration:none" href="https://essential-partners.co.jp/soraspa/" target="_blank" rel="noopener">サロンオーナー向けのページを見る</a></p>
+      </div>
     </div>
   </section>
 
@@ -424,7 +428,7 @@ table.cand td .k{display:none}
           <li><div><b>了承をもらえたら、グループでつなぐ</b><br><span style="color:var(--ink-sub)">LINE などで、お相手と根本の3人のグループを作ってください。</span></div></li>
           <li><div><b>根本がオンラインでお話しする</b><br><span style="color:var(--ink-sub)">合いそうなら、無料の体験へ。合わなければ、そこで終わりで大丈夫です。</span></div></li>
         </ol>
-        <div class="copybox">
+        <div class="copybox" id="copy-sec">
           <div class="bar"><span>お相手に送る短い紹介文（そのまま使えます）</span><button class="btn" type="button" id="copy">紹介文をコピー</button></div>
           <pre id="teeup">撮りたくなる泡が、お客様を呼ぶ。
 エッセンシャルパートナーズ合同会社の根本翔さんをご紹介します。
@@ -459,6 +463,8 @@ table.cand td .k{display:none}
   </footer>
 </div>
 
+<a class="jump" id="jump" href="#copy-sec">紹介文をコピーする</a>
+
 <script>
 (function(){
   var btn = document.getElementById('copy');
@@ -477,6 +483,12 @@ table.cand td .k{display:none}
       }, selectIt);
     } catch(e){ selectIt(); }
   });
+  // 紹介文の箱が見えているあいだは、下の「紹介文をコピーする」ボタンを隠す
+  var jump = document.getElementById('jump');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){ es.forEach(function(e){ jump.classList.toggle('hide', e.isIntersecting); }); }, {threshold:0.15})
+      .observe(document.getElementById('copy-sec'));
+  }
 })();
 </script>
 </body>
