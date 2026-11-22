@@ -106,7 +106,10 @@ h2{font-family:"Noto Serif JP",serif;font-weight:600;font-size:20px;color:var(--
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:999px;padding:14px 16px;
   font-weight:700;font-size:15px;text-decoration:none;margin-top:10px}
 .btn-line{background:var(--line-green);color:#fff}
-.btn-web{background:var(--brand-dark);color:#fff}
+.btn-web{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-dark)}
+.rec{margin-top:14px;font-size:12px;font-weight:700;color:var(--line-green);text-align:center}
+.rec span{display:block;font-weight:400;color:var(--ink-sub);font-size:11.5px;margin-top:2px}
+.or{margin:22px 0 4px;font-size:11.5px;color:var(--ink-sub);text-align:center}
 .btn-tel{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand-line)}
 .memo{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12.5px;white-space:pre-wrap;margin-top:12px;color:#333}
 .hint{font-size:11.5px;color:var(--ink-sub);margin-top:8px}
@@ -173,11 +176,13 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:10px 16px 3
     <h2>ご予約</h2>
     <p class="lead" id="contactLead">メニューを2つ選ぶと、ご予約用のメッセージができあがります。</p>
     <div class="memo" id="memo" hidden></div>
+    <p class="rec">LINEでのご予約がおすすめです<span>選んだ施術とご紹介者が、そのまま伝わります</span></p>
     <button class="btn btn-copy" id="copyBtn" type="button">① 予約用の文章をコピーする</button>
     <button class="btn btn-line" id="lineBtn" type="button">② LINEを開いて予約する</button>
     <p class="hint">公式LINEのトーク画面で、コピーした文章を貼り付けて送ってください（②を押したときも自動でコピーされます）。</p>
+    <p class="or">LINEを使わない方は</p>
     <a class="btn btn-web" id="webBtn" href="https://1cs.jp/gcs/user/salons/beyondessential/reservation.do#/salons/beyondessential/reservations" target="_blank" rel="noopener">Web予約はこちら</a>
-    <p class="hint" id="webHint">Web予約の場合は、ご来店時に「ご紹介」とお伝えください。</p>
+    <p class="hint" id="webHint">Web予約では特典のメニューは表示されません。ご要望欄に上の文章を貼り付けていただければ、こちらで特典の内容に合わせます。ご来店時にも「ご紹介」とお伝えください。</p>
     <a class="btn btn-tel" id="telBtn" href="tel:07023220810">電話で予約する（070-2322-0810）</a>
   </section>
 
@@ -280,7 +285,7 @@ function showName(){
   var n = REF_NAME + REF_HONOR;
   document.getElementById("badge").textContent = n + "からのご紹介";
   document.getElementById("heroText").textContent = n + "からのご紹介の方限定で、美yondの人気メニューから気になる施術を2つお選びいただけます。";
-  document.getElementById("webHint").textContent = "Web予約の場合は、ご来店時に「" + n + "の紹介」とお伝えください。";
+  document.getElementById("webHint").textContent = "Web予約では特典のメニューは表示されません。ご要望欄に上の文章を貼り付けていただければ、こちらで特典の内容に合わせます。ご来店時にも「" + n + "の紹介」とお伝えください。";
   document.getElementById("noteSay").textContent = "ご予約時に「" + n + "の紹介」とお伝えください。";
   document.title = n + "からのご紹介｜お試し2施術 10,000円｜美yond 二子玉川";
   render();
