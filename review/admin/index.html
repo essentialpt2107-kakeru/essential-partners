@@ -338,10 +338,17 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <p class="help">この星以下のお客様には「お店に直接相談する」ボタンをいちばん上に出します。Google の口コミへの案内も小さく残します（星で Google の案内を消すと規約違反になるため）。</p>
         <label class="f" for="f_intro">アンケートの最初の案内文<small>空なら「本日はご来店ありがとうございました…」の決まった文</small></label>
         <textarea class="in" id="f_intro"></textarea>
+        <label class="f" for="f_survey">アンケートの形</label>
+        <select class="in" id="f_survey"><option value="">サロン（施術のお店）</option><option value="飲食">飲食店</option></select>
+        <p class="help">「飲食店」にすると、人数・どんな集まりか・お店を選んだ決め手・ご利用のコース・印象に残った料理やワインを聞きます（担当スタッフは空にしておきます）。</p>
         <label class="f" for="f_staff">担当スタッフ<small>1行に1人。入れると「担当」「スタッフの対応」「施術のあとの変化」も聞きます</small></label>
         <textarea class="in" id="f_staff"></textarea>
-        <label class="f" for="f_cares">気になるケアの選択肢<small>1行に1つ。入れると「これから気になっているケア」を聞きます</small></label>
+        <label class="f" for="f_cares">気になるケアの選択肢<small>1行に1つ。入れると「これから気になっているケア」を聞きます（飲食店は「次に使ってみたいこと」）</small></label>
         <textarea class="in" id="f_cares"></textarea>
+        <label class="f" for="f_scenes">ご利用の集まりの選択肢（飲食店）<small>1行に1つ。例: 貸切パーティー、誕生日・お祝い</small></label>
+        <textarea class="in" id="f_scenes"></textarea>
+        <label class="f" for="f_reasons">お店を選んだ決め手の選択肢（飲食店）<small>1行に1つ。良い答えだけに偏らない、事実の選択肢にする</small></label>
+        <textarea class="in" id="f_reasons"></textarea>
         <label class="f" for="f_nameRequired">お名前</label>
         <select class="in" id="f_nameRequired"><option value="">任意</option><option value="必須">必須</option></select>
         <label class="f" for="f_reviewHelp">口コミの下書きを手伝う</label>
@@ -534,6 +541,7 @@ function loadAnswers() {
   call({ action: 'a_answers' }).then(res => {
     if (res.error) return $('ansList').replaceChildren(el('div', { class: 'empty', text: errText(res.error) }));
     S.answers = res.answers;
+    S.food = !!res.food;
     S.summary = res.summary;
     renderSummary();
     renderAnswers();
@@ -568,6 +576,9 @@ function renderAnswers() {
 }
 
 function answerCard(a) {
+  const L = S.food
+    ? { worries: 'お店を選んだ決め手', change: '印象に残った料理・ワイン', cares: '次に使ってみたいこと' }
+    : { worries: '来店前に気になっていたこと', change: '施術のあとの変化', cares: '気になるケア' };
   const status = a.status === '未対応' ? el('span', { class: 'pill warn', text: '未対応' }) : a.status === '対応済み' ? el('span', { class: 'pill done', text: '対応済み' }) : null;
   const card = el('div', { class: 'ans' + (a.low ? ' low' : '') },
     el('div', { class: 'top' },
@@ -576,13 +587,14 @@ function answerCard(a) {
       a.name ? el('span', { class: 'who', text: a.name + ' 様' + (a.reward ? '（' + a.reward + '）' : '') }) : null,
       status),
     a.staff || a.staffRating ? el('div', { class: 'menus', text: [a.staff ? '担当: ' + a.staff : '', a.staffRating ? '対応: ' + a.staffRating : ''].filter(Boolean).join('　') }) : null,
-    a.visit || a.worries ? el('div', { class: 'menus', text: [a.visit, a.worries ? '来店前に気になっていたこと: ' + a.worries : ''].filter(Boolean).join('　') }) : null,
+    a.party || a.scene ? el('div', { class: 'menus', text: [a.party, a.scene ? '集まり: ' + a.scene : ''].filter(Boolean).join('　') }) : null,
+    a.visit || a.worries ? el('div', { class: 'menus', text: [a.visit, a.worries ? L.worries + ': ' + a.worries : ''].filter(Boolean).join('　') }) : null,
     a.menus ? el('div', { class: 'menus', text: a.menus }) : null,
-    a.change ? el('div', { class: 'req' }, el('b', { text: '施術のあとの変化' }), a.change) : null,
+    a.change ? el('div', { class: 'req' }, el('b', { text: L.change }), a.change) : null,
     a.anxiety ? el('div', { class: 'req' }, el('b', { text: '来店前の不安と実際' }), a.anxiety) : null,
     a.comment ? el('div', { class: 'body', text: a.comment }) : null,
     a.request ? el('div', { class: 'req' }, el('b', { text: 'お店へのご要望' }), a.request) : null,
-    a.cares ? el('div', { class: 'menus', text: '気になるケア: ' + a.cares }) : null,
+    a.cares ? el('div', { class: 'menus', text: L.cares + ': ' + a.cares }) : null,
     a.draft ? el('details', { class: 'draftLog' }, el('summary', { text: 'お客様に出した口コミの下書き' }), el('div', { class: 'req', text: a.draft })) : null);
   if (a.low || a.status) {
     const sel = el('select', { 'aria-label': '対応' }, ['未対応', '対応済み'].map(v => el('option', { value: v, text: v })));
@@ -735,7 +747,7 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'staff', 'cares', 'nameRequired', 'reviewHelp', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'survey', 'staff', 'cares', 'scenes', 'reasons', 'nameRequired', 'reviewHelp', 'pass'];
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
