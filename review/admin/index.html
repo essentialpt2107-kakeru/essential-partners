@@ -361,6 +361,12 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <div id="passBox" hidden>
           <label class="f" for="f_pass">このお店の合言葉<small>全店舗の管理用の合言葉で開いたときだけ表示</small></label>
           <input class="in" id="f_pass" maxlength="40" autocomplete="off" spellcheck="false">
+          <div id="aiBox" hidden>
+            <label class="f" for="f_aiLimit">AI の月の上限（円）<small>全店舗の管理用の合言葉で開いたときだけ表示。空なら全店舗の上限（スプレッドシートの「設定」B5）</small></label>
+            <input class="in" id="f_aiLimit" inputmode="numeric" maxlength="9" autocomplete="off">
+            <p class="help">上限に届くと、アンケートの下書きは AI を使わずに答えを並べただけの文章に戻り、このページの文章づくり・キーワードの候補出しは翌月1日まで止まります。アンケートの下書きは上限の8割で止まり、残りはこのページの分に残します。</p>
+            <p class="keyline" id="aiUse"></p>
+          </div>
         </div>
         <div class="row"><button class="btn" type="submit" id="saveStore">保存する</button><span class="ok" id="storeOk" aria-live="polite"></span></div>
         <div class="err" id="storeErr" aria-live="polite"></div>
@@ -408,6 +414,8 @@ const ERRORS = {
   ai_cut: '文章が長くなりすぎて途中で切れました。もう一度お試しください。',
   ai_error: 'AI の返事をうまく受け取れませんでした。もう一度お試しください。',
   ai_empty: 'AI の返事が空でした。もう一度お試しください。',
+  ai_limit: '今月の AI の利用が上限に達しました。来月1日から、また使えます。お急ぎのときは、このシステムの担当者にご連絡ください。',
+  bad_limit: 'AI の月の上限は、0以上の数（円）で入れてください。空にすると全店舗の上限になります。',
   need_input: '入力が足りません。',
   bad_url: 'Google 口コミの URL は https:// から始まる形で入れてください。',
   bad_email: 'メールアドレスの形が違うようです。',
@@ -747,7 +755,8 @@ $('copyDraft').addEventListener('click', () => {
 
 /* ---------- 設定 ---------- */
 
-const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'survey', 'staff', 'cares', 'scenes', 'reasons', 'nameRequired', 'reviewHelp', 'pass'];
+const FIELDS = ['name', 'category', 'area', 'reviewUrl', 'notifyEmail', 'notifyAt', 'menus', 'features', 'contact', 'avoid', 'replyStyle', 'talkUrl', 'talkAt', 'intro', 'survey', 'staff', 'cares', 'scenes', 'reasons', 'nameRequired', 'reviewHelp', 'pass', 'aiLimit'];
+const MASTER_ONLY = ['pass', 'aiLimit']; // 全店舗の管理用の合言葉のときだけ送る
 
 function loadInfo() {
   call({ action: 'a_store' }).then(res => {
@@ -762,6 +771,12 @@ function fillInfo(res) {
   $('f_notifyAt').value = String(Math.min(5, Math.max(0, Number(res.store.notifyAt) || 0)));
   $('f_talkAt').value = res.store.talkAt === '' || res.store.talkAt === undefined ? '2' : String(Math.min(3, Math.max(0, Number(res.store.talkAt) || 0)));
   $('passBox').hidden = !res.master;
+  const ai = res.ai; // 全店舗の合言葉のときだけ届く（見本には出さない）
+  $('aiBox').hidden = !ai;
+  $('f_aiLimit').placeholder = ai ? '空なら ' + ai.base.toLocaleString() + '円（全店舗の上限）' : '';
+  $('aiUse').textContent = ai
+    ? '今月（' + ai.month + '）の AI の利用: 約' + ai.yen.toLocaleString() + '円 ／ 上限 ' + ai.limit.toLocaleString() + '円（アンケートの下書き ' + ai.survey + '回・このページ ' + ai.admin + '回）'
+    : '';
   $('keyState').textContent = res.hasKey ? '登録済み' : '未登録（スプレッドシートのメニューから登録）';
   $('keyState').className = res.hasKey ? 'on' : 'off';
   $('modelName').textContent = res.model;
@@ -798,7 +813,7 @@ $('qrSave').addEventListener('click', () => {
 $('storeForm').addEventListener('submit', e => {
   e.preventDefault();
   const v = {};
-  FIELDS.forEach(k => { if (k !== 'pass' || S.master) v[k] = $('f_' + k).value; });
+  FIELDS.forEach(k => { if (MASTER_ONLY.indexOf(k) < 0 || S.master) v[k] = $('f_' + k).value; });
   $('saveStore').disabled = true;
   $('storeErr').textContent = $('storeOk').textContent = '';
   call({ action: 'a_save_store', store: v }).then(res => {
