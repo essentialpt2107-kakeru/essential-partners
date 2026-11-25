@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>プライバシーポリシー｜エッセンシャルパートナーズ合同会社</title>
+<meta name="description" content="エッセンシャルパートナーズ合同会社のプライバシーポリシー（個人情報保護方針）。取得する情報、利用目的、安全管理、開示などのご請求、Google などのサービスと連携するツール SPINDLE での情報の取り扱いについて。">
+<link rel="canonical" href="https://essential-partners.co.jp/privacy/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@300;400&family=Noto+Sans+JP:wght@400;500&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* 会社のホームページ（../index.html）と同じアイボリー×金。文章を読むページなので、動きは付けない */
+  :root {
+    --ink: #1f2a33;
+    --ink-soft: #4a5560;
+    --muted: #7a838b;
+    --paper: #faf8f4;
+    --paper-2: #f2eee6;
+    --line: #e2dcd0;
+    --line-strong: #cdbf9f;
+    --accent: #a8875a;
+    --accent-deep: #7d6440;
+    --serif: "Noto Serif JP", serif;
+    --sans: "Noto Sans JP", system-ui, sans-serif;
+    --latin: "Cormorant Garamond", serif;
+    --modern: "Manrope", "Noto Sans JP", sans-serif;
+    --gutter: clamp(16px, 6vw, 96px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 2;
+    letter-spacing: .05em;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  ul, ol { list-style: none; }
+
+  /* ヘッダー（社名でトップへ戻る） */
+  .l-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 22px var(--gutter) 18px; border-bottom: 1px solid var(--line);
+  }
+  .brand-block { text-decoration: none; display: block; }
+  .logo { display: flex; flex-direction: column; line-height: 1.25; }
+  .logo .en { font-family: var(--latin); font-size: 19px; font-weight: 600; letter-spacing: .2em; }
+  .logo .ja { font-size: 10px; color: var(--muted); letter-spacing: .12em; }
+  .gnav { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 30px); padding-top: 6px; }
+  .gnav a { font-family: var(--modern); font-size: 12px; letter-spacing: .12em; text-decoration: none; color: var(--ink-soft); }
+  .gnav a:hover { color: var(--accent-deep); }
+
+  /* 本文 */
+  .doc { padding: clamp(56px, 9vw, 120px) var(--gutter) clamp(80px, 11vw, 150px); overflow-wrap: anywhere; }
+  .inner { max-width: 820px; margin: 0 auto; }
+  .ttl-en {
+    font-family: var(--modern); font-weight: 300; text-transform: lowercase;
+    font-size: clamp(30px, 4.6vw, 52px); letter-spacing: .06em; line-height: 1.2;
+  }
+  .ttl-ja { font-family: var(--serif); font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); margin-top: 10px; }
+  .lead { font-family: var(--serif); font-size: clamp(15px, 1.5vw, 16px); line-height: 2.2; margin-top: clamp(32px, 5vw, 48px); }
+  .toc { margin-top: 36px; padding: 22px 26px; background: var(--paper-2); border: 1px solid var(--line); }
+  .toc p { font-family: var(--modern); font-size: 11px; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
+  .toc ol { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 28px; font-size: 13.5px; }
+  .toc a { text-decoration: none; color: var(--ink-soft); }
+  .toc a:hover { color: var(--accent-deep); }
+
+  .doc section { margin-top: clamp(48px, 7vw, 72px); scroll-margin-top: 24px; }
+  .doc h2 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(17px, 2vw, 20px); letter-spacing: .1em; line-height: 1.7;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line-strong); margin-bottom: 20px;
+    display: flex; gap: 14px; align-items: baseline;
+  }
+  .doc h2 .no { font-family: var(--latin); font-size: 1.35em; font-weight: 500; color: var(--accent-deep); letter-spacing: .04em; flex: none; }
+  .doc h3 { font-family: var(--serif); font-weight: 500; font-size: 15.5px; letter-spacing: .08em; margin: 28px 0 8px; }
+  .doc p, .doc li { font-size: 15px; }
+  .doc p + p { margin-top: 1em; }
+  .doc p + ul, .doc p + ol, .doc ul + p, .doc ol + p { margin-top: 12px; }
+  .doc ul li { position: relative; padding-left: 1.2em; }
+  .doc ul li::before { content: ""; position: absolute; left: .2em; top: .95em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .doc ol.num { counter-reset: n; }
+  .doc ol.num > li { position: relative; padding-left: 2em; counter-increment: n; }
+  .doc ol.num > li::before { content: "(" counter(n) ")"; position: absolute; left: 0; color: var(--accent-deep); font-family: var(--latin); font-size: 1.05em; }
+  .doc li + li { margin-top: 6px; }
+  .doc a { color: var(--accent-deep); overflow-wrap: anywhere; }
+  .note { font-size: 13.5px !important; color: var(--ink-soft); }
+
+  .card { margin-top: 18px; padding: 22px 26px; background: #fff; border: 1px solid var(--line); }
+  .card + .card { margin-top: 14px; }
+  .card h3 { margin-top: 0; }
+
+  .en-box { margin-top: 28px; padding: 24px 26px; background: var(--paper-2); border-left: 2px solid var(--accent); }
+  .en-box h3 { font-family: var(--modern); font-weight: 400; letter-spacing: .04em; margin-top: 0; }
+  .en-box p, .en-box li { font-family: var(--modern); font-size: 14px; letter-spacing: .01em; line-height: 1.8; }
+
+  dl.table > div { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  dl.table > div:first-child { border-top: 1px solid var(--line); }
+  dl.table dt { color: var(--ink-soft); font-family: var(--serif); }
+  dl.table a { color: inherit; }
+
+  .dates { margin-top: clamp(48px, 7vw, 72px); text-align: right; font-family: var(--serif); font-size: 13.5px; color: var(--ink-soft); line-height: 2; }
+
+  /* フッター（トップページと同じ4列） */
+  .l-footer { background: #d6c4a5; color: var(--ink); display: grid; grid-template-columns: 1.1fr 1fr 1.2fr 64px; border-top: 1px solid rgba(125,100,64,.3); }
+  .l-footer > div { padding: 44px clamp(20px, 3vw, 44px); border-right: 1px solid rgba(125,100,64,.3); }
+  .l-footer > div:last-child { border-right: 0; padding: 32px 0; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+  .f-logo { font-family: var(--latin); font-weight: 600; font-size: 18px; letter-spacing: .2em; line-height: 1.3; }
+  .f-logo small { display: block; font-family: var(--sans); font-weight: 400; font-size: 10px; letter-spacing: .12em; color: var(--ink-soft); margin-top: 4px; }
+  .f-tag { font-family: var(--modern); font-size: 12px; letter-spacing: .1em; margin-top: 18px; color: var(--ink-soft); }
+  .f-nav li { line-height: 1.6; }
+  .f-nav li + li { margin-top: 14px; }
+  .f-nav a { text-decoration: none; }
+  .f-nav .p { font-family: var(--modern); font-size: 13px; letter-spacing: .08em; display: block; }
+  .f-nav .c { font-family: var(--serif); font-size: 11px; color: var(--ink-soft); display: block; }
+  .f-nav .c::before { content: "— "; }
+  .f-info { font-size: 12.5px; color: var(--ink-soft); line-height: 2; }
+  .f-info a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(125,100,64,.4); }
+  .f-copy { writing-mode: vertical-rl; font-family: var(--latin); font-size: 12px; letter-spacing: .2em; color: var(--ink-soft); }
+  .gotop { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.6); border: 1px solid rgba(125,100,64,.4); text-decoration: none; font-size: 11px; color: var(--accent-deep); }
+
+  @media (max-width: 980px) {
+    .l-footer { grid-template-columns: 1fr 1fr; }
+    .l-footer > div:nth-child(2) { border-right: 0; }
+    .l-footer > div:nth-child(3) { border-top: 1px solid rgba(125,100,64,.3); }
+    .l-footer > div:last-child { border-top: 1px solid rgba(125,100,64,.3); flex-direction: row; padding: 24px clamp(20px, 3vw, 44px); }
+    .l-footer > div:last-child .f-copy { writing-mode: horizontal-tb; }
+  }
+  @media (max-width: 720px) {
+    :root { --gutter: 16px; }
+    .gnav a.wide { display: none; }
+    .logo .en { font-size: 16px; letter-spacing: .16em; white-space: nowrap; }
+    .toc ol { grid-template-columns: 1fr; }
+    .toc, .card, .en-box { padding: 18px 16px; }
+    dl.table > div { grid-template-columns: 1fr; gap: 2px; }
+    .l-footer { grid-template-columns: 1fr; }
+    .l-footer > div { border-right: 0; border-top: 1px solid rgba(125,100,64,.3); padding: 32px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="l-header" id="top">
+  <a class="brand-block" href="/">
+    <p class="logo"><span class="en">ESSENTIAL PARTNERS</span><span class="ja">エッセンシャルパートナーズ合同会社</span></p>
+  </a>
+  <nav class="gnav" aria-label="目次">
+    <a class="wide" href="/">home</a>
+    <a class="wide" href="/#company">company</a>
+    <a href="/#contact">contact</a>
+  </nav>
+</header>
+
+<main class="doc">
+  <div class="inner">
+    <h1><span class="ttl-en">privacy policy</span><span class="ttl-ja" style="display:block">プライバシーポリシー（個人情報保護方針）</span></h1>
+
+    <p class="lead">エッセンシャルパートナーズ合同会社（以下「当社」といいます）は、お客様、お取引先、当社のサービスやツールをご利用の皆さまの個人情報を大切に扱います。個人情報の保護に関する法律（個人情報保護法）とそのほかの関係する法令を守り、このプライバシーポリシーに沿って個人情報を取り扱います。</p>
+
+    <nav class="toc" aria-label="このページの目次">
+      <p>contents</p>
+      <ol>
+        <li><a href="#collect">1. 取得する情報</a></li>
+        <li><a href="#purpose">2. 利用目的</a></li>
+        <li><a href="#third-party">3. 第三者への提供</a></li>
+        <li><a href="#outsourcing">4. 業務の委託と外部のサービス</a></li>
+        <li><a href="#security">5. 安全管理</a></li>
+        <li><a href="#request">6. 開示などのご請求</a></li>
+        <li><a href="#website">7. このホームページについて</a></li>
+        <li><a href="#spindle">8. 外部のサービスと連携するツール（SPINDLE）</a></li>
+        <li><a href="#contact">9. お問い合わせ窓口</a></li>
+        <li><a href="#revision">10. このポリシーの改定</a></li>
+      </ol>
+    </nav>
+
+    <section id="collect">
+      <h2><span class="no">1</span>取得する情報</h2>
+      <p>当社は、事業に必要な範囲で、適正な方法により、次のような情報を取得します。</p>
+      <ul>
+        <li>お名前、ふりがな、生年月日、性別</li>
+        <li>電話番号、メールアドレス、ご住所、LINE などのご連絡先</li>
+        <li>ご予約、ご来店、ご購入、お支払いの内容</li>
+        <li>カウンセリングの内容や、お肌・お体の状態など、施術やサービスを安全に行うために必要な情報</li>
+        <li>施術の前後の写真（ご本人の同意をいただいた場合）</li>
+        <li>結婚相談所などのサービスのお申し込みやご相談の際に、そのサービスの提供に必要な情報</li>
+        <li>アンケート、ご感想、お問い合わせの内容</li>
+        <li>当社のツールをご利用の際に、連携したサービスから受け取る情報（<a href="#spindle">8. 外部のサービスと連携するツール</a>をご覧ください）</li>
+      </ul>
+      <p>お体の状態など、特に配慮が必要な情報は、ご本人の同意を得たうえで取得し、施術の可否の判断と安全なご提供のためだけに使います。</p>
+    </section>
+
+    <section id="purpose">
+      <h2><span class="no">2</span>利用目的</h2>
+      <p>取得した情報は、次の目的のために使います。</p>
+      <ol class="num">
+        <li>ご予約の受付と管理、サービスや商品のご提供</li>
+        <li>施術やカウンセリングの内容を記録し、ご本人に合ったご提案をするため</li>
+        <li>ご予約の確認や変更などのご連絡、アフターフォロー</li>
+        <li>キャンペーンやお知らせのご案内（ご希望の方に限ります。いつでも停止を申し出ていただけます）</li>
+        <li>アンケートの集計と、サービスの改善</li>
+        <li>施術の前後の写真を、効果の確認とご本人へのご提供に使うため（宣伝などに使う場合は、事前に掲載の許可をいただきます）</li>
+        <li>お問い合わせへのお返事</li>
+        <li>お取引先とのご連絡、契約にもとづく業務</li>
+        <li>法令にもとづく対応</li>
+      </ol>
+    </section>
+
+    <section id="third-party">
+      <h2><span class="no">3</span>第三者への提供</h2>
+      <p>当社は、次の場合を除き、ご本人の同意なく個人情報を第三者に提供しません。</p>
+      <ul>
+        <li>法令にもとづく場合</li>
+        <li>人の生命、身体または財産を守るために必要で、ご本人の同意を得ることが難しい場合</li>
+        <li>公衆衛生の向上や児童の健全な育成のために特に必要で、ご本人の同意を得ることが難しい場合</li>
+        <li>国の機関や地方公共団体などが法令に定める事務を行うことに協力する必要があり、ご本人の同意を得ることでその事務に支障が出るおそれがある場合</li>
+      </ul>
+    </section>
+
+    <section id="outsourcing">
+      <h2><span class="no">4</span>業務の委託と外部のサービス</h2>
+      <p>予約の管理、お支払い、データの保管などのために、業務の一部を外部の事業者に任せたり、外部のサービス（クラウドサービスなど）を利用したりすることがあります。その場合は、必要な範囲でのみ情報を預け、預け先が適切に取り扱うよう管理します。外国にある事業者のサービスを利用する場合も、法令に従って取り扱います。</p>
+    </section>
+
+    <section id="security">
+      <h2><span class="no">5</span>安全管理</h2>
+      <p>個人情報の漏えい、滅失、き損を防ぐため、次のような対策をとります。</p>
+      <ul>
+        <li>個人情報を取り扱う人と範囲を、必要なものに限ります</li>
+        <li>情報を保存する機器やサービスを、パスワードなどで守ります</li>
+        <li>使わなくなった情報は、適切な方法で消去します</li>
+        <li>業務を外部に任せる場合は、預け先を適切に管理します</li>
+      </ul>
+    </section>
+
+    <section id="request">
+      <h2><span class="no">6</span>開示などのご請求</h2>
+      <p>ご本人から、ご自身の個人情報について、利用目的のお知らせ、開示、訂正・追加・削除、利用の停止・消去、第三者への提供の停止のご請求があったときは、ご本人であることを確認したうえで、法令に従って速やかに対応します。<a href="#contact">9. お問い合わせ窓口</a>までご連絡ください。</p>
+    </section>
+
+    <section id="website">
+      <h2><span class="no">7</span>このホームページについて</h2>
+      <p>当社のホームページ（essential-partners.co.jp）では、現在、アクセス解析のツールや、広告のためのクッキー（Cookie）を使っていません。使うことになった場合は、このページでお知らせします。</p>
+    </section>
+
+    <section id="spindle">
+      <h2><span class="no">8</span>外部のサービスと連携するツール（SPINDLE）</h2>
+      <p>SPINDLE（スピンドル）は、当社が作った、Instagram・Threads などの SNS と Google ビジネスプロフィールの投稿を管理するツールです。当社や、SPINDLE を導入したお店のパソコンの中で動きます。</p>
+
+      <div class="card">
+        <h3>受け取る情報と使い方</h3>
+        <ul>
+          <li><b>Google ビジネスプロフィール（Google Business Profile API）</b>：ご利用者が SPINDLE の「Google で連携」で許可したときだけ、ご利用者が管理しているビジネスアカウントとお店の情報（お店の名前・住所など）を読み込み、ご利用者が選んだお店に「最新情報」の投稿を作ります。お願いする許可は、ビジネスプロフィールの管理（business.manage）だけです。Google アカウントのパスワード、Gmail、連絡先など、ほかの Google のデータは読みません。</li>
+          <li><b>Instagram・Threads など</b>：ご利用者が連携したアカウントの投稿、反応の数、コメントなどを読み込み、ご利用者が作った投稿を予定どおりに出します。</li>
+          <li><b>AI の機能</b>：文章や画像の作成を手伝う AI の機能を使ったときは、その作業に必要な文章などを AI の提供会社（OpenAI、Google）に送ります。Google ビジネスプロフィールから受け取った情報は、AI に送りません。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>保存する場所</h3>
+        <p>受け取った情報は、SPINDLE が動いているパソコンの中だけに保存します。連携のための鍵（アクセストークンなど）は、パソコンの安全な保管場所（macOS のキーチェーン）に入れます。当社のサーバーに送ったり、当社が集めたりすることはありません。</p>
+        <p>連携の手続きの途中で、当社のホームページの中継ページ（essential-partners.co.jp/spindle/callback）を通ることがあります。このページは、受け取った情報を保存せず、そのままパソコンの SPINDLE に渡します。</p>
+      </div>
+
+      <div class="card">
+        <h3>Google から受け取った情報の取り扱い</h3>
+        <p>SPINDLE が Google API から受け取った情報の利用と、ほかのアプリへの転送は、<a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API サービスのユーザーデータに関するポリシー</a>（限定使用の要件を含みます）に従います。</p>
+        <ul>
+          <li>ご利用者が SPINDLE で行う操作（お店の選択と投稿）のためだけに使います</li>
+          <li>販売しません。広告には使いません</li>
+          <li>AI のモデルの学習には使いません</li>
+          <li>ご利用者の同意がある場合、セキュリティのために必要な場合、法令に従う場合を除き、人が読むことはありません</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>連携の解除と情報の削除</h3>
+        <ul>
+          <li>SPINDLE の設定で「連携を外す」を押すと、パソコンに保存した Google との連携の鍵を消し、自動の投稿も止めます。</li>
+          <li>Google 側の許可は、Google アカウントの「サードパーティ製のアプリとサービス」のページ（<a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">https://myaccount.google.com/connections</a>）から、いつでも取り消せます。</li>
+          <li>SPINDLE に保存された情報を消したいときは、<a href="#contact">9. お問い合わせ窓口</a>までご連絡ください。消し方をご案内します。</li>
+        </ul>
+      </div>
+
+      <div class="en-box" lang="en">
+        <h3>SPINDLE and Google user data (English summary)</h3>
+        <p>SPINDLE is a social media and Google Business Profile posting tool made by Essential Partners LLC. It runs only on the computer of the business that uses it.</p>
+        <ul>
+          <li><b>Data accessed:</b> Only after the user grants permission (scope: https://www.googleapis.com/auth/business.manage), SPINDLE reads the Business Profile accounts and locations the user manages (such as location names and addresses) and creates Local Posts ("Updates") on the location the user selects. It does not access the user's password, Gmail, contacts or any other Google data.</li>
+          <li><b>Storage:</b> Data is stored only on the user's own computer, and OAuth tokens are kept in the macOS Keychain. Nothing is sent to or stored on our servers.</li>
+          <li><b>Use and sharing:</b> Data is used only to provide the posting features the user operates in SPINDLE. We do not sell it, use it for advertising, use it to train AI models or send it to AI services. People do not read it except with the user's consent, for security purposes, or to comply with the law.</li>
+          <li><b>Limited Use:</b> SPINDLE's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</li>
+          <li><b>Deletion:</b> The user can disconnect in SPINDLE's settings, which deletes the stored token, and can revoke access at any time at <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">https://myaccount.google.com/connections</a>. To delete other stored data, please contact us (see section 9).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2><span class="no">9</span>お問い合わせ窓口</h2>
+      <p>個人情報の取り扱いについてのご質問、開示などのご請求、ご意見は、次の窓口までご連絡ください。</p>
+      <dl class="table" style="margin-top:20px">
+        <div><dt>事業者</dt><dd>エッセンシャルパートナーズ合同会社<br><small>Essential Partners LLC</small></dd></div>
+        <div><dt>代表者</dt><dd>代表社員 根本 翔</dd></div>
+        <div><dt>所在地</dt><dd>〒158-0094<br>東京都世田谷区玉川1-8-15 アノンテラス二子玉川101</dd></div>
+        <div><dt>メール</dt><dd><a href="mailto:essential.pt2107@gmail.com">essential.pt2107@gmail.com</a></dd></div>
+        <div><dt>電話</dt><dd><a href="tel:05088861735">050-8886-1735</a></dd></div>
+      </dl>
+    </section>
+
+    <section id="revision">
+      <h2><span class="no">10</span>このポリシーの改定</h2>
+      <p>法令の改正や事業の変化に合わせて、このポリシーを改めることがあります。改めたときは、このページでお知らせします。</p>
+    </section>
+
+    <p class="dates">2026年11月26日 制定<br>エッセンシャルパートナーズ合同会社</p>
+  </div>
+</main>
+
+<footer class="l-footer">
+  <div>
+    <p class="f-logo">ESSENTIAL PARTNERS<small>エッセンシャルパートナーズ合同会社</small></p>
+    <p class="f-tag">Your Essential Partner</p>
+  </div>
+  <div>
+    <ul class="f-nav">
+      <li><a href="/"><span class="p">home</span></a></li>
+      <li><a href="/#business"><span class="p">business</span><span class="c">事業内容</span></a></li>
+      <li><a href="/#company"><span class="p">company</span><span class="c">会社概要</span></a></li>
+      <li><a href="/#contact"><span class="p">contact</span><span class="c">お問い合わせ</span></a></li>
+      <li><a href="/privacy/"><span class="p">privacy</span><span class="c">プライバシーポリシー</span></a></li>
+    </ul>
+  </div>
+  <div class="f-info">
+    <p>〒158-0094<br>東京都世田谷区玉川1-8-15<br>アノンテラス二子玉川101</p>
+    <p style="margin-top:16px">TEL <a href="tel:05088861735">050-8886-1735</a></p>
+  </div>
+  <div>
+    <p class="f-copy">&copy; 2026 Essential Partners LLC</p>
+    <a class="gotop" href="#top" aria-label="ページのいちばん上へ">▲</a>
+  </div>
+</footer>
+
+</body>
+</html>
