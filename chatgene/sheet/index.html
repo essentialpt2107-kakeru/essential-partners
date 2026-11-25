@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>カラダのトリセツ カウンセリングシート</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="遺伝子検査 chatGENE の「カラダのトリセツ」を作るための事前カウンセリングシートです。">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light only">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 明るい1テーマ（ダークモードでも変えない）。ミント・空色・ピンクの光がにじむ背景を画面に固定し、
+   その上に白いガラスのカードを1画面に1枚。選ぶたびにキラッと光り、最後にお祝いのきらめき */
+:root{
+  color-scheme:light;
+  --ink:#17343B;        /* 文字 */
+  --sub:#58737A;        /* 補足 */
+  --line:#D4EAEA;       /* 罫線 */
+  --card:#FFFFFF;
+  --glass:rgba(255,255,255,.82);
+  --teal:#11B3AA;       /* 美yond のティール */
+  --teal-deep:#0A8781;  /* 文字に使うティール */
+  --sky:#55C3F0;
+  --pink:#F48FB4;
+  --gold:#F7C948;
+  --soft:#E7F8F5;
+  --blush:#FFF0F5;
+  --warn:#C2463A;
+  --warn-soft:#FFF0EC;
+  --line-green:#06C755;
+  --grad:linear-gradient(115deg,#12B8AD 0%,#4DC2EE 55%,#F290B6 100%);
+  --grad-soft:linear-gradient(115deg,#E3FAF6 0%,#E5F5FF 55%,#FFEAF2 100%);
+  --shadow:0 14px 40px rgba(28,120,130,.14),0 2px 6px rgba(28,120,130,.06);
+  --f-en:"Cormorant Garamond","Times New Roman",serif;
+  --f-jp:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:#F6FCFC}
+html,body{margin:0}
+body{background:#F6FCFC;color:var(--ink);font-family:var(--f-jp);font-size:15px;line-height:1.85;font-weight:500;
+  -webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(104px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:rgba(255,255,255,.9)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;position:relative}
+.en{font-family:var(--f-en);font-style:italic;font-weight:500;letter-spacing:.02em}
+h1,h2,h3{font-family:var(--f-jp);font-weight:700;margin:0;text-wrap:balance;letter-spacing:.06em}
+p{margin:0}
+:focus-visible{outline:2px solid var(--teal-deep);outline-offset:2px}
+
+/* 固定の背景（スクロールしても動かない） */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+  background:
+    radial-gradient(60% 42% at 8% 6%,#BDF2E6 0%,rgba(189,242,230,0) 72%),
+    radial-gradient(55% 40% at 96% 14%,#CDE9FF 0%,rgba(205,233,255,0) 72%),
+    radial-gradient(62% 46% at 92% 92%,#FFD3E4 0%,rgba(255,211,228,0) 72%),
+    radial-gradient(50% 38% at 4% 88%,#FFEFB0 0%,rgba(255,239,176,0) 72%),
+    #F6FCFC}
+.spark{position:absolute;display:block;animation:twinkle var(--d,3.4s) ease-in-out var(--delay,0s) infinite;transform-origin:center;filter:drop-shadow(0 0 6px rgba(255,255,255,.95))}
+.spark svg{display:block;width:100%;height:100%}
+.bokeh{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 70%);animation:drift 9s ease-in-out infinite alternate}
+@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.55) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(20deg)}}
+@keyframes drift{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+
+/* 上の帯 */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid rgba(212,234,234,.8)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .en{font-size:20px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .by{margin-left:auto;font-size:10.5px;letter-spacing:.16em;color:var(--sub)}
+.prog{display:flex;gap:4px;margin-top:10px}
+.prog i{flex:1;height:5px;border-radius:3px;background:#E3EFEF;overflow:hidden}
+.prog i.on{background:var(--grad);background-size:220% 100%;animation:shimmer 3.2s linear infinite}
+@keyframes shimmer{from{background-position:0% 0}to{background-position:220% 0}}
+.steplabel{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub);margin-top:6px;letter-spacing:.06em}
+
+/* 画面＝白いガラスのカード1枚 */
+.screen{margin-top:18px;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.9);
+  border-radius:26px;box-shadow:var(--shadow);padding:26px 20px 24px;display:flex;flex-direction:column;gap:22px;animation:rise .45s ease both}
+@keyframes rise{from{opacity:.4;transform:translateY(10px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:16px;color:var(--teal-deep)}
+.eyebrow::after{content:" ✦";font-style:normal;font-size:11px;color:var(--gold);vertical-align:2px}
+.screen > header h2{font-size:22px;line-height:1.5;margin-top:2px}
+.lead{color:var(--sub);font-size:13.5px;margin-top:8px}
+
+/* はじめに */
+.cover{padding-top:30px;overflow:hidden;position:relative}
+.cover .hero{position:relative;padding-right:92px}
+.cover .kicker{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal-deep);background:var(--soft);border-radius:999px;padding:3px 12px}
+.cover h1{font-size:38px;line-height:1.3;letter-spacing:.1em;margin-top:12px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub-title{font-size:17px;font-weight:700;letter-spacing:.18em;margin-top:4px}
+.cover .helix{position:absolute;right:-6px;top:-10px;width:92px;height:150px;animation:float 5s ease-in-out infinite alternate}
+@keyframes float{from{transform:translateY(-4px) rotate(-4deg)}to{transform:translateY(6px) rotate(4deg)}}
+.cover .s1,.cover .s2{position:absolute;filter:drop-shadow(0 0 5px rgba(255,236,160,.9))}
+.cover .s1{left:208px;top:6px;width:18px;height:18px;animation:twinkle 2.6s ease-in-out infinite}
+.cover .s2{left:-4px;top:96px;width:12px;height:12px;animation:twinkle 3.1s ease-in-out .8s infinite}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0;padding:0;list-style:none;counter-reset:f}
+.flow li{position:relative;border-radius:16px;padding:12px 8px 10px;font-size:11.5px;line-height:1.5;background:#fff;border:1px solid var(--line);min-width:0;text-align:center;color:var(--sub)}
+.flow li::before{counter-increment:f;content:counter(f);display:grid;place-items:center;width:24px;height:24px;margin:0 auto 4px;border-radius:50%;background:var(--grad-soft);color:var(--teal-deep);font-family:var(--f-en);font-style:italic;font-size:16px}
+.flow li b{display:block;font-size:13px;letter-spacing:.04em;color:var(--ink);margin-bottom:2px}
+.flow li small{display:block;font-size:10px;letter-spacing:.06em}
+.flow li.now{border:0;background:var(--grad);color:#fff;box-shadow:0 8px 20px rgba(77,194,238,.35)}
+.flow li.now::before{background:rgba(255,255,255,.95);color:var(--teal-deep)}
+.flow li.now b{color:#fff}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:13.5px;margin:0}
+.facts dt{color:var(--teal-deep);font-size:12px;font-weight:700;letter-spacing:.06em;padding-top:2px}
+.facts dd{margin:0}
+.note{font-size:12px;color:var(--sub);line-height:1.75}
+.notebox{background:var(--grad-soft);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.8}
+
+/* 質問 */
+.q{display:flex;flex-direction:column;gap:9px}
+.q > .ql{font-weight:700;font-size:14.5px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.q > .ql .req{font-size:10.5px;color:#fff;background:var(--pink);letter-spacing:.08em;border-radius:999px;padding:0 8px;line-height:1.8;font-weight:700}
+.q > .ql .opt{font-size:11px;color:var(--sub);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0;pointer-events:none}
+.chip span{display:inline-block;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 15px;font-size:13.5px;line-height:1.45;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.chip span:hover{border-color:#9FDCD6}
+.chip input:checked + span{background:var(--grad);border-color:transparent;color:#fff;font-weight:700;box-shadow:0 6px 16px rgba(77,194,238,.32);animation:pop .32s ease}
+.chip input:checked + span::before{content:"✦ ";font-size:11px}
+.chip input:focus-visible + span{outline:2px solid var(--teal-deep);outline-offset:2px}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+.text, select.text{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:10px 14px;font-size:16px;line-height:1.6}
+.text:focus{border-color:var(--teal);outline:none;box-shadow:0 0 0 4px rgba(17,179,170,.14)}
+textarea.text{min-height:76px;resize:vertical}
+.text::placeholder{color:#9DB3B6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row2 > *{min-width:0}
+.unit{display:flex;align-items:center;gap:8px}
+.unit span{font-size:13px;color:var(--sub)}
+.err{color:var(--warn);font-size:12.5px;background:var(--warn-soft);border-radius:12px;padding:8px 12px}
+
+/* 気になること */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat{position:relative;min-width:0}
+.cat input{position:absolute;opacity:0;margin:0;pointer-events:none}
+.cat label{position:relative;display:flex;gap:8px;align-items:flex-start;height:100%;border:1.5px solid var(--line);background:#fff;border-radius:18px;padding:12px 12px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cat label:hover{transform:translateY(-1px)}
+.cat .mono{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13.5px;color:#fff;background:var(--mono,var(--grad))}
+.cat .tx{min-width:0}
+.cat label b{display:block;font-size:14px;letter-spacing:.02em;line-height:1.45}
+.cat label small{display:block;font-size:11px;color:var(--sub);line-height:1.55;margin-top:3px}
+.cat input:checked + label{border-color:transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;border:2px solid transparent;box-shadow:0 10px 24px rgba(77,194,238,.25);animation:pop .32s ease}
+.cat input:checked + label::after{content:"";position:absolute;right:10px;top:10px;width:16px;height:16px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23F7C948' d='M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z'/%3E%3C/svg%3E")}
+.cat input:focus-visible + label{outline:2px solid var(--teal-deep);outline-offset:2px}
+
+/* くわしく */
+.block{border-top:1px dashed #BFE3E0;padding-top:18px;display:flex;flex-direction:column;gap:14px}
+.block:first-child{border-top:0;padding-top:0}
+.block h3{font-size:18px;display:flex;align-items:center;gap:8px}
+.block h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--grad)}
+.block .bnote{font-size:12px;color:var(--sub);background:var(--blush);border-radius:12px;padding:8px 12px}
+.symnote{font-size:11.5px;color:var(--sub)}
+
+/* 順番 */
+.rank{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.rank button{width:100%;display:flex;align-items:center;gap:14px;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:18px;padding:12px 14px;transition:box-shadow .15s}
+.rank button[aria-pressed="true"]{border-color:transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;border:2px solid transparent;box-shadow:0 8px 20px rgba(77,194,238,.22)}
+.rank .n{flex:none;width:34px;height:34px;border-radius:50%;border:1.5px dashed #BFE3E0;display:grid;place-items:center;font-family:var(--f-en);font-style:italic;font-size:21px;color:var(--sub)}
+.rank button[aria-pressed="true"] .n{border:0;background:var(--grad);color:#fff;animation:pop .32s ease}
+.rank .t{min-width:0}
+.rank .t b{display:block;font-size:15px;letter-spacing:.04em}
+.rank .t small{display:block;color:var(--sub);font-size:12px;line-height:1.55}
+.linkbtn{background:none;border:0;color:var(--teal-deep);font-size:13px;padding:4px 0;text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
+
+/* 確認事項 */
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.7;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;cursor:pointer}
+.consent input{margin-top:4px;width:19px;height:19px;accent-color:var(--teal);flex:none}
+
+/* 送る：お祝い＋トリセツ1ページ目の見本（紙の見た目はトリセツと同じ明朝） */
+.done-head{position:relative;text-align:center;padding:6px 0 2px}
+.done-head .badge{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.16em;color:#fff;background:var(--grad);border-radius:999px;padding:3px 14px;box-shadow:0 6px 16px rgba(77,194,238,.3)}
+.done-head h2{font-size:23px;line-height:1.55;margin-top:12px}
+.done-head .lead{margin-top:8px}
+.burst{position:absolute;left:50%;top:44%;width:0;height:0;pointer-events:none}
+.burst i{position:absolute;left:0;top:0;width:var(--s,12px);height:var(--s,12px);margin:calc(var(--s,12px) / -2) 0 0 calc(var(--s,12px) / -2);opacity:0;animation:fly 1.3s cubic-bezier(.2,.7,.3,1) var(--dl,0s) forwards}
+.burst i svg{display:block;width:100%;height:100%}
+@keyframes fly{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(160deg)}}
+.sheet{background:#fff;border:1px solid #E3EEEE;border-radius:22px;padding:20px 18px;display:flex;flex-direction:column;gap:18px;box-shadow:0 18px 40px rgba(28,120,130,.12);position:relative}
+.sheet::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.6;pointer-events:none}
+.sheet .mh{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #D4EAEA;padding-bottom:8px}
+.sheet .mh .en{font-size:17px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sheet .mh small{font-size:10px;letter-spacing:.14em;color:var(--sub)}
+.sheet .who{font-size:21px;font-weight:700;letter-spacing:.08em;line-height:1.4;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sheet h4{font-weight:700;font-size:17px;letter-spacing:.08em;margin:2px 0 0}
+.hear{margin:0;padding:0;list-style:none}
+.hear li{display:grid;grid-template-columns:26px 6em 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed #C9E6E3;align-items:center}
+.hear li:last-child{border-bottom:0}
+.hear .no{width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:var(--f-en);font-style:italic;font-weight:600;font-size:17px;line-height:1}
+.hear .nm{font-weight:700;font-size:15px;letter-spacing:.04em}
+.hear .ds{font-size:12.5px;color:var(--sub);min-width:0;line-height:1.6;font-weight:400}
+.life{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;margin:0}
+.life div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed #C9E6E3;padding:7px 0;font-size:12.5px;min-width:0;font-weight:400}
+.life dt{color:var(--sub);flex:none}
+.life dd{margin:0;text-align:right;min-width:0}
+.goalbox{background:var(--grad);color:#fff;border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:15px;letter-spacing:.04em;line-height:1.6;box-shadow:0 10px 22px rgba(77,194,238,.28)}
+.goalbox b{font-size:11px;letter-spacing:.14em;color:var(--teal-deep);background:#fff;border-radius:999px;padding:1px 10px;flex:none}
+.genes{display:flex;flex-direction:column;gap:12px}
+.genes > div > h4{font-size:17px;letter-spacing:.08em;margin:0}
+.genes h5{margin:0;font-size:13.5px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.genes h5 .en{color:var(--teal-deep);font-size:17px}
+.genes h5 .en::after{content:none}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tags span{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;background:#fff;line-height:1.75}
+.tags span.sp{border:0;background:var(--grad);color:#fff;font-weight:700}
+.tags span.more{border-style:dashed;color:var(--sub)}
+.point{background:var(--grad);color:#fff;border-radius:18px;padding:18px 18px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 24px rgba(77,194,238,.28)}
+.point small{font-size:11px;letter-spacing:.14em;font-weight:700}
+.point ul{margin:0;padding-left:1.1em;font-size:13.5px;line-height:1.8}
+.memo{border:1px solid var(--line);border-radius:14px;background:#fff}
+.memo summary{cursor:pointer;padding:10px 14px;font-size:13px;color:var(--sub)}
+.memo pre{margin:0;padding:0 14px 14px;white-space:pre-wrap;word-break:break-word;font-family:var(--f-jp);font-size:12px;line-height:1.7;max-height:360px;overflow:auto;font-weight:400}
+.sendbox{display:flex;flex-direction:column;gap:10px}
+.btn-send{position:relative;overflow:hidden;width:100%;border:0;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;font-size:16.5px;letter-spacing:.08em;padding:16px;box-shadow:0 12px 26px rgba(77,194,238,.38)}
+.btn-send::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));transform:skewX(-18deg);animation:sheen 3.2s ease-in-out infinite}
+.btn-send:disabled{opacity:.7}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.sent{display:flex;flex-direction:column;gap:10px;background:var(--grad-soft);border-radius:20px;padding:18px 16px;text-align:center;font-size:14px;line-height:1.85}
+.sent-badge{align-self:center;font-weight:700;font-size:15px;letter-spacing:.12em;color:#fff;background:var(--grad);border-radius:999px;padding:4px 18px;box-shadow:0 8px 18px rgba(77,194,238,.3)}
+.btn-line{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:999px;background:var(--line-green);color:#fff;font-weight:700;font-size:15.5px;padding:15px 16px;text-decoration:none;letter-spacing:.04em;box-shadow:0 10px 22px rgba(6,199,85,.3)}
+.copied{font-size:12.5px;color:var(--teal-deep);text-align:center}
+.copy-fallback{width:100%;min-height:140px;font-size:12px}
+
+/* 下のボタン */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(212,234,234,.8);
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.nav .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.nav button{border-radius:999px;padding:13px 20px;font-size:15px;font-weight:700;border:1.5px solid var(--line);background:#fff}
+.nav .next{position:relative;overflow:hidden;flex:1;background:var(--grad);border:0;color:#fff;letter-spacing:.08em;box-shadow:0 10px 22px rgba(77,194,238,.35)}
+.nav .next::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));transform:skewX(-18deg);animation:sheen 3.2s ease-in-out infinite}
+@keyframes sheen{0%,55%{left:-40%}100%{left:130%}}
+.nav .back{flex:none;color:var(--sub)}
+
+/* 作り手用（#staff） */
+.staff{margin-top:18px;background:var(--glass);border-radius:26px;box-shadow:var(--shadow);padding:24px 18px 30px;display:flex;flex-direction:column;gap:20px}
+.staff h2{font-size:21px}
+.cover-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cover-stat div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;min-width:0}
+.cover-stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums;color:var(--teal-deep)}
+.cover-stat small{font-size:11.5px;color:var(--sub);line-height:1.5;display:block}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.tbl table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:520px;font-weight:400}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.tbl th{font-weight:700;color:var(--sub);font-size:11.5px;letter-spacing:.06em;background:var(--soft)}
+.tbl td.c{white-space:nowrap;font-weight:700;font-size:13.5px}
+.staff .btns{display:flex;gap:10px;flex-wrap:wrap}
+.staff .btns button{border:1.5px solid var(--teal);color:var(--teal-deep);background:#fff;border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:700}
+
+@media (max-width:480px){.life{grid-template-columns:1fr}}
+@media (max-width:440px){.flow{grid-template-columns:1fr 1fr}}
+@media (max-width:370px){.cats{grid-template-columns:1fr}.cover h1{font-size:33px}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .spark{opacity:.8}
+  .burst{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg" id="bg" aria-hidden="true"></div>
+<div class="top"><div class="wrap">
+  <div class="brand"><span class="en">My Body Manual</span><span class="by">美yond × chatGENE</span></div>
+  <div class="prog" id="prog" aria-hidden="true"></div>
+  <div class="steplabel"><span id="stepName">はじめに</span><span id="stepCount"></span></div>
+</div></div>
+
+<main class="wrap" id="app">
+
+<!-- 0 はじめに -->
+<section class="screen cover" id="s-intro" data-label="はじめに">
+  <header class="hero">
+    <span class="kicker">遺伝子検査 chatGENE</span>
+    <h1>カラダの<br>トリセツ</h1>
+    <p class="sub-title">カウンセリングシート</p>
+    <svg class="helix" id="helix" viewBox="0 0 92 150" aria-hidden="true"></svg>
+    <svg class="s1" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F7C948" d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>
+    <svg class="s2" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F48FB4" d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>
+  </header>
+  <p>遺伝子検査「chatGENE」でわかる約400項目のなかから、あなたのお悩みに関係するところを中心に読み解いて、あなた専用の“取り扱い説明書”を作ります。そのために、いま気になっていることと、ふだんの生活を教えてください。</p>
+  <ol class="flow">
+    <li class="now"><small>いまここ</small><b>アンケート</b>気になることを伺う</li>
+    <li><small>ご自宅で</small><b>遺伝子検査</b>唾液を採って郵送</li>
+    <li><small>約3週間</small><b>トリセツ</b>お悩みを中心にまとめる</li>
+    <li><small>オンライン</small><b>解説</b>60分で一緒に読み解く</li>
+  </ol>
+  <dl class="facts">
+    <dt>かかる時間</dt><dd>5分（ほとんどがタップで答えられます）</dd>
+    <dt>送り方</dt><dd>最後に「この内容で送る」を押すと、担当に届きます</dd>
+    <dt>聞かないこと</dt><dd>年齢・性別・ご連絡先は、検査のお申し込み情報から受け取るので、ここでは伺いません</dd>
+  </dl>
+  <div class="notebox">入力した内容は、最後に「送る」を押すまで、どこにも届きません。送った内容は、トリセツの作成とご連絡のためだけに使います。<br>遺伝子検査は病気の診断ではなく、体質の「傾向」を知るためのものです。</div>
+</section>
+
+<!-- 1 お名前 -->
+<section class="screen" id="s-name" data-label="お名前" hidden>
+  <header><p class="eyebrow en">About you</p><h2>お名前を教えてください</h2>
+  <p class="lead">トリセツの表紙に入ります。検査のお申し込みと照らし合わせるので、フルネームでお願いします。</p></header>
+  <div class="q"><label class="ql" for="f-name">お名前<span class="req">必須</span></label>
+    <input class="text" id="f-name" data-k="name" autocomplete="name" placeholder="例）山田 花子"></div>
+  <div class="q"><label class="ql" for="f-kit">キットID<span class="opt">わかる方だけ</span></label>
+    <input class="text" id="f-kit" data-k="kit" inputmode="latin" autocomplete="off" placeholder="キットがまだ届いていなければ空欄で大丈夫です"></div>
+  <p class="err" id="err-name" hidden>お名前を入れてください。</p>
+</section>
+
+<!-- 2 気になること -->
+<section class="screen" id="s-cats" data-label="気になること" hidden>
+  <header><p class="eyebrow en">Hearing</p><h2>いま、カラダで<br>気になることは？</h2>
+  <p class="lead">いくつでも選べます。選んだことに関係する遺伝子の項目を、トリセツで中心に読み解きます。</p></header>
+  <div class="cats" id="catList"></div>
+  <p class="err" id="err-cats" hidden>1つ以上選んでください。</p>
+</section>
+
+<!-- 3 くわしく -->
+<section class="screen" id="s-detail" data-label="くわしく" hidden>
+  <header><p class="eyebrow en">In detail</p><h2>もう少しくわしく教えてください</h2>
+  <p class="lead">あてはまるものを選んで、「いつ・どんなときに」を書いていただくと、トリセツがあなたの生活に合ったものになります。</p></header>
+  <div id="detailList" style="display:flex;flex-direction:column;gap:22px"></div>
+</section>
+
+<!-- 4 順番 -->
+<section class="screen" id="s-rank" data-label="順番" hidden>
+  <header><p class="eyebrow en">Priority</p><h2>いちばん変えたいのは、どれですか</h2>
+  <p class="lead">変えたい順に、上位3つまでタップしてください。トリセツは1番から順に組み立てます。</p></header>
+  <ol class="rank" id="rankList"></ol>
+  <button type="button" class="linkbtn" id="rankReset">順番を選び直す</button>
+  <p class="err" id="err-rank" hidden>順番を選んでください。</p>
+</section>
+
+<!-- 5 食事 -->
+<section class="screen" id="s-food" data-label="食事" hidden>
+  <header><p class="eyebrow en">Lifestyle 1</p><h2>ふだんの食事と飲みもの</h2>
+  <p class="lead">遺伝子の傾向と、いまの生活を照らし合わせます。だいたいで大丈夫です。</p></header>
+  <div id="foodList" style="display:flex;flex-direction:column;gap:20px"></div>
+</section>
+
+<!-- 6 毎日の過ごし方 -->
+<section class="screen" id="s-day" data-label="毎日の過ごし方" hidden>
+  <header><p class="eyebrow en">Lifestyle 2</p><h2>睡眠・運動・毎日の過ごし方</h2>
+  <p class="lead">トリセツの「取り扱い方」は、この生活から無理なく変えられるところを選んで作ります。</p></header>
+  <div id="dayList" style="display:flex;flex-direction:column;gap:20px"></div>
+</section>
+
+<!-- 7 目標 -->
+<section class="screen" id="s-goal" data-label="目標" hidden>
+  <header><p class="eyebrow en">Goal</p><h2>どうなりたいですか</h2>
+  <p class="lead">3か月のプランは、ここに向けて組み立てます。</p></header>
+  <div id="goalList" style="display:flex;flex-direction:column;gap:20px"></div>
+</section>
+
+<!-- 8 確認事項 -->
+<section class="screen" id="s-safe" data-label="確認事項" hidden>
+  <header><p class="eyebrow en">Before we start</p><h2>安心してご提案するための確認</h2>
+  <p class="lead">食事や生活のご提案が、いまの体の状態に合うようにするための確認です。</p></header>
+  <div id="safeList" style="display:flex;flex-direction:column;gap:20px"></div>
+  <p class="err" id="err-safe" hidden></p>
+</section>
+
+<!-- 9 送る -->
+<section class="screen" id="s-done" data-label="送る" hidden>
+  <header class="done-head"><div class="burst" id="burst"></div><span class="badge">ご回答ありがとうございます</span>
+  <h2>あなただけのトリセツ、<br>1ページ目はこうなります</h2>
+  <p class="lead">ここまでの答えをまとめました。内容がよければ、下の「この内容で送る」を押してください。</p></header>
+  <div id="preview"></div>
+  <div class="sendbox" id="sendbox">
+    <button type="button" class="btn-send" id="sendBtn">✦ この内容で送る</button>
+    <input type="text" class="hp" id="f-website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <p class="err" id="sendErr" hidden></p>
+    <p class="note">送った内容は、トリセツの作成とご連絡のためだけに使います。</p>
+  </div>
+  <div class="sent" id="sentBox" hidden>
+    <p class="sent-badge">✦ 送信しました</p>
+    <p>ありがとうございます。担当に届きました。検査キットのご案内と、解説ミーティングの日程は、LINEでご連絡します。</p>
+    <p class="note">まだ美yondのLINEとお友だちでない方は、こちらから追加してください。</p>
+    <a class="btn-line" id="lineAdd" href="https://lin.ee/34Uuw1L" target="_blank" rel="noopener">美yondのLINEを開く</a>
+  </div>
+  <div class="sendbox" id="fallbackBox" hidden>
+    <p class="note">うまく送れないときは、内容をコピーしてLINEで送ってください。</p>
+    <a class="btn-line" id="lineBtn" href="https://lin.ee/34Uuw1L" target="_blank" rel="noopener">内容をコピーしてLINEで送る</a>
+    <p class="copied" id="copied" hidden></p>
+    <textarea class="text copy-fallback" id="copyFallback" readonly hidden aria-label="コピー用のメモ"></textarea>
+  </div>
+  <details class="memo"><summary>送るメモの全文を見る</summary><pre id="memoText"></pre></details>
+</section>
+
+<!-- 作り手用 -->
+<section class="staff" id="s-staff" hidden></section>
+</main>
+
+<nav class="nav" id="nav"><div class="in">
+  <button type="button" class="back" id="backBtn">戻る</button>
+  <button type="button" class="next" id="nextBtn">はじめる</button>
+</div></nav>
+
+<script>
+(function(){
+"use strict";
+/* ===== 設定 ===== */
+var LINE_URL = "https://lin.ee/34Uuw1L"; /* 送り先の LINE（いまは美yond の公式LINE） */
+var STORE_KEY = "chatgene-sheet-v1";
+
+/* ===== データ表（chatGENE用【400項目】report_item_setting.xlsx）で○が付いている241項目 =====
+   番号: [項目名, 小分類]。トリセツに載るのはこの241項目とスペシャルコンテンツだけ */
+var ITEMS = {74:["甲状腺機能低下症", "内分泌"],75:["高中性脂肪血症", "内分泌"],76:["メタボリックシンドローム", "内分泌"],77:["バセドウ病", "内分泌"],78:["脂質異常症", "内分泌"],79:["妊娠糖尿病", "内分泌"],80:["1型糖尿病", "内分泌"],81:["2型糖尿病", "内分泌"],166:["基礎代謝量", "体重・ダイエット"],167:["肥満", "体重・ダイエット"],168:["腹部肥満", "体重・ダイエット"],169:["内臓脂肪タイプ or 皮下脂肪タイプ", "体重・ダイエット"],170:["BMI", "体重・ダイエット"],171:["体脂肪率", "体重・ダイエット"],172:["除脂肪体重", "体重・ダイエット"],173:["リバウンド", "体重・ダイエット"],174:["減量難易度", "体重・ダイエット"],175:["エネルギー摂取による体重変化", "体重・ダイエット"],176:["エネルギー消費効率", "体重・ダイエット"],177:["肥満とうつ病", "体重・ダイエット"],178:["ストレスによる肥満", "体重・ダイエット"],179:["運動への積極性", "運動"],180:["筋肉の発達能力", "運動"],181:["握力", "運動"],182:["短距離疾走能力", "運動"],183:["無酸素運動適合性", "運動"],184:["有酸素運動適合性", "運動"],185:["心肺持久力", "運動"],186:["努力性肺活量", "運動"],187:["運動後の心拍数回復速度", "運動"],188:["運動による中性脂肪の減少", "運動"],189:["運動による減量効果", "運動"],190:["カフェイン摂取と運動能力", "運動"],191:["登山家遺伝子", "運動"],192:["下半身の筋力低下リスク", "運動"],193:["筋肉の柔軟性と怪我のリスク", "運動"],194:["足首の怪我のリスク", "運動"],195:["アキレス腱の怪我のリスク", "運動"],196:["ハムストリングの怪我のリスク", "運動"],197:["前/後 十字靭帯損傷のリスク", "運動"],198:["骨粗鬆症と骨折のリスク", "運動"],199:["食欲", "食習慣"],200:["満腹感", "食習慣"],201:["空腹感", "食習慣"],202:["炭水化物摂取量", "食習慣"],203:["タンパク質摂取量", "食習慣"],204:["脂質摂取量", "食習慣"],205:["魚の摂取頻度", "食習慣"],206:["チーズの摂取量", "食習慣"],207:["好き嫌い（牛肉/ステーキ）", "食習慣"],208:["好き嫌い（鶏肉）", "食習慣"],209:["好き嫌い（芽キャベツ）", "食習慣"],210:["好き嫌い（甘いもの）", "食習慣"],211:["甘味感度", "食習慣"],212:["苦味感度", "食習慣"],213:["カフェイン苦味敏感性", "食習慣"],214:["塩味感度", "食習慣"],215:["うま味感度", "食習慣"],216:["アルコール代謝", "嗜好品"],217:["お酒の強さ（酒豪遺伝子）", "嗜好品"],218:["二日酔い", "嗜好品"],219:["アルコール消費量", "嗜好品"],220:["アルコール依存症", "嗜好品"],221:["ワインの好み", "嗜好品"],222:["アルコールとニコチンの共依存", "嗜好品"],223:["ニコチン代謝", "嗜好品"],224:["ニコチン依存性", "嗜好品"],225:["カフェイン代謝", "嗜好品"],226:["カフェイン摂取習慣", "嗜好品"],227:["紅茶の消費量", "嗜好品"],228:["ビタミンA濃度", "栄養素"],229:["ビタミンB2濃度", "栄養素"],230:["ビタミンB6濃度", "栄養素"],231:["ビタミンB9（葉酸）濃度", "栄養素"],232:["ビタミンB12濃度", "栄養素"],233:["ビタミンC濃度", "栄養素"],234:["ビタミンD濃度", "栄養素"],235:["ビタミンE濃度", "栄養素"],236:["ビタミンK濃度", "栄養素"],237:["鉄分濃度", "栄養素"],238:["亜鉛濃度", "栄養素"],239:["カリウム濃度", "栄養素"],240:["マグネシウム濃度", "栄養素"],241:["カルシウム濃度", "栄養素"],242:["リン濃度", "栄養素"],243:["セレン濃度", "栄養素"],244:["グルタミン濃度", "栄養素"],245:["リジン濃度", "栄養素"],246:["ロイシン濃度", "栄養素"],247:["バリン濃度", "栄養素"],248:["ベタイン濃度", "栄養素"],249:["アルギニン濃度", "栄養素"],250:["アラニン濃度", "栄養素"],251:["タウリン濃度", "栄養素"],252:["チロシン濃度", "栄養素"],253:["トリプトファン濃度", "栄養素"],254:["ヒスチジン濃度", "栄養素"],255:["ルテイン＆ゼアキサンチン濃度", "栄養素"],256:["ベータカロテン濃度", "栄養素"],257:["アルファカロテン濃度", "栄養素"],258:["コエンザイムQ10濃度", "栄養素"],259:["オメガ-3脂肪酸", "栄養素"],260:["オメガ-6脂肪酸", "栄養素"],261:["オメガ-7脂肪酸", "栄養素"],262:["オメガ-9脂肪酸", "栄養素"],263:["飽和脂肪酸濃度", "栄養素"],264:["肌の水分", "肌"],265:["肌の油分", "肌"],266:["肌の光沢", "肌"],267:["肌のしわ", "肌"],268:["肌の弾力", "肌"],269:["肌のくすみ", "肌"],270:["肌のトーン", "肌"],271:["にきび", "肌"],272:["そばかす", "肌"],273:["色素沈着", "肌"],274:["日焼け反応（サンタン）", "肌"],275:["日焼け反応（サンバーン）", "肌"],276:["肌の老化", "肌"],277:["肌の光老化", "肌"],278:["若々しさ", "肌"],279:["肉割れ（妊娠線）", "肌"],280:["ケロイド", "肌"],281:["酒さ（顔面紅潮）", "肌"],282:["かぶれやすさ（刺激物感受性）", "肌"],283:["髪の毛の太さ", "髪"],284:["髪の色", "髪"],285:["白髪", "髪"],286:["髪質（直毛・ウェーブ・縮毛）", "髪"],287:["男性型脱毛症（AGA）", "髪"],288:["女性型脱毛症（FPHL)", "髪"],289:["円形脱毛症（AA)", "髪"],290:["眉毛の太さ", "髪"],291:["睡眠の質", "睡眠"],292:["睡眠の深さ", "睡眠"],293:["朝型人間・夜型人間", "睡眠"],294:["ロングスリーパー・ショートスリーパー", "睡眠"],295:["睡眠不足と判断力", "睡眠"],296:["睡眠時の歯ぎしり", "睡眠"],297:["いびきの可能性", "睡眠"],298:["においの感受性", "嗅覚"],299:["におい変化の感じ方（アスパラガス摂取後の尿）", "嗅覚"],300:["においの感じやすさ（麦芽）", "嗅覚"],301:["においの感じやすさ（シナモン）", "嗅覚"],302:["わきが", "その他"],303:["ストレスの感じやすさ", "その他"],304:["抗酸化力", "その他"],305:["蚊に刺された後のかゆみの強さ", "その他"],306:["蚊に刺された後の腫れの大きさ", "その他"],307:["耳垢の種類", "その他"],308:["耳の形", "その他"],309:["左利きの可能性", "その他"],310:["乗り物酔い", "その他"],311:["ビフィズス菌の豊富さ", "その他"],312:["痛みの感度", "その他"],313:["長寿", "その他"],314:["テロメア長", "その他"],315:["乳糖不耐症", "その他"],316:["便秘の可能性", "その他"],317:["記憶力", "能力"],318:["認知能力", "能力"],319:["言語能力", "能力"],320:["数学的思考力", "能力"],321:["音楽的能力（音感・リズム感）", "能力"],322:["情報処理能力【視覚（DS）】", "能力"],323:["試行錯誤学習（体験学習）", "能力"],324:["脳の神経回路密度", "能力"],325:["頭蓋容積の大きさ", "能力"],326:["海馬容積の大きさ", "能力"],327:["学歴(就学年数)", "能力"],328:["収入の高さ", "能力"],329:["開放性（BIG5）", "性格"],330:["誠実性（BIG5）", "性格"],331:["外向性（BIG5）", "性格"],332:["協調性（BIG5）", "性格"],333:["神経症傾向（BIG5)", "性格"],334:["共感力", "性格"],335:["社交性", "性格"],336:["冒険心", "性格"],337:["心配性", "性格"],338:["孤独", "性格"],339:["秘密を打ち明けることができる傾向", "性格"],340:["リスクテイク行動", "性格"],341:["パリピ遺伝子", "性格"],342:["血糖値", "血液・血管"],343:["尿酸値", "血液・血管"],344:["血圧", "血液・血管"],345:["脈圧", "血液・血管"],346:["心拍数", "血液・血管"],347:["中性脂肪レベル", "血液・血管"],348:["総コレステロール値", "血液・血管"],349:["LDLコレステロール値", "血液・血管"],350:["HDLコレステロール値", "血液・血管"],351:["ホモシステインレベル", "血液・血管"],352:["アディポネクチンレベル", "血液・血管"],353:["テストステロンレベル", "血液・血管"],354:["ジヒドロテストステロンレベル", "血液・血管"],355:["エストラジオールレベル", "血液・血管"],356:["総タンパク質レベル", "血液・血管"],357:["C反応性タンパク質レベル", "血液・血管"],358:["心電図波形（QT間隔）", "血液・血管"],359:["心電図波形（PR間隔）", "血液・血管"],360:["心電図波形（QRS間隔）", "血液・血管"],361:["白血球数", "血液・血管"],362:["好酸球数", "血液・血管"],363:["好中球数", "血液・血管"],364:["好塩球数", "血液・血管"],365:["血清IgMレベル", "血液・血管"],366:["血清IgGレベル", "血液・血管"],367:["血清IgAレベル", "血液・血管"],368:["血清IgEレベル", "血液・血管"],369:["赤血球数", "血液・血管"],370:["血小板数", "血液・血管"],371:["ヘモグロビンの量", "血液・血管"],372:["血液凝固時間", "血液・血管"],373:["ヘマトクリットレベル", "血液・血管"],374:["フィブリノゲンレベル", "血液・血管"],375:["総鉄結合能（総トランスフェリン量）", "血液・血管"],376:["頸動脈壁肥厚（ひこう）", "血液・血管"],377:["アルブミン：グロブリン比（A/G比）", "肝臓"],378:["α1アンチトリプシン", "肝臓"],379:["ALT数値（肝酵素）", "肝臓"],380:["ALP数値（肝酵素）", "肝臓"],381:["AST数値（肝酵素）", "肝臓"],382:["γ-GTP数値（肝酵素）", "肝臓"],383:["総ビリルビン濃度", "肝臓"],384:["直接ビリルビン濃度", "肝臓"],385:["尿中のナトリウムレベル", "腎臓"],386:["シスタチンC数値", "腎臓"],387:["血清クレアチニンレベル", "腎臓"],388:["尿素窒素数値", "腎臓"],389:["推定糸球体濾過量（eGFR）", "腎臓"],390:["骨密度", "骨"],391:["膝の痛み", "骨"],392:["股関節骨折", "骨"],393:["角膜の厚さ", "眼"],394:["角膜曲率", "眼"],395:["眼圧", "眼"],396:["視神経乳頭の大きさ", "眼"],397:["虹彩のパターン", "眼"],398:["ドライアイ", "眼"]};
+var SP = {diet:"ダイエット", nutri:"栄養素", p1:"性格診断①", p2:"性格診断②", skin:"肌", sport:"スポーツ"};
+/* お客様の画面では、健診の数値・病気の名前は1つずつ出さずにまとめて数える */
+var HEALTH_SUB = {"血液・血管":1,"肝臓":1,"腎臓":1,"骨":1,"眼":1,"内分泌":1};
+function isHealth(n){ var it = ITEMS[n]; return !it || HEALTH_SUB[it[1]] || n < 166; }
+
+/* ===== 逆算表：お悩み → 遺伝子の項目 =====
+   base: そのお悩みを選んだら必ず見る項目 / sp: スペシャルコンテンツ
+   sym: [お客様の言葉, 照らす項目, (補足)] */
+var CATS = [
+ {id:"skin", name:"肌", hint:"ニキビ・シミ・乾燥・くすみ・しわ", sp:["skin"], base:[264,265,276,304],
+  when:"例）生理前や忙しい時期に、あごまわりに繰り返しできる",
+  sym:[["乾燥・つっぱり",[264,266,259]],["テカリ・毛穴の皮脂",[265,271]],["ニキビ・吹き出物",[271,265,281,228,229,230,238]],
+   ["シミ・そばかす",[272,273,274,277,233]],["くすみ・顔色が悪い",[269,270,233,256]],["しわ・たるみ・ハリ不足",[267,268,276,278,258]],
+   ["赤み・ほてり",[281,282]],["かぶれやすい・刺激に弱い",[282,281]],["日焼けで赤くなりやすい",[274,275,277]],["肉割れ・傷あとが残りやすい",[279,280]]]},
+ {id:"weight", name:"体重・体型", hint:"やせにくい・リバウンド・お腹まわり", sp:["diet"], base:[167,170,171],
+  when:"例）食事を減らしても落ちにくく、やめるとすぐ戻ってしまう",
+  sym:[["食事を減らしても、やせにくい",[166,174,175,176]],["やせても、すぐ戻る（リバウンド）",[173,174]],["お腹まわりにつきやすい",[168,169,352]],
+   ["下半身・脚が気になる",[169,172]],["すぐお腹がすく・食べすぎてしまう",[199,200,201]],["甘いもの・炭水化物がやめられない",[202,210,211]],
+   ["ストレスや落ち込みで食べてしまう",[177,178]],["筋肉がつきにくい・引き締まらない",[172,180]]]},
+ {id:"sleep", name:"睡眠・疲れ", hint:"寝つき・朝起きられない・だるさ", sp:[], base:[291,293,294],
+  when:"例）朝すっきり起きられず、午後になると眠くなる",
+  sym:[["寝つきが悪い",[291,225,303,253]],["眠りが浅い・夜中に目が覚める",[292,291,225]],["朝起きられない",[293,294]],
+   ["日中に眠くなる",[294,295,237]],["寝不足だと頭が働かない",[295]],["いびき・歯ぎしりを言われる",[297,296]],
+   ["疲れが取れにくい・だるい",[229,230,232,237,240,258,74]]]},
+ {id:"gut", name:"お腹・腸", hint:"便秘・お腹がゆるい・張る", sp:[], base:[311,316],
+  when:"例）3日に1回くらい。旅行に行くと特に出にくい",
+  sym:[["便秘がち",[316,311]],["お腹がゆるい・下しやすい",[311,315]],["牛乳を飲むとお腹がゴロゴロする",[315]],["お腹が張る・ガスがたまる",[311,315]]]},
+ {id:"food", name:"食事・栄養", hint:"合う食べ方・サプリ・好き嫌い", sp:["nutri"], base:[202,203,204],
+  when:"例）外食が多く、野菜が足りていない気がする",
+  sym:[["自分に合う食べ方を知りたい",[202,203,204,175]],["野菜・果物が少ない",[233,256,257,239,236,255]],["魚をあまり食べない",[205,259,260,261,262]],
+   ["たんぱく質が足りているか気になる",[203,356,244,245,246,247,248,249,250,251,254]],["脂っこいもの・揚げものが好き",[204,263]],
+   ["味の濃いもの・塩辛いものが好き",[214,385]],["好き嫌いが多い・苦いものが苦手",[212,215,206,207,208,209]],
+   ["どのサプリを飲めばいいか知りたい",[234,235,237,238,240,231,232,241,242,243,259]]]},
+ {id:"mind", name:"心・ストレス", hint:"ストレス・気分の波・自分の性格", sp:["p1","p2"], base:[303,333],
+  when:"例）仕事が忙しいと、気持ちが張りつめて休めない",
+  sym:[["ストレスをためやすい",[303,337,333]],["気分の浮き沈みがある",[333,253,252,177]],["人付き合いで疲れやすい",[331,332,335,338,339,341]],
+   ["自分の性格をくわしく知りたい",[329,330,331,332,333,334,336]],["向いている仕事・働き方を知りたい",[329,330,336,340,323]],
+   ["集中力・記憶力を高めたい",[317,318,322]],["自分の得意・才能を知りたい",[319,320,321,323]]]},
+ {id:"hair", name:"髪・頭皮", hint:"抜け毛・白髪・細い髪・くせ毛", sp:[], base:[283],
+  when:"例）ここ1年で分け目が目立ってきた",
+  sym:[["抜け毛・薄毛が気になる",[287,288,289]],["白髪が増えた",[285,284]],["髪が細い・ボリュームが出ない",[283,287,288]],
+   ["くせ毛・うねり",[286]],["眉が薄い",[290]]]},
+ {id:"sport", name:"運動・体力", hint:"合う運動・続かない・ケガ・ひざ", sp:["sport"], base:[179,183,184],
+  when:"例）ジムに通っても3か月で行かなくなる",
+  sym:[["自分に合う運動を知りたい",[183,184,180,181,182,185]],["運動が続かない",[179]],["運動してもやせない",[188,189,176]],
+   ["体力・持久力をつけたい",[185,186,187,190,191]],["ケガをしやすい・体がかたい",[193,194,195,196,197]],
+   ["ひざ・足腰が気になる",[391,192,390]],["骨の強さが気になる",[390,198,392,234,241,242]]]},
+ {id:"drink", name:"お酒・コーヒー・たばこ", hint:"飲み方・二日酔い・カフェイン・禁煙", sp:[], base:[216,225],
+  when:"例）コーヒーを1日3杯。夕方にも飲む",
+  sym:[["お酒の量が気になる",[216,217,219,220,221]],["二日酔いしやすい",[218,216]],["お酒で顔が赤くなる",[216,217]],
+   ["コーヒー・カフェインの取り方を知りたい",[225,226,213,227]],["たばこをやめたい",[223,224,222]]]},
+ {id:"check", name:"健康診断の数値", hint:"血糖・コレステロール・血圧・肝臓", sp:[], base:[],
+  note:"検査でわかるのは、数値が上がりやすいかどうかの「傾向」です。いまの数値や病気があるかどうかはわかりません。治療中の方は、主治医の指示を優先してください。",
+  when:"例）去年の健診で、中性脂肪が高めと言われた",
+  sym:[["血糖値",[342,352,81,80]],["コレステロール・中性脂肪",[347,348,349,350,75,78]],["お腹まわり（メタボ）",[76,168,169]],
+   ["血圧",[344,345,346,214]],["尿酸値",[343]],["肝臓の数値",[379,380,381,382,377,378,383,384]],["腎臓の数値",[385,386,387,388,389]],
+   ["貧血",[371,369,373,375,237]],["血管・心臓（家族に多いなど）",[351,370,372,374,376,358,359,360]],
+   ["目（ドライアイ・眼圧など）",[398,395,393,394,396,397]],["甲状腺",[74,77]]]},
+ {id:"body", name:"女性・男性の体", hint:"生理前・更年期・妊娠の予定・活力", sp:[], base:[],
+  when:"例）生理前に、肌荒れと気分の落ち込みがある",
+  sym:[["生理前の不調",[355,303]],["更年期が気になる",[355,390,74]],["これから妊娠・出産を考えている",[231,79,237,279]],["男性ホルモン・活力が気になる",[353,354]]]},
+ {id:"other", name:"そのほかの体質", hint:"冷え・むくみ・におい・免疫", sp:[], base:[],
+  when:"例）夕方になると足がむくむ",
+  sym:[["冷え・むくみ",[239,214,385,237,74],"直接わかる項目はないので、栄養や塩分の傾向から考えます"],
+   ["風邪をひきやすい",[361,363,364,365,366,367,357]],["アレルギー体質が気になる",[368,362],"アレルギーがあるかどうかは、この検査ではわかりません"],
+   ["体のにおい（わきが）",[302]],["においに敏感",[298,299,300,301]],["乗り物酔いしやすい",[310]],["痛みに敏感",[312]],
+   ["蚊に刺されると腫れやすい",[305,306]],["老けにくさ・長生きの傾向",[313,314,304]]]}
+];
+var MONO = {skin:"肌",weight:"体",sleep:"眠",gut:"腸",food:"食",mind:"心",hair:"髪",sport:"動",drink:"飲",check:"診",body:"巡",other:"質"};
+var MONO_GRAD = ["linear-gradient(135deg,#12B8AD,#4DC2EE)","linear-gradient(135deg,#F290B6,#FFB38A)","linear-gradient(135deg,#4DC2EE,#9C9CF0)",
+  "linear-gradient(135deg,#F7C948,#F290B6)","linear-gradient(135deg,#3CCB9A,#12B8AD)","linear-gradient(135deg,#FFB38A,#F7C948)"];
+var SINCE = ["最近","半年〜1年","何年も前から","子どものころから"];
+
+/* ===== 生活の質問 → 照らす項目 ===== */
+var FOOD = [
+ {id:"breakfast", q:"朝ごはん", o:["毎日食べる","ときどき","食べない"], m:[201,166]},
+ {id:"latedinner", q:"夕食が21時をすぎる日", o:["ほとんどない","週1〜2日","週3〜4日","ほぼ毎日"], m:[293,342]},
+ {id:"staple", q:"ごはん・パン・麺の量", o:["少なめ","ふつう","多め","おかわりする"], m:[202,174]},
+ {id:"sweets", q:"甘いもの・お菓子", o:["ほとんど食べない","週に数回","ほぼ毎日","1日に何回も"], m:[210,211]},
+ {id:"eatout", q:"外食・コンビニ・お弁当", o:["ほとんどない","週1〜2回","週3〜5回","ほぼ毎日"], m:[204,214]},
+ {id:"veg", q:"野菜", o:["毎食とる","1日1回くらい","少ない"], m:[233,239]},
+ {id:"fish", q:"魚", o:["週3回以上","週1〜2回","ほとんど食べない"], m:[205,259]},
+ {id:"dairy", q:"牛乳・ヨーグルト・チーズ", o:["毎日","ときどき","ほとんどとらない"], m:[315,206]},
+ {id:"salt", q:"味つけの好み", o:["薄め","ふつう","濃いめ"], m:[214]},
+ {id:"water", q:"水・お茶（1日）", o:["1L未満","1〜1.5L","1.5L以上"], m:[]},
+ {id:"coffee", q:"コーヒー・エナジードリンク（1日）", o:["飲まない","1杯","2〜3杯","4杯以上"], m:[225,226]},
+ {id:"coffeeEve", q:"夕方以降にもカフェインをとる", o:["とらない","ときどき","よくとる"], m:[225], showIf:function(s){return s.coffee && s.coffee!=="飲まない";}},
+ {id:"alcohol", q:"お酒", o:["飲まない","月に数回","週1〜3回","週4回以上"], m:[216,219]},
+ {id:"alcoholAmt", q:"1回に飲む量", o:["1〜2杯","3〜4杯","5杯以上"], m:[217,218], showIf:function(s){return s.alcohol && s.alcohol!=="飲まない";}},
+ {id:"flush", q:"お酒を飲むと顔が赤くなる", o:["ならない","少しなる","すぐなる"], m:[216], showIf:function(s){return s.alcohol && s.alcohol!=="飲まない";}},
+ {id:"supple", type:"text", q:"飲んでいるサプリ・健康食品", ph:"例）ビタミンC、玄米酵素、プロテイン", opt:true}
+];
+var DAY = [
+ {id:"bed", type:"time", q:"ふだん寝る時間"},
+ {id:"wake", type:"time", q:"ふだん起きる時間"},
+ {id:"exercise", q:"運動", o:["ほとんどしない","週1回","週2〜3回","週4回以上"], m:[179,189]},
+ {id:"exType", type:"multi", q:"している・やってみたい運動", o:["ウォーキング","筋トレ","ヨガ・ピラティス","ランニング","水泳","球技・ダンス","その他"], m:[183,184], opt:true},
+ {id:"work", q:"日中の過ごし方", o:["座っていることが多い","立つ・動くことが多い","夜勤・時間が不規則","家事・育児が中心"], m:[]},
+ {id:"sun", q:"日焼け止め", o:["毎日塗る","ときどき","ほとんど塗らない"], m:[274,275,277]},
+ {id:"bowel", q:"お通じ", o:["毎日","2〜3日に1回","4日以上あくことがある","ゆるいことが多い"], m:[316,311]},
+ {id:"stress", q:"いまのストレス", o:["ほとんどない","少しある","ふつう","多い","とても多い"], m:[303]},
+ {id:"smoke", q:"たばこ（加熱式もふくむ）", o:["吸わない","やめた","吸う"], m:[223,224]},
+ {id:"hw", type:"hw", q:"身長・体重", opt:true, m:[170,171]},
+ {id:"wchange", q:"この1年の体重", o:["増えた","変わらない","減った"], m:[173]},
+ {id:"dietHist", type:"multi", q:"これまでに試したダイエット・健康法", o:["食事を減らす","糖質を減らす","運動・ジム","ファスティング","サプリ","とくにない"], m:[173,174,189], opt:true},
+ {id:"dietNote", type:"text", q:"うまくいったこと・続かなかったこと", ph:"例）糖質を減らして3kg落ちたけれど、やめたら戻った", opt:true}
+];
+var GOAL = [
+ {id:"goal", type:"text", q:"どうなりたいか、ひとことで", ph:"例）3か月後の前撮りまでに、肌と体を整えたい"},
+ {id:"deadline", q:"いつまでに", o:["1か月","3か月","半年","1年","とくに決めていない"]},
+ {id:"trigger", type:"multi", q:"きっかけ", o:["結婚式・前撮り","旅行・イベント","健康診断","年齢の節目","人に言われた","なんとなく"], opt:true},
+ {id:"can", type:"multi", q:"取り入れられそうなこと", o:["食べる時間を変える","食べるものを変える","運動","睡眠の見直し","発酵食品・サプリ（玄米酵素など）","ファスティング（プチ断食）","サロンでのケア"]},
+ {id:"cannot", type:"text", q:"これは続かない・やりたくないこと", ph:"例）ごはんを完全に抜くのは無理", opt:true},
+ {id:"visit", q:"美yond（二子玉川）へのご来店", o:["通える","ときどきなら","むずかしい（オンラインで）"]},
+ {id:"budget", q:"美容・健康に使っている金額（月）", o:["5千円未満","5千〜1万円","1〜3万円","3万円以上","答えない"], opt:true},
+ {id:"curious", type:"multi", q:"お悩みのほかに、結果で知りたいこと", o:["性格","才能・得意なこと","合うスポーツ","お酒・コーヒーとの付き合い方","ビタミン・ミネラル","とくにない"], opt:true}
+];
+var CURIOUS_SP = {"性格":["p1","p2"],"才能・得意なこと":[],"合うスポーツ":["sport"],"お酒・コーヒーとの付き合い方":[],"ビタミン・ミネラル":["nutri"]};
+var CURIOUS_ITEMS = {"才能・得意なこと":[317,319,320,321,323],"お酒・コーヒーとの付き合い方":[216,217,225]};
+var SAFE = [
+ {id:"preg", q:"妊娠・授乳", o:["あてはまらない","妊娠中","授乳中","近いうちに妊娠を考えている"], req:true},
+ {id:"treat", q:"通院中の病気・飲んでいるお薬", o:["ない","ある"], req:true, detail:"差し支えなければ、病名やお薬の名前"},
+ {id:"allergy", q:"食物アレルギー", o:["ない","ある"], req:true, detail:"食べられないもの"},
+ {id:"limit", q:"医師から、食事や運動を止められていること", o:["ない","ある"], req:true, detail:"止められている内容"}
+];
+var CONSENTS = [
+ {id:"c-adult", t:"18歳以上です（遺伝子検査は18歳以上の方だけが受けられます）"},
+ {id:"c-diag", t:"遺伝子検査は病気の診断ではなく、体質の「傾向」を知るためのものだと理解しました"},
+ {id:"c-med", t:"トリセツの食事・生活のご提案は医療行為ではないことを理解しました"},
+ {id:"c-send", t:"入力した内容を、トリセツの作成とご連絡のために美yondへ送ることに同意します"}
+];
+
+/* ===== 生活のなかで、遺伝子と照らし合わせるポイント（トリセツ3ページ目の材料） ===== */
+var FLAGS = [
+ {t:"夕食が遅い日が多い", m:[293,342,174], f:function(s){return s.latedinner==="週3〜4日"||s.latedinner==="ほぼ毎日";}},
+ {t:"朝ごはんを食べない", m:[201,166], f:function(s){return s.breakfast==="食べない";}},
+ {t:"甘いものをほぼ毎日食べる", m:[210,211,342], f:function(s){return s.sweets==="ほぼ毎日"||s.sweets==="1日に何回も";}},
+ {t:"主食が多め", m:[202,174], f:function(s){return s.staple==="多め"||s.staple==="おかわりする";}},
+ {t:"外食・コンビニが多い", m:[204,214], f:function(s){return s.eatout==="週3〜5回"||s.eatout==="ほぼ毎日";}},
+ {t:"野菜が少ない", m:[233,256,239], f:function(s){return s.veg==="少ない";}},
+ {t:"魚をほとんど食べない", m:[205,259], f:function(s){return s.fish==="ほとんど食べない";}},
+ {t:"乳製品を毎日とる", m:[315], f:function(s){return s.dairy==="毎日";}},
+ {t:"味つけが濃いめ", m:[214,344], f:function(s){return s.salt==="濃いめ";}},
+ {t:"カフェインが多い・夕方以降もとる", m:[225,226], f:function(s){return s.coffee==="2〜3杯"||s.coffee==="4杯以上"||(s.coffee&&s.coffee!=="飲まない"&&(s.coffeeEve==="ときどき"||s.coffeeEve==="よくとる"));}},
+ {t:"お酒の回数・量が多め", m:[216,217,218,219], f:function(s){return s.alcohol==="週4回以上"||(s.alcohol==="週1〜3回"&&(s.alcoholAmt==="3〜4杯"||s.alcoholAmt==="5杯以上"));}},
+ {t:"お酒で顔が赤くなる", m:[216], f:function(s){return s.alcohol&&s.alcohol!=="飲まない"&&(s.flush==="少しなる"||s.flush==="すぐなる");}},
+ {t:"睡眠が6時間未満", m:[294,295], f:function(s){var h=sleepHours(s);return h!==null&&h<6;}},
+ {t:"寝る時間が1時以降", m:[293], f:function(s){var b=toMin(s.bed);return b!==null&&b>=60&&b<12*60;}},
+ {t:"運動をほとんどしない", m:[179,184,189], f:function(s){return s.exercise==="ほとんどしない";}},
+ {t:"日焼け止めをほとんど塗らない", m:[274,275,277], f:function(s){return s.sun==="ほとんど塗らない";}},
+ {t:"お通じが4日以上あく・ゆるい", m:[316,311,315], f:function(s){return s.bowel==="4日以上あくことがある"||s.bowel==="ゆるいことが多い";}},
+ {t:"ストレスが多い", m:[303,178], f:function(s){return s.stress==="多い"||s.stress==="とても多い";}},
+ {t:"たばこを吸う", m:[223,224], f:function(s){return s.smoke==="吸う";}}
+];
+
+/* ===== 状態 ===== */
+var S = {cats:[], sym:{}, when:{}, since:{}, rank:[]};
+var STEPS = ["s-intro","s-name","s-cats","s-detail","s-rank","s-food","s-day","s-goal","s-safe","s-done"];
+var cur = 0;
+function $(id){return document.getElementById(id);}
+function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function save(){ try{ sessionStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
+function load(){ try{ var v = sessionStorage.getItem(STORE_KEY); if(v){ var o = JSON.parse(v); if(o && o.cats) S = o; } }catch(e){} }
+function catById(id){ for(var i=0;i<CATS.length;i++) if(CATS[i].id===id) return CATS[i]; return null; }
+function toMin(t){ if(!t) return null; var m = String(t).match(/^(\d{1,2}):(\d{2})$/); return m ? (+m[1])*60 + (+m[2]) : null; }
+function sleepHours(s){ var w = toMin(s.wake), b = toMin(s.bed); if(w===null||b===null) return null; var d = w - b; if(d<=0) d += 1440; return Math.round(d/30)/2; }
+
+/* ===== 部品 ===== */
+function chipGroup(name, opts, type, selected){
+  var h = '<div class="chips" role="group">';
+  opts.forEach(function(o, i){
+    var id = name + "-" + i;
+    var on = type==="checkbox" ? (selected||[]).indexOf(o)>=0 : selected===o;
+    h += '<label class="chip" for="'+id+'"><input type="'+type+'" id="'+id+'" name="'+name+'" value="'+esc(o)+'"'+(on?" checked":"")+'><span>'+esc(o)+'</span></label>';
+  });
+  return h + '</div>';
+}
+function timeOpts(sel){
+  var h = '<option value="">選ぶ</option>';
+  for(var m=0;m<1440;m+=30){ var t = Math.floor(m/60)+":"+(m%60===0?"00":"30"); h += '<option'+(t===sel?" selected":"")+'>'+t+'</option>'; }
+  return h;
+}
+function renderQ(q){
+  var v = S[q.id];
+  var lab = '<span class="ql">'+esc(q.q)+(q.opt?'<span class="opt">任意</span>':'')+(q.req?'<span class="req">必須</span>':'')+'</span>';
+  var h = '<div class="q" id="q-'+q.id+'">';
+  if(q.type==="text"){
+    h += '<label class="ql" for="f-'+q.id+'">'+esc(q.q)+(q.opt?'<span class="opt">任意</span>':'')+'</label><textarea class="text" id="f-'+q.id+'" data-k="'+q.id+'" placeholder="'+esc(q.ph||"")+'">'+esc(v||"")+'</textarea>';
+  } else if(q.type==="time"){
+    h += '<label class="ql" for="f-'+q.id+'">'+esc(q.q)+'</label><select class="text" id="f-'+q.id+'" data-k="'+q.id+'">'+timeOpts(v||"")+'</select>';
+  } else if(q.type==="hw"){
+    h += lab + '<div class="row2"><div class="unit"><input class="text" id="f-height" data-k="height" inputmode="decimal" placeholder="身長" value="'+esc(S.height||"")+'" aria-label="身長（cm）"><span>cm</span></div>'+
+      '<div class="unit"><input class="text" id="f-weight" data-k="weight" inputmode="decimal" placeholder="体重" value="'+esc(S.weight||"")+'" aria-label="体重（kg）"><span>kg</span></div></div>';
+  } else if(q.type==="multi"){
+    h += lab + chipGroup("m-"+q.id, q.o, "checkbox", v);
+  } else {
+    h += lab + chipGroup("r-"+q.id, q.o, "radio", v);
+    if(q.detail) h += '<input class="text" id="f-'+q.id+'-d" data-k="'+q.id+'_d" placeholder="'+esc(q.detail)+'" value="'+esc(S[q.id+"_d"]||"")+'"'+(v==="ある"?"":" hidden")+'>';
+  }
+  return h + '</div>';
+}
+function renderList(el, list){ $(el).innerHTML = list.map(renderQ).join(""); }
+
+/* ===== 画面を組み立てる ===== */
+function build(){
+  $("f-name").value = S.name || ""; $("f-kit").value = S.kit || "";
+  $("catList").innerHTML = CATS.map(function(c, i){
+    return '<div class="cat"><input type="checkbox" id="cat-'+c.id+'" name="cats" value="'+c.id+'"'+(S.cats.indexOf(c.id)>=0?" checked":"")+'>'+
+      '<label for="cat-'+c.id+'"><span class="mono" style="--mono:'+MONO_GRAD[i % MONO_GRAD.length]+'">'+esc(MONO[c.id]||"")+'</span>'+
+      '<span class="tx"><b>'+esc(c.name)+'</b><small>'+esc(c.hint)+'</small></span></label></div>';
+  }).join("");
+  $("detailList").innerHTML = CATS.map(function(c){
+    var names = c.sym.map(function(s){return s[0];});
+    var notes = c.sym.filter(function(s){return s[2];}).map(function(s){return '<p class="symnote">※'+esc(s[0])+'：'+esc(s[2])+'</p>';}).join("");
+    return '<div class="block" id="d-'+c.id+'" hidden><h3>'+esc(c.name)+'</h3>'+
+      (c.note?'<p class="bnote">'+esc(c.note)+'</p>':'')+
+      '<div class="q"><span class="ql">あてはまるもの</span>'+chipGroup("sym-"+c.id, names, "checkbox", S.sym[c.id])+notes+'</div>'+
+      '<div class="q"><label class="ql" for="when-'+c.id+'">いつ・どんなときに？<span class="opt">任意</span></label>'+
+      '<textarea class="text" id="when-'+c.id+'" data-when="'+c.id+'" placeholder="'+esc(c.when)+'">'+esc(S.when[c.id]||"")+'</textarea></div>'+
+      '<div class="q"><span class="ql">いつから</span>'+chipGroup("since-"+c.id, SINCE, "radio", S.since[c.id])+'</div></div>';
+  }).join("");
+  renderList("foodList", FOOD);
+  renderList("dayList", DAY);
+  renderList("goalList", GOAL);
+  $("safeList").innerHTML = SAFE.map(renderQ).join("") + '<div class="q"><span class="ql">ご確認ください<span class="req">必須</span></span>'+
+    CONSENTS.map(function(c){ return '<label class="consent" for="'+c.id+'"><input type="checkbox" id="'+c.id+'" data-k="'+c.id+'"'+(S[c.id]?" checked":"")+'><span>'+esc(c.t)+'</span></label>'; }).join("")+
+    '</div><p class="note">妊娠中・授乳中・治療中の方には、体に負担の少ない方法だけをご提案します。</p>';
+  $("prog").innerHTML = STEPS.slice(1).map(function(){return "<i></i>";}).join("");
+  applyShowIf();
+}
+function applyShowIf(){
+  FOOD.concat(DAY).forEach(function(q){ if(q.showIf){ var el = $("q-"+q.id); if(el) el.hidden = !q.showIf(S); } });
+}
+
+/* ===== 入力を状態へ ===== */
+document.addEventListener("change", function(e){
+  var t = e.target, n = t.name || "";
+  if(t.id !== "f-website") S.sent = false;
+  if(n==="cats"){
+    S.cats = Array.prototype.map.call(document.querySelectorAll('input[name="cats"]:checked'), function(x){return x.value;});
+    S.rank = S.rank.filter(function(id){return S.cats.indexOf(id)>=0;});
+  } else if(n.indexOf("sym-")===0){
+    var cid = n.slice(4);
+    S.sym[cid] = Array.prototype.map.call(document.querySelectorAll('input[name="'+n+'"]:checked'), function(x){return x.value;});
+  } else if(n.indexOf("since-")===0){
+    S.since[n.slice(6)] = t.value;
+  } else if(n.indexOf("m-")===0){
+    var k = n.slice(2);
+    S[k] = Array.prototype.map.call(document.querySelectorAll('input[name="'+n+'"]:checked'), function(x){return x.value;});
+  } else if(n.indexOf("r-")===0){
+    var k2 = n.slice(2); S[k2] = t.value;
+    var d = $("f-"+k2+"-d"); if(d) d.hidden = t.value!=="ある";
+  } else if(t.dataset && t.dataset.k){
+    S[t.dataset.k] = t.type==="checkbox" ? t.checked : t.value;
+  }
+  applyShowIf(); save();
+});
+document.addEventListener("input", function(e){
+  var t = e.target;
+  if(t.id !== "f-website") S.sent = false;
+  if(t.dataset && t.dataset.when){ S.when[t.dataset.when] = t.value; save(); }
+  else if(t.dataset && t.dataset.k && t.type!=="checkbox"){ S[t.dataset.k] = t.value; save(); }
+});
+
+/* ===== 順番 ===== */
+function renderRank(){
+  $("rankList").innerHTML = S.cats.map(function(id){
+    var c = catById(id), pos = S.rank.indexOf(id), sy = (S.sym[id]||[]).join("／");
+    return '<li><button type="button" data-rank="'+id+'" aria-pressed="'+(pos>=0)+'"><span class="n">'+(pos>=0?pos+1:"")+'</span>'+
+      '<span class="t"><b>'+esc(c.name)+'</b><small>'+esc(sy||c.hint)+'</small></span></button></li>';
+  }).join("");
+}
+$("rankList").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-rank]"); if(!b) return;
+  var id = b.getAttribute("data-rank"), pos = S.rank.indexOf(id);
+  if(pos>=0) S.rank.splice(pos,1); else if(S.rank.length<3) S.rank.push(id);
+  renderRank(); save();
+});
+$("rankReset").addEventListener("click", function(){ S.rank = []; renderRank(); save(); });
+
+/* ===== 進む・戻る ===== */
+function needRank(){ return S.cats.length >= 2; }
+function stepVisible(i){ return !(STEPS[i]==="s-rank" && !needRank()); }
+function validate(i){
+  var id = STEPS[i];
+  if(id==="s-name"){ var ok = !!(S.name||"").trim(); $("err-name").hidden = ok; return ok; }
+  if(id==="s-cats"){ var ok2 = S.cats.length>0; $("err-cats").hidden = ok2; return ok2; }
+  if(id==="s-rank"){ var need = Math.min(3, S.cats.length); var ok3 = S.rank.length>=need; $("err-rank").textContent = "上位"+need+"つまで、順番をタップしてください。"; $("err-rank").hidden = ok3; return ok3; }
+  if(id==="s-safe"){
+    var miss = [];
+    SAFE.forEach(function(q){ if(!S[q.id]) miss.push(q.q); });
+    CONSENTS.forEach(function(c){ if(!S[c.id]) miss.push("確認のチェック"); });
+    var ok4 = miss.length===0;
+    $("err-safe").textContent = ok4 ? "" : "まだ答えていないところがあります：" + miss.filter(function(v,i,a){return a.indexOf(v)===i;}).join("・");
+    $("err-safe").hidden = ok4; return ok4;
+  }
+  return true;
+}
+function show(i){
+  cur = i;
+  STEPS.forEach(function(id, k){ $(id).hidden = k!==i; });
+  $("s-staff").hidden = true;
+  if(STEPS[i]==="s-detail") CATS.forEach(function(c){ $("d-"+c.id).hidden = S.cats.indexOf(c.id)<0; });
+  if(STEPS[i]==="s-rank") renderRank();
+  if(STEPS[i]==="s-done"){ renderDone(); sendState(); celebrate(); }
+  var bars = $("prog").children;
+  for(var k=0;k<bars.length;k++) bars[k].classList.toggle("on", k < i);
+  $("stepName").textContent = $(STEPS[i]).getAttribute("data-label");
+  $("stepCount").textContent = i>0 ? i + " / " + (STEPS.length-1) : "";
+  $("backBtn").hidden = i===0;
+  $("nextBtn").hidden = i===STEPS.length-1;
+  $("nextBtn").textContent = i===0 ? "はじめる" : (STEPS[i+1]==="s-done" ? "まとめを見る" : "次へ");
+  $("nav").hidden = false;
+  window.scrollTo(0,0);
+}
+$("nextBtn").addEventListener("click", function(){
+  if(!validate(cur)) return;
+  if(STEPS[cur]==="s-cats" && S.cats.length===1) S.rank = S.cats.slice();
+  var n = cur+1; while(n<STEPS.length-1 && !stepVisible(n)) n++;
+  show(n); save();
+});
+$("backBtn").addEventListener("click", function(){
+  var n = cur-1; while(n>0 && !stepVisible(n)) n--;
+  show(Math.max(0,n));
+});
+
+/* ===== まとめ ===== */
+function uniq(a){ var o=[]; a.forEach(function(x){ if(o.indexOf(x)<0) o.push(x); }); return o; }
+function itemsForCat(id){
+  var c = catById(id), picked = S.sym[id]||[], items = c.base.slice();
+  c.sym.forEach(function(s){ if(picked.indexOf(s[0])>=0) items = items.concat(s[1]); });
+  if(!picked.length) c.sym.forEach(function(s){ items = items.concat(s[1]); });
+  return uniq(items).filter(function(n){ return ITEMS[n]; });
+}
+function spForCat(id){ return catById(id).sp.slice(); }
+function orderedCats(){ var r = S.rank.slice(); S.cats.forEach(function(id){ if(r.indexOf(id)<0) r.push(id); }); return r; }
+function catLabel(id){ var c = catById(id), sy = S.sym[id]||[]; return c.name + (sy.length ? "："+sy.join("／") : ""); }
+function lifeRows(){
+  var rows = [], h = sleepHours(S);
+  if(S.latedinner) rows.push(["夕食が21時すぎ", S.latedinner]);
+  if(S.coffee) rows.push(["コーヒーなど", S.coffee + (S.coffeeEve&&S.coffeeEve!=="とらない"&&S.coffee!=="飲まない" ? "（夕方も"+S.coffeeEve+"）" : "")]);
+  if(S.sweets) rows.push(["甘いもの", S.sweets]);
+  if(h!==null) rows.push(["睡眠", "約"+h+"時間（"+S.bed+"〜"+S.wake+"）"]);
+  if(S.bowel) rows.push(["お通じ", S.bowel]);
+  if(S.exercise) rows.push(["運動", S.exercise]);
+  if(S.alcohol) rows.push(["お酒", S.alcohol + (S.alcoholAmt&&S.alcohol!=="飲まない" ? "・"+S.alcoholAmt : "")]);
+  if(S.breakfast) rows.push(["朝ごはん", S.breakfast]);
+  return rows;
+}
+function flagsOn(){ return FLAGS.filter(function(f){ return f.f(S); }); }
+function extraSp(){
+  var sp = [], items = [];
+  (S.curious||[]).forEach(function(c){ sp = sp.concat(CURIOUS_SP[c]||[]); items = items.concat(CURIOUS_ITEMS[c]||[]); });
+  return {sp:uniq(sp), items:uniq(items)};
+}
+function allItemNums(){
+  var a = [];
+  orderedCats().forEach(function(id){ a = a.concat(itemsForCat(id)); });
+  flagsOn().forEach(function(f){ a = a.concat(f.m); });
+  a = a.concat(extraSp().items);
+  return uniq(a).filter(function(n){ return ITEMS[n]; });
+}
+function tagsHtml(nums, sps, limit){
+  var shown = [], health = 0;
+  nums.forEach(function(n){ if(isHealth(n)) health++; else shown.push(ITEMS[n][0]); });
+  var h = sps.map(function(s){ return '<span class="sp">スペシャル「'+esc(SP[s])+'」</span>'; }).join("");
+  var lim = limit || 12;
+  h += shown.slice(0,lim).map(function(t){ return '<span>'+esc(t)+'</span>'; }).join("");
+  if(shown.length>lim) h += '<span class="more">ほか'+(shown.length-lim)+'項目</span>';
+  if(health) h += '<span>健診の数値に関わる傾向 '+health+'項目</span>';
+  return '<div class="tags">'+h+'</div>';
+}
+function renderDone(){
+  var cats = orderedCats(), top = cats.slice(0,3), rest = cats.slice(3);
+  var hear = top.map(function(id, i){
+    var c = catById(id), sy = (S.sym[id]||[]).join("／"), w = (S.when[id]||"").trim();
+    return '<li><span class="no">'+(i+1)+'</span><span class="nm">'+esc(c.name)+'</span><span class="ds">'+esc(w || sy || c.hint)+'</span></li>';
+  }).join("");
+  var life = lifeRows().map(function(r){ return '<div><dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd></div>'; }).join("");
+  var goal = (S.goal||"").trim() || (S.deadline && S.deadline!=="とくに決めていない" ? S.deadline+"で、気になることを整えたい" : "");
+  var genes = top.map(function(id, i){
+    var nums = itemsForCat(id);
+    return '<div><h5><span class="en">'+(i+1)+'</span>'+esc(catById(id).name)+'<span class="note">'+nums.length+'項目</span></h5>'+tagsHtml(nums, spForCat(id))+'</div>';
+  }).join("");
+  var fl = flagsOn();
+  var total = allItemNums().length;
+  $("preview").innerHTML =
+    '<div class="sheet">'+
+      '<div class="mh"><span class="en">My Body Manual</span><small>1ページ目の見本</small></div>'+
+      '<div><p class="who">'+esc((S.name||"").trim())+' 様のカラダのトリセツ</p></div>'+
+      '<div><p class="eyebrow en">Hearing</p><h4>事前アンケートで伺ったこと</h4></div>'+
+      '<ol class="hear">'+hear+'</ol>'+
+      (rest.length ? '<p class="note">ほかに気になること：'+esc(rest.map(function(id){return catById(id).name;}).join("、"))+'</p>' : '')+
+      (life ? '<div><p class="eyebrow en">Lifestyle</p><h4>いまの生活</h4></div><dl class="life">'+life+'</dl>' : '')+
+      (goal ? '<div class="goalbox"><b>目標</b><span>'+esc(goal)+'</span></div>' : '')+
+    '</div>'+
+    '<div class="genes"><div><p class="eyebrow en">Your Genes</p><h4>トリセツで中心に読み解く項目</h4>'+
+    '<p class="note">約400項目のうち、お悩みと生活に関係する '+total+' 項目を中心に見ていきます。</p></div>'+genes+'</div>'+
+    (fl.length ? '<div class="point"><small>生活のなかで、遺伝子と照らし合わせるところ</small><ul>'+fl.map(function(f){return '<li>'+esc(f.t)+'</li>';}).join("")+'</ul></div>' : '');
+  $("memoText").textContent = buildMemo(false);
+}
+
+/* ===== LINE に送るメモ ===== */
+function itemStr(nums, short){
+  return nums.map(function(n){ return short ? String(n) : n + ITEMS[n][0]; }).join(short ? "," : "・");
+}
+function buildMemo(short){
+  var L = [], cats = orderedCats(), h = sleepHours(S), d = new Date();
+  var ymd = d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+  L.push("【カラダのトリセツ カウンセリングシート】");
+  L.push("記入日："+ymd);
+  L.push("お名前："+(S.name||"").trim()+(S.kit ? "／キットID："+S.kit.trim() : ""));
+  L.push("");
+  L.push("■ お悩み（変えたい順）");
+  cats.forEach(function(id, i){
+    var c = catById(id);
+    L.push((i<3 ? (i+1)+". " : "・") + catLabel(id));
+    if((S.when[id]||"").trim()) L.push("　いつ・どんなとき："+S.when[id].trim());
+    if(S.since[id]) L.push("　いつから："+S.since[id]);
+  });
+  L.push("");
+  L.push("■ いまの生活");
+  function put(label, v){ if(v && (!Array.isArray(v) || v.length)) L.push(label+"："+(Array.isArray(v)?v.join("、"):v)); }
+  put("朝ごはん", S.breakfast); put("夕食が21時をすぎる日", S.latedinner); put("主食の量", S.staple); put("甘いもの", S.sweets);
+  put("外食・コンビニ", S.eatout); put("野菜", S.veg); put("魚", S.fish); put("乳製品", S.dairy); put("味つけ", S.salt); put("水・お茶", S.water);
+  put("コーヒーなど", S.coffee ? S.coffee + (S.coffee!=="飲まない"&&S.coffeeEve ? "（夕方以降："+S.coffeeEve+"）" : "") : "");
+  put("お酒", S.alcohol ? S.alcohol + (S.alcohol!=="飲まない" ? (S.alcoholAmt?"・1回"+S.alcoholAmt:"")+(S.flush?"・顔が赤く："+S.flush:"") : "") : "");
+  put("サプリ・健康食品", (S.supple||"").trim());
+  if(h!==null) L.push("睡眠：約"+h+"時間（"+S.bed+"に寝て"+S.wake+"に起きる）");
+  put("運動", S.exercise ? S.exercise + ((S.exType||[]).length ? "（"+S.exType.join("、")+"）" : "") : "");
+  put("日中", S.work); put("日焼け止め", S.sun); put("お通じ", S.bowel); put("ストレス", S.stress); put("たばこ", S.smoke);
+  if((S.height||"").trim() || (S.weight||"").trim()) L.push("身長・体重："+((S.height||"").trim()||"—")+"cm／"+((S.weight||"").trim()||"—")+"kg");
+  put("この1年の体重", S.wchange); put("試したダイエット", S.dietHist); put("うまくいった・続かなかった", (S.dietNote||"").trim());
+  L.push("");
+  L.push("■ 目標");
+  put("なりたい姿", (S.goal||"").trim()); put("いつまでに", S.deadline); put("きっかけ", S.trigger);
+  put("取り入れられそう", S.can); put("続かない・やりたくない", (S.cannot||"").trim());
+  put("ご来店", S.visit); put("美容・健康の費用（月）", S.budget); put("ほかに知りたいこと", S.curious);
+  L.push("");
+  L.push("■ 確認事項");
+  SAFE.forEach(function(q){ put(q.q, S[q.id] ? S[q.id] + (S[q.id]==="ある"&&(S[q.id+"_d"]||"").trim() ? "（"+S[q.id+"_d"].trim()+"）" : "") : ""); });
+  L.push("18歳以上・検査は傾向を知るもの・提案は医療ではない・送信に同意：確認済み");
+  L.push("");
+  L.push("■ トリセツで照らし合わせる項目（スタッフ用）");
+  cats.forEach(function(id, i){
+    var sp = spForCat(id).map(function(s){return "スペシャル「"+SP[s]+"」";});
+    L.push((i<3 ? (i+1)+" " : "・") + catById(id).name + "：" + itemStr(itemsForCat(id), short) + (sp.length ? "／"+sp.join("・") : ""));
+  });
+  var fl = flagsOn();
+  if(fl.length){ L.push("生活×遺伝子："); fl.forEach(function(f){ L.push("・"+f.t+" → "+itemStr(f.m.filter(function(n){return ITEMS[n];}), short)); }); }
+  var ex = extraSp();
+  if(ex.sp.length || ex.items.length) L.push("ほかに知りたいこと："+ex.sp.map(function(s){return "スペシャル「"+SP[s]+"」";}).concat(ex.items.length?[itemStr(ex.items, short)]:[]).join("・"));
+  var text = L.join("\n");
+  if(!short && text.length > 4800) return buildMemo(true); /* LINE の1通（5,000字）に収める */
+  return text;
+}
+
+/* ===== コピーして LINE へ ===== */
+$("lineBtn").addEventListener("click", function(){
+  var text = buildMemo(false), out = $("copied"), fb = $("copyFallback");
+  function done(ok){
+    out.hidden = false;
+    out.textContent = ok ? "コピーしました。LINEのトークに貼り付けて送ってください。" : "自動でコピーできませんでした。下の枠を長押しして、すべて選んでコピーしてください。";
+    if(!ok){ fb.hidden = false; fb.value = text; fb.focus(); fb.select(); }
+  }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+    } else { done(false); }
+  }catch(e){ done(false); }
+});
+$("lineBtn").href = LINE_URL; $("lineAdd").href = LINE_URL;
+
+/* ===== 送る（口コミ強化システムのデータ係が受け取り、表「chatGENE カウンセリングシートの回答」に残してメールで知らせる） ===== */
+var API = "https://script.google.com/macros/s/AKfycbwMwZ1ueJFTGyj9Y0z58rmdKbwnxBWoWzyY3ExMVtH5OGrhVM0RI-gdKHT6gebIRuPy7g/exec";
+function payload(){
+  var cats = orderedCats(), fl = flagsOn();
+  function cl(id){ if(!id) return ""; var w = (S.when[id]||"").trim(); return catLabel(id) + (w ? "｜"+w : "") + (S.since[id] ? "｜"+S.since[id] : ""); }
+  function yn(k){ return S[k] ? S[k] + (S[k]==="ある" && (S[k+"_d"]||"").trim() ? "（"+S[k+"_d"].trim()+"）" : "") : ""; }
+  return {action:"chatgene_sheet", name:(S.name||"").trim(), kit:(S.kit||"").trim(), memo:buildMemo(false), website:$("f-website").value,
+    answers:{c1:cl(cats[0]), c2:cl(cats[1]), c3:cl(cats[2]), rest:cats.slice(3).map(catLabel).join("、"),
+      goal:(S.goal||"").trim(), deadline:S.deadline||"", can:(S.can||[]).join("、"), visit:S.visit||"",
+      preg:S.preg||"", treat:yn("treat"), allergy:yn("allergy"), limit:yn("limit"),
+      flags:fl.map(function(f){ return f.t; }).join("、"), items:allItemNums().join(",")}};
+}
+function sendState(){
+  $("sendbox").hidden = !!S.sent; $("sentBox").hidden = !S.sent;
+  if(S.sent) $("fallbackBox").hidden = true;
+  var b = $("sendBtn"); b.disabled = false; b.textContent = "✦ この内容で送る"; $("sendErr").hidden = true;
+}
+$("sendBtn").addEventListener("click", function(){
+  var b = this; b.disabled = true; b.textContent = "送信しています…"; $("sendErr").hidden = true;
+  fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload())})
+    .then(function(r){ return r.json(); })
+    .then(function(j){ if(j && j.ok){ S.sent = true; save(); sendState(); celebrate(); return; } throw new Error(j && j.error || "error"); })
+    .catch(function(e){
+      b.disabled = false; b.textContent = "✦ もう一度送る";
+      $("sendErr").textContent = String(e && e.message)==="busy" ? "ただいま混み合っています。少し時間をおいて、もう一度お試しください。" : "送信できませんでした。通信状況をご確認のうえ、もう一度お試しください。";
+      $("sendErr").hidden = false; $("fallbackBox").hidden = false;
+    });
+});
+
+/* ===== 作り手用：逆算表（#staff） ===== */
+function renderStaff(){
+  var linkedQ = {}, linkedL = {};
+  CATS.forEach(function(c){ c.base.forEach(function(n){linkedQ[n]=1;}); c.sym.forEach(function(s){ s[1].forEach(function(n){linkedQ[n]=1;}); }); });
+  FOOD.concat(DAY).forEach(function(q){ (q.m||[]).forEach(function(n){ linkedL[n]=1; }); });
+  FLAGS.forEach(function(f){ f.m.forEach(function(n){ linkedL[n]=1; }); });
+  Object.keys(CURIOUS_ITEMS).forEach(function(k){ CURIOUS_ITEMS[k].forEach(function(n){ linkedQ[n]=1; }); });
+  var all = Object.keys(ITEMS).map(Number), q = 0, lOnly = 0, none = [];
+  all.forEach(function(n){ if(linkedQ[n]) q++; else if(linkedL[n]) lOnly++; else none.push(n); });
+  function nm(n){ return n+" "+(ITEMS[n]?ITEMS[n][0]:"（トリセツに載らない項目）"); }
+  var rows = CATS.map(function(c){
+    var head = '<tr><td class="c" rowspan="'+(c.sym.length+1)+'">'+esc(c.name)+'</td><td><b>必ず見る</b></td><td>'+esc(c.base.map(nm).join("、")||"—")+(c.sp.length?"／スペシャル「"+c.sp.map(function(s){return SP[s];}).join("」「")+"」":"")+'</td></tr>';
+    return head + c.sym.map(function(s){ return '<tr><td>'+esc(s[0])+'</td><td>'+esc(s[1].map(nm).join("、"))+(s[2]?'<br><small>※'+esc(s[2])+'</small>':'')+'</td></tr>'; }).join("");
+  }).join("");
+  var life = FOOD.concat(DAY).filter(function(q){return q.m && q.m.length;}).map(function(q){ return '<tr><td>'+esc(q.q)+'</td><td>'+esc(q.m.map(nm).join("、"))+'</td></tr>'; }).join("");
+  var flags = FLAGS.map(function(f){ return '<tr><td>'+esc(f.t)+'</td><td>'+esc(f.m.map(nm).join("、"))+'</td></tr>'; }).join("");
+  $("s-staff").innerHTML =
+    '<header><p class="eyebrow en">For staff</p><h2>逆算表（データ表 → 質問）</h2>'+
+    '<p class="lead">データ表「chatGENE用【400項目】report_item_setting.xlsx」で○が付いた項目（＝トリセツに載る項目）から逆算して質問を作っています。がん・多くの病気・がんマーカーは○が付いていないので、質問しません。</p></header>'+
+    '<div class="cover-stat"><div><b>'+all.length+'</b><small>トリセツに載る項目（○）</small></div><div><b>'+q+'</b><small>お悩みの質問とつながる</small></div><div><b>'+(lOnly+none.length)+'</b><small>生活の質問だけ／どこともつながらない</small></div></div>'+
+    '<p class="note">どの質問ともつながらない項目：'+esc(none.map(nm).join("、")||"なし")+'。話のたね（耳垢・左利きなど）や、学歴・収入のように質問にしないほうがよいものは、解説ミーティングでご本人が知りたいときだけ扱います。</p>'+
+    '<div class="btns"><button type="button" id="demoBtn">見本（トリセツ見本のA様）を入れてまとめを見る</button><button type="button" id="clearBtn">入力を空にしてはじめから</button></div>'+
+    '<h3 style="font-size:17px">お悩み → 照らす項目</h3><div class="tbl"><table><thead><tr><th>お悩み</th><th>お客様が選ぶ言葉</th><th>照らす項目（番号 項目名）</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<h3 style="font-size:17px">生活の質問 → 照らす項目</h3><div class="tbl"><table><thead><tr><th>質問</th><th>照らす項目</th></tr></thead><tbody>'+life+'</tbody></table></div>'+
+    '<h3 style="font-size:17px">生活で目立つところ（トリセツ3ページ目の材料）</h3><div class="tbl"><table><thead><tr><th>こう答えたら</th><th>この項目の結果と合わせて「取り扱い方」を決める</th></tr></thead><tbody>'+flags+'</tbody></table></div>';
+  $("demoBtn").addEventListener("click", fillDemo);
+  $("clearBtn").addEventListener("click", function(){ S = {cats:[], sym:{}, when:{}, since:{}, rank:[]}; save(); build(); location.hash = ""; show(0); });
+}
+function fillDemo(){
+  S = {cats:["skin","weight","sleep"], rank:["skin","weight","sleep"],
+    sym:{skin:["ニキビ・吹き出物","テカリ・毛穴の皮脂"], weight:["食事を減らしても、やせにくい","やせても、すぐ戻る（リバウンド）"], sleep:["朝起きられない","日中に眠くなる"]},
+    when:{skin:"生理前や忙しい時期に、あごまわりに繰り返しできる", weight:"食事を減らしても落ちにくく、やめるとすぐ戻ってしまう", sleep:"朝すっきり起きられず、午後になると眠くなる"},
+    since:{skin:"何年も前から", weight:"半年〜1年", sleep:"最近"},
+    name:"見本 A", breakfast:"ときどき", latedinner:"週3〜4日", staple:"ふつう", sweets:"ほぼ毎日", eatout:"週3〜5回", veg:"1日1回くらい", fish:"週1〜2回",
+    dairy:"ときどき", salt:"ふつう", water:"1L未満", coffee:"2〜3杯", coffeeEve:"よくとる", alcohol:"月に数回", alcoholAmt:"1〜2杯", flush:"ならない",
+    wake:"7:00", bed:"1:00", exercise:"ほとんどしない", work:"座っていることが多い", sun:"ときどき", bowel:"2〜3日に1回", stress:"多い", smoke:"吸わない",
+    wchange:"増えた", dietHist:["食事を減らす","糖質を減らす"], goal:"3か月後の前撮りまでに、肌と体を整えたい", deadline:"3か月", trigger:["結婚式・前撮り"],
+    can:["食べる時間を変える","発酵食品・サプリ（玄米酵素など）","ファスティング（プチ断食）"], visit:"むずかしい（オンラインで）",
+    preg:"あてはまらない", treat:"ない", allergy:"ない", limit:"ない", "c-adult":true, "c-diag":true, "c-med":true, "c-send":true};
+  build(); location.hash = ""; show(STEPS.length-1);
+}
+function route(){
+  if(location.hash==="#staff"){
+    STEPS.forEach(function(id){ $(id).hidden = true; });
+    renderStaff(); $("s-staff").hidden = false; $("nav").hidden = true;
+    $("stepName").textContent = "作り手用"; $("stepCount").textContent = "";
+    var bars = $("prog").children; for(var k=0;k<bars.length;k++) bars[k].classList.remove("on");
+    window.scrollTo(0,0);
+  } else if(!$("s-staff").hidden){ show(0); }
+}
+window.addEventListener("hashchange", route);
+
+/* ===== キラキラ ===== */
+function sparkSvg(color){ return '<svg viewBox="0 0 24 24"><path fill="'+color+'" d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>'; }
+function decorate(){
+  var bg = $("bg"); if(!bg) return;
+  var B = [[18,28,130],[80,62,170],[56,10,96],[8,74,110]];
+  var P = [[6,12,16,"#F7C948",0,3.2],[88,9,12,"#FFD86B",1.2,3.8],[72,22,9,"#F48FB4",.6,2.9],[14,36,10,"#55C3F0",2,3.5],
+           [93,41,18,"#F7C948",1.6,4.2],[4,58,13,"#FFD86B",.3,3.1],[83,56,10,"#11B3AA",2.4,3.6],[24,80,16,"#F7C948",1,4],
+           [91,82,12,"#F48FB4",.2,3.3],[50,94,10,"#FFD86B",1.8,3.7],[60,5,10,"#55C3F0",2.8,3.4],[36,18,8,"#F48FB4",.9,2.8],
+           [66,70,8,"#F7C948",3,3.9],[10,92,9,"#55C3F0",1.4,3.2],[44,48,7,"#FFD86B",2.2,3.6]];
+  var h = B.map(function(b){ return '<span class="bokeh" style="left:'+b[0]+'%;top:'+b[1]+'%;width:'+b[2]+'px;height:'+b[2]+'px"></span>'; }).join("");
+  h += P.map(function(p){ return '<span class="spark" style="left:'+p[0]+'%;top:'+p[1]+'%;width:'+p[2]+'px;height:'+p[2]+'px;--delay:'+p[4]+'s;--d:'+p[5]+'s">'+sparkSvg(p[3])+'</span>'; }).join("");
+  bg.innerHTML = h;
+  var hx = $("helix"); if(!hx) return;
+  var a = "", b2 = "", rungs = "";
+  for(var y=6; y<=144; y+=2){
+    var t = y/150*Math.PI*3.2, x1 = 46 + 28*Math.sin(t), x2 = 46 - 28*Math.sin(t);
+    a += (y===6?"M":"L")+x1.toFixed(1)+" "+y; b2 += (y===6?"M":"L")+x2.toFixed(1)+" "+y;
+    if(y%12===6){ rungs += '<line x1="'+x1.toFixed(1)+'" y1="'+y+'" x2="'+x2.toFixed(1)+'" y2="'+y+'" stroke="#BFE7E3" stroke-width="2" stroke-linecap="round"/>'+
+      '<circle cx="'+x1.toFixed(1)+'" cy="'+y+'" r="3.2" fill="#55C3F0"/><circle cx="'+x2.toFixed(1)+'" cy="'+y+'" r="3.2" fill="#F48FB4"/>'; }
+  }
+  hx.innerHTML = '<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12B8AD"/><stop offset=".55" stop-color="#4DC2EE"/><stop offset="1" stop-color="#F290B6"/></linearGradient></defs>'+
+    rungs+'<path d="'+a+'" fill="none" stroke="url(#hg)" stroke-width="4" stroke-linecap="round"/><path d="'+b2+'" fill="none" stroke="url(#hg)" stroke-width="4" stroke-linecap="round" opacity=".75"/>';
+}
+function celebrate(){
+  var el = $("burst"); if(!el) return;
+  var C = ["#F7C948","#FFD86B","#F48FB4","#55C3F0","#11B3AA"], h = "";
+  for(var k=0;k<22;k++){
+    var ang = (k/22)*Math.PI*2 + Math.random()*.3, dist = 70 + Math.random()*90, sz = 8 + Math.round(Math.random()*12);
+    h += '<i style="--x:'+(Math.cos(ang)*dist*1.4).toFixed(0)+'px;--y:'+(Math.sin(ang)*dist).toFixed(0)+'px;--s:'+sz+'px;--dl:'+(Math.random()*.25).toFixed(2)+'s">'+sparkSvg(C[k%C.length])+'</i>';
+  }
+  el.innerHTML = h;
+  clearTimeout(celebrate.t); celebrate.t = setTimeout(function(){ el.innerHTML = ""; }, 1800);
+}
+
+decorate(); load(); build(); show(0); route();
+})();
+</script>
+</body>
+</html>
