@@ -409,7 +409,13 @@
   .org-div li span { display: block; font-size: 12px; color: var(--ink-soft); }
   .org-div li.mk { background: transparent; border-style: dashed; }
   .org-date { margin-top: 20px; text-align: right; font-size: 11px; color: var(--muted); letter-spacing: .1em; }
+  .org-img a { display: block; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(125,100,64,.08); }
+  .org-img img { display: block; width: 100%; height: auto; }
+  .org-img figcaption { margin-top: 12px; text-align: right; font-size: 11px; color: var(--muted); letter-spacing: .1em; }
+  .org-date a { color: var(--accent-deep); text-decoration: none; border-bottom: 1px solid rgba(168,135,90,.45); }
+  @media (min-width: 721px) { .org { display: none; } }
   @media (max-width: 720px) {
+    .org-img { display: none; }
     .div-head .en span { display: block; margin: 4px 0 0; padding: 0; border: 0; }
     .org-top { grid-template-columns: 1fr 1fr; gap: 10px; }
     .org-top::before { display: none; }
@@ -781,6 +787,10 @@
         <h2 class="ttl-en">organization</h2>
         <p class="ttl-ja">組織図</p>
       </div>
+      <figure class="org-img reveal">
+        <a href="images/org-chart.png" target="_blank" rel="noopener"><img src="images/org-chart.jpg" width="1800" height="1273" alt="エッセンシャルパートナーズ合同会社の組織図。代表社員のもとに経営企画室と管理室、ウェルビーイング本部（ビューティー・ブライダル・ヘルスケア事業部）とコンサルティング本部（サロンソリューション・印象戦略事業部、マーケティング部）" loading="lazy"></a>
+        <figcaption>画像を押すと、大きいサイズ（印刷用）で開きます。2026年11月現在</figcaption>
+      </figure>
       <div class="org reveal" role="group" aria-label="エッセンシャルパートナーズ合同会社の組織図">
         <div class="org-top">
           <div class="org-staff"><p class="o-en">Corporate Planning</p><p class="o-ja">経営企画室</p><p class="o-sub">経営戦略・新規事業・資金計画</p></div>
@@ -806,6 +816,7 @@
           </div>
         </div>
         <p class="org-date">2026年11月現在</p>
+        <p class="org-date"><a href="images/org-chart.png" target="_blank" rel="noopener">組織図を画像で見る（大きいサイズ・印刷用）</a></p>
       </div>
     </div>
   </section>
