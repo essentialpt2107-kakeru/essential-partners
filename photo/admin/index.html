@@ -171,6 +171,9 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .viewer-order button{padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.45);color:#fff;font-size:13.5px;font-weight:700;min-width:96px}
 .viewer-order button:disabled{opacity:.3}
 .viewer-order span{font-size:13px;min-width:64px;text-align:center;opacity:.9}
+.viewer-rotate{display:flex;justify-content:center;gap:10px;margin:0 auto 12px}
+.viewer-rotate button{padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.45);color:#fff;font-size:13.5px;font-weight:700;min-width:120px}
+.viewer-rotate button:disabled{opacity:.3}
 .vw-note{color:rgba(255,255,255,.75);font-size:12px;text-align:center;margin:-4px auto 10px;max-width:620px;line-height:1.6}
 .face-note{font-size:12px;color:var(--ink-sub);margin:-4px 2px 10px}
 
@@ -272,7 +275,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         </div>
         <div class="progress" id="progress" hidden><div class="track"><i></i></div><p></p></div>
         <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。写真は<b>入れた順（アルバムから選んだ順）</b>に並びます。ビフォーとアフターを同じ順番で入れると、1枚目どうし・2枚目どうしが組になります。<br>
-          並びを直したいときや、間違えたときは、下の「これまでの写真」で写真を押すと、<b>前へ・後ろへ（入れ替え）・差し替え・移す・消す</b>ができます。<br>
+          並びを直したいときや、間違えたときは、下の「これまでの写真」で写真を押すと、<b>前へ・後ろへ（入れ替え）・向きを直す・差し替え・移す・消す</b>ができます。<br>
           入れるときに顔の位置（眉・目・鼻・口）を読み取り、お客様のページでは顔の位置と大きさをそろえて出します（アフターは少し明るく）。元の写真はそのまま残ります。<br>
           <b>明るさは写真アプリで変えずに、撮ったまま入れてください</b>（変えてから入れると、二重に明るくなります）。</p>
       </div>
@@ -309,6 +312,10 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     <span id="vw-pos"></span>
     <button type="button" id="vw-next" aria-label="1つ後ろへ（右へ）">後ろへ ›</button>
   </div>
+  <div class="viewer-rotate">
+    <button type="button" id="vw-rotl" aria-label="写真の向きを左に90度まわす">↺ 左に回す</button>
+    <button type="button" id="vw-rotr" aria-label="写真の向きを右に90度まわす">右に回す ↻</button>
+  </div>
   <div class="viewer-btns">
     <label id="vw-replace-btn"><input class="vh" type="file" accept="image/*" id="vw-replace">差し替える</label>
     <button type="button" id="vw-move"></button>
@@ -318,7 +325,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- 顔の位置の読み取り（お客様ページと同じもの） -->
-<script src="../face.js"></script>
+<script src="../face.js?v=20261117"></script>
 <script>
 (function(){
 "use strict";
@@ -682,6 +689,24 @@ async function marksForFile(file, onSlow) {
   return m;
 }
 
+/* ---------- 写真の向き ----------
+ * 元の写真は回さず、「見せるときに右に何度まわすか」（0・90・180・270）だけを写真の印に書く。
+ * この画面もお客様のページも、その角度だけ回して出す */
+function rotOf(id) {
+  const r = state.cur && state.cur.rots ? state.cur.rots[id] : null;
+  return r == null ? null : Number(r);
+}
+function turnedSrc(src, rot) {
+  const F = window.BeyondFace;
+  if (!rot || !F) return src;
+  return F.loadImage(src).then(img => {
+    const r = F.render(img, { rot });
+    const url = r.canvas.toDataURL('image/jpeg', 0.9);
+    r.canvas.width = r.canvas.height = 0;
+    return url;
+  }).catch(() => src);
+}
+
 // 画面に入ったときに取りにいく。入れた直後で縮小画像がまだのときは、少し待って取り直す
 function photo(k, id, frame, size) {
   const img = document.createElement('img');
@@ -689,7 +714,7 @@ function photo(k, id, frame, size) {
   img.decoding = 'async';
   frame.classList.add('loading');
   let tries = 0;
-  const go = () => loadImg(k, id, size).then(src => {
+  const go = () => loadImg(k, id, size).then(src => turnedSrc(src, rotOf(id))).then(src => {
     img.onload = () => { img.classList.add('ok'); frame.classList.remove('loading'); delete frame.dataset.state; };
     img.src = src;
   }).catch(err => {
@@ -849,7 +874,7 @@ function viewerHead() {
 let viewerBusy = false;
 function setViewerBusy(on) {
   viewerBusy = on;
-  $('#vw-move').disabled = $('#vw-trash').disabled = on;
+  $('#vw-move').disabled = $('#vw-trash').disabled = $('#vw-rotl').disabled = $('#vw-rotr').disabled = on;
   $('#vw-replace-btn').classList.toggle('off', on);
   if (viewing) viewerHead();
 }
@@ -863,6 +888,7 @@ function openViewer(p) {
   $('#vw-move').textContent = p.side === 'before' ? 'アフターに移す' : 'ビフォーに移す';
   const m = window.BeyondFace ? window.BeyondFace.parse((state.cur.marks || {})[p.id]) : null;
   $('#vw-note').textContent = m === 'none' ? '顔が見つからなかったため、お客様のページでは位置をそろえずに出します'
+    : m && m.side ? '横顔の線（額・鼻・上くちびる）を読み取りました。お客様のページでは、ほかの横顔と位置・大きさをそろえて出します'
     : m ? '顔の位置を読み取りました。お客様のページでは、ほかの写真と顔の位置・大きさをそろえて出します'
     : '顔の位置はまだ読み取っていません（このお客様を開いておくと読み取ります）';
   setViewerBusy(false);
@@ -872,6 +898,7 @@ function openViewer(p) {
 }
 function closeViewer() {
   flushOrder();
+  flushRot();
   viewing = null;
   $('#viewer').hidden = true;
   $('#vw-img').innerHTML = '';
@@ -884,6 +911,7 @@ window.addEventListener('hashchange', () => { if (viewing) closeViewer(); });
 function photoAction(body, done) {
   const k = state.cur.k;
   flushOrder();
+  flushRot();
   setViewerBusy(true);
   call(Object.assign({ k, id: viewing.id }, body))
     .then(res => {
@@ -930,6 +958,39 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('pagehide', flushOrder);
 
+/* ---------- 向きを直す（左に回す・右に回す） ----------
+ * 画面はすぐに回し、続けて押しても大丈夫なように、押し終わって少ししてから保存する */
+let rotTimer = null, pendingRot = null;
+function turnViewing(step) {
+  if (!viewing || viewerBusy) return;
+  const c = state.cur, id = viewing.id;
+  c.rots = c.rots || {};
+  const rot = (((rotOf(id) || 0) + step) % 360 + 360) % 360;
+  c.rots[id] = rot;
+  const frame = $('#vw-img');
+  frame.innerHTML = '';
+  frame.appendChild(photo(c.k, id, frame, 'sm'));
+  renderDetail();
+  pendingRot = { k: c.k, id, rot };
+  clearTimeout(rotTimer);
+  rotTimer = setTimeout(flushRot, 900);
+}
+function flushRot() {
+  clearTimeout(rotTimer);
+  const job = pendingRot;
+  pendingRot = null;
+  if (!job) return;
+  call({ action: 'a_rotate', k: job.k, id: job.id, rot: job.rot })
+    .then(res => {
+      if (res.error) { fail(res.error, '向きを保存できませんでした。もう一度お試しください'); if (state.cur && state.cur.k === job.k) loadDetail(job.k); }
+      else toast('向きを保存しました（お客様のページもこの向きになります）');
+    })
+    .catch(() => { netErr(); if (state.cur && state.cur.k === job.k) loadDetail(job.k); });
+}
+$('#vw-rotl').addEventListener('click', () => turnViewing(-90));
+$('#vw-rotr').addEventListener('click', () => turnViewing(90));
+window.addEventListener('pagehide', flushRot);
+
 /* ---------- 差し替える（同じ回・同じ側・同じ位置に新しい写真を入れ、元の写真はゴミ箱へ） ---------- */
 $('#vw-replace').addEventListener('change', async e => {
   const input = e.target;
@@ -940,6 +1001,7 @@ $('#vw-replace').addEventListener('change', async e => {
   if (!/^image\//.test(mime) || f.size > MAX_BYTES) { toast('写真でないファイルか、20MBより大きい写真です'); return; }
   const k = state.cur.k, id = viewing.id;
   flushOrder();
+  flushRot();
   setViewerBusy(true);
   state.busy = true;
   const note = $('#vw-note');
@@ -999,7 +1061,7 @@ const demo = { seq: 0, customers: [
 ] };
 ['2026-06-07', '2026-08-09', '2026-10-11'].forEach((date, n) => ['before', 'after'].forEach(side => [0, 1].forEach(a => {
   // 見本の写真はイラストなので、顔の位置は「見つからない」としておく（入れた写真は本物と同じように読み取る）
-  demo.customers[0].photos.push({ id: 'p' + (++demo.seq), side, time: date + ' 1' + (side === 'before' ? 0 : 1) + ':0' + a + ':00', url: demoSvg(side, n + 1, a), marks: 'face:none' });
+  demo.customers[0].photos.push({ id: 'p' + (++demo.seq), side, time: date + ' 1' + (side === 'before' ? 0 : 1) + ':0' + a + ':00', url: demoSvg(side, n + 1, a), marks: 'face:none2' });
 })));
 function demoVisits(c) {
   const byDate = {};
@@ -1036,9 +1098,9 @@ function demoAnswer(b) {
   const p = c.photos.find(p => p.id === b.id);
   if (b.action === 'a_detail') {
     const url = new URL('../?demo=1', location.href).href;
-    const marks = {};
-    c.photos.forEach(p => { if (p.marks) marks[p.id] = p.marks; });
-    return { name: c.name, pin: c.pin, url, visits: demoVisits(c), marks,
+    const marks = {}, rots = {};
+    c.photos.forEach(p => { if (p.marks) marks[p.id] = p.marks; if (p.rot != null) rots[p.id] = p.rot; });
+    return { name: c.name, pin: c.pin, url, visits: demoVisits(c), marks, rots,
       line: c.name + '様\n\nいつも美yondをご利用いただきありがとうございます。\n（見本の文です）\n\n▼' + c.name + '様の専用ページ\n' + url + '\n\n暗証番号：' + c.pin };
   }
   if (b.action === 'a_img') return p ? { url: p.url } : { error: 'not_found' };
@@ -1057,6 +1119,7 @@ function demoAnswer(b) {
   }
   if (!p) return { error: 'not_found' };
   if (b.action === 'a_marks') { p.marks = b.marks; return { ok: true }; }
+  if (b.action === 'a_rotate') { if (![0, 90, 180, 270].includes(b.rot)) return { error: 'bad_request' }; p.rot = b.rot; return { ok: true }; }
   if (b.action === 'a_move') { p.side = b.to; p.ord = Date.now(); return { ok: true }; }
   if (b.action === 'a_replace') {
     const id = 'p' + (++demo.seq);
