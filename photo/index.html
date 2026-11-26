@@ -213,7 +213,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 <footer>© 美yond（ビヨンド）二子玉川の肌管理サロン</footer>
 
 <!-- 顔の位置合わせとアフターの明るさ（管理画面と同じもの） -->
-<script src="face.js"></script>
+<script src="face.js?v=20261117"></script>
 <script>
 (function(){
 "use strict";
@@ -230,7 +230,7 @@ const $ = s => document.querySelector(s);
 const SIDE = { before: 'ビフォー', after: 'アフター' };
 const WD = '日月火水木金土';
 
-const state = { pin: '', name: '', visits: [], marks: {}, bright: 0, mode: 'slide', tab: 'visits',
+const state = { pin: '', name: '', visits: [], marks: {}, rots: {}, bright: 0, mode: 'slide', tab: 'visits',
   a: { v: 0, side: 'before' }, b: { v: 0, side: 'after' }, angle: 0 };
 
 /* ---------- 端末に覚えておくもの（使えない端末では覚えないだけ） ---------- */
@@ -313,6 +313,7 @@ function openWith(pin, remember) {
       state.name = res.name;
       state.visits = res.visits || [];
       state.marks = res.marks || {};
+      state.rots = res.rots || {}; // スタッフが管理画面で直した写真の向き
       state.bright = Number(res.bright) || 0;
       renderMain();
     })
@@ -530,23 +531,25 @@ function photo(p, frame, opts) {
   });
   const marks = opts.align ? marksOf(p.id) : null;
   const bright = p.after ? state.bright : 0;
+  const rot = p.id in state.rots ? state.rots[p.id] : null;
   const go = () => loadImg(p.id).then(src => {
-    if (!F || (!marks && !bright)) return show(src, 0, 0, false); // そろえない・明るさも足さないときは、そのまま出す
+    if (!F || (!marks && !bright && !rot)) return show(src, 0, 0, false); // そろえない・明るさも足さない・回さないときは、そのまま出す
     return F.loadImage(src).then(img => {
-      const r = F.render(img, { marks, bright });
+      const r = F.render(img, { marks, bright, rot });
       // 絵はふつうの画像にして出し、作業用の絵（メモリをたくさん使う）はすぐ手放す。何十回分の写真を見てもスマホが重くならないように
       return new Promise((resolve, reject) => {
         try { r.canvas.toBlob(resolve, 'image/jpeg', 0.92); } catch (e) { reject(e); }
       }).then(blob => {
         const url = blob ? URL.createObjectURL(blob) : r.canvas.toDataURL('image/jpeg', 0.92);
+        const cw = r.canvas.width, ch = r.canvas.height; // 回したときは縦横が入れ替わる
         r.canvas.width = r.canvas.height = 0;
-        return show(url, img.naturalWidth, img.naturalHeight, r.aligned);
+        return show(url, cw, ch, r.aligned);
       }, () => {
         // 画像にできない絵（見本のイラストなど、ブラウザによって）は、絵のまま出す
         r.canvas.className = el.className + ' ok';
         el.replaceWith(r.canvas);
         frame.classList.remove('loading');
-        if (opts.setRatio && !r.aligned) frame.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+        if (opts.setRatio && !r.aligned) frame.style.aspectRatio = r.canvas.width + ' / ' + r.canvas.height;
       });
     });
   }).catch(err => {
