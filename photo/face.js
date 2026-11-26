@@ -127,6 +127,70 @@ function tone(ctx, w, h, value) {
   ctx.putImageData(data, 0, 0);
 }
 
+// 枠（W×H）の四隅が写真の中に入るまで、枠の真ん中を軸に何倍にすればよいか（1 なら今のままで届いている）
+function coverScale(M, w, h, W, H) {
+  const inv = M.inverse();
+  const inside = s => [[0, 0], [W, 0], [0, H], [W, H]].every(([x, y]) => {
+    const p = inv.transformPoint(new DOMPoint(W / 2 + (x - W / 2) / s, H / 2 + (y - H / 2) / s));
+    return p.x >= 0 && p.y >= 0 && p.x <= w && p.y <= h;
+  });
+  if (inside(1)) return 1;
+  let lo = 1, hi = 2;
+  while (!inside(hi) && hi < 64) hi *= 2;
+  for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (inside(mid)) hi = mid; else lo = mid; }
+  return hi;
+}
+// 写真の外側を、写真の端の色をなめらかにのばしたもので埋める（鏡写しだと耳や顔が二重に見えるので使わない）。
+// 写真をとても小さく（短い辺が6マス）してから引きのばすので、細かい模様は出ず、色だけがぼんやり続く
+function fillEdges(ctx, img, w, h, M) {
+  const n = 6, sw = w >= h ? Math.round(n * w / h) : n, sh = w >= h ? n : Math.round(n * h / w);
+  const mid = document.createElement('canvas'); // 一度に小さくすると色がざらつくので、二段で小さくする
+  mid.width = sw * 8; mid.height = sh * 8;
+  mid.getContext('2d').drawImage(img, 0, 0, mid.width, mid.height);
+  const sm = document.createElement('canvas');
+  sm.width = sw; sm.height = sh;
+  const sc = sm.getContext('2d');
+  sc.imageSmoothingQuality = 'high';
+  sc.drawImage(mid, 0, 0, sw, sh);
+  const E = Math.max(w, h) * 4, cw = w / sw, ch = h / sh;
+  ctx.setTransform(M);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  const d = (sx, sy, sW, sH, dx, dy, dW, dH) => ctx.drawImage(sm, sx, sy, sW, sH, dx, dy, dW, dH);
+  d(0, 0, sw, sh, 0, 0, w, h);                         // 写真の下にも（ふちを透かしたところから下の色が見えないように）
+  d(0, 0, 0.5, sh, -E, -ch / 2, E, h + ch);            // 左
+  d(sw - 0.5, 0, 0.5, sh, w, -ch / 2, E, h + ch);      // 右
+  d(0, 0, sw, 0.5, -cw / 2, -E, w + cw, E);            // 上
+  d(0, sh - 0.5, sw, 0.5, -cw / 2, h, w + cw, E);      // 下
+  d(0, 0, 0.5, 0.5, -E, -E, E, E);                     // 四隅
+  d(sw - 0.5, 0, 0.5, 0.5, w, -E, E, E);
+  d(0, sh - 0.5, 0.5, 0.5, -E, h, E, E);
+  d(sw - 0.5, sh - 0.5, 0.5, 0.5, w, h, E, E);
+  mid.width = mid.height = sm.width = sm.height = 0;
+}
+// 写真のふちを少しだけ透かす（のばした色とのさかい目に線が出ないように）。ふちの幅は短い辺の 2.5%
+function feathered(img, w, h) {
+  const s = Math.min(1, 2400 / Math.max(w, h));
+  const cw = Math.max(1, Math.round(w * s)), chh = Math.max(1, Math.round(h * s));
+  const c = document.createElement('canvas');
+  c.width = cw; c.height = chh;
+  const x = c.getContext('2d');
+  x.imageSmoothingQuality = 'high';
+  x.drawImage(img, 0, 0, cw, chh);
+  const e = Math.max(2, Math.round(Math.min(cw, chh) * 0.025));
+  x.globalCompositeOperation = 'destination-out';
+  const band = (x0, y0, x1, y1, rx, ry, rw, rh) => {
+    const g = x.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(rx, ry, rw, rh);
+  };
+  band(0, 0, e, 0, 0, 0, e, chh);
+  band(cw, 0, cw - e, 0, cw - e, 0, e, chh);
+  band(0, 0, 0, e, 0, 0, cw, e);
+  band(0, chh, 0, chh - e, 0, chh - e, cw, e);
+  return c;
+}
+
 /* ---------- 画面に出す絵を作る ----------
  * marks があれば顔の位置で切り抜いた 横3:縦4 の絵、なければ元の写真のまま（長い辺 1600 まで）。bright は明るさの目盛り（0 なら何もしない）
  * rot は管理画面で直した向き（元の写真を右に回す角度 0・90・180・270。直していない写真は null）。元の写真は回さず、見せるときだけ回す */
@@ -152,19 +216,28 @@ function render(img, opts) {
     ctx.fillRect(0, 0, W, H);
     // まっすぐの顔を枠に置いてから、枠の真ん中を軸に turn 度まわす（枠は縦長のまま。180度なら目の高さは下から42%）
     const k = W * unit;
-    ctx.translate(W / 2, H / 2);
-    ctx.rotate(turn * Math.PI / 180);
-    ctx.translate(-W / 2, -H / 2);
+    let M = new DOMMatrix().translate(W / 2, H / 2).rotate(turn).translate(-W / 2, -H / 2);
     if (side) {
       // 横顔: ほおのあたりを枠の真ん中に（左向きの顔は、標準の形が左右反対なので、後ろ＝右になる）
       const ax = SIDE_FRAME.ax * (m.mirror ? -1 : 1), ay = SIDE_FRAME.ay;
-      ctx.transform(k * f.ar, k * f.ai, -k * f.ai, k * f.ar, k * (f.bx - ax) + W / 2, k * (f.by - ay) + H / 2);
+      M = M.multiply(new DOMMatrix([k * f.ar, k * f.ai, -k * f.ai, k * f.ar, k * (f.bx - ax) + W / 2, k * (f.by - ay) + H / 2]));
     } else {
-      ctx.transform(k * f.ar, k * f.ai, -k * f.ai, k * f.ar, k * f.bx + W * FRAME.cx, k * f.by + W * FRAME.cy);
+      M = M.multiply(new DOMMatrix([k * f.ar, k * f.ai, -k * f.ai, k * f.ar, k * f.bx + W * FRAME.cx, k * f.by + W * FRAME.cy]));
     }
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(img, 0, 0, w, h);
+    // 写真が枠の端まで届かないとき（顔の近くで撮った・傾いている）は、写真の端の色をのばして余白を埋め、
+    // 写真のふちを少し透かしてなじませる。顔の大きさと位置は変えない（ビフォーとアフターの大きさがそろったまま）
+    const short = coverScale(M, w, h, W, H) > 1.001;
+    if (short) fillEdges(ctx, img, w, h, M);
+    ctx.setTransform(M);
+    if (short) {
+      const fc = feathered(img, w, h);
+      ctx.drawImage(fc, 0, 0, w, h);
+      fc.width = fc.height = 0;
+    } else {
+      ctx.drawImage(img, 0, 0, w, h);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   } else {
     const s = Math.min(1, 1600 / Math.max(w, h));
