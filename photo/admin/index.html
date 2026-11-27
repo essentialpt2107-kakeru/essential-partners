@@ -1106,8 +1106,9 @@ $('#vw-trash').addEventListener('click', () => {
 /* ---------- まとめて選ぶ（移す・消す） ----------
  * 「選ぶ」を押すと、写真を押すたびに「選ぶ・はずす」になる。下の帯から、選んだ写真をまとめて
  * ビフォーへ・アフターへ移す、または消す（ドライブのゴミ箱へ）。
- * データ係の「1枚移す（a_move）・1枚消す（a_trash）」を、回の順・並びの順に1枚ずつ呼ぶ
- * （データ係は直さなくてよい）。移した写真は、移した先のその回のいちばん後ろに、元の並びのまま付く */
+ * データ係の「1枚移す（a_move）・1枚消す（a_trash）」を4枚ずつ同時に呼び、移したときは最後に
+ * 「並べ替え（a_order）」で並びをそろえる（データ係は直さなくてよい）。移した写真は、移した先のその回の
+ * いちばん後ろに、元の並びのまま付く */
 let selecting = false, batchBusy = false;
 const sel = new Set();
 
@@ -1180,27 +1181,26 @@ function setSelBtn(q, text, n) {
   b.disabled = !n;
 }
 
-// 終わった分を、読み込み直しを待たずに画面へ（このあとデータ係から読み直して確かめる）
-function applyLocal(kind, ids, to) {
-  const c = state.cur;
-  if (!ids.length || !c || !c.visits) return;
+// 移す・消すが済んだあとの回の並び（もとの visits は変えずに、新しく作って返す）。
+// 移した写真は、移した先のその回のいちばん後ろに、元の並びのまま付く。写真がなくなった回は抜けて、回の数字を振り直す
+function changedVisits(visits, kind, ids, to) {
   const gone = new Set(ids);
-  c.visits.forEach(v => {
+  const out = visits.map(v => {
+    const nv = { n: v.n, date: v.date, before: [], after: [] };
     const moved = [];
-    ['before', 'after'].forEach(side => {
-      v[side] = v[side].filter(id => {
-        if (!gone.has(id)) return true;
-        if (kind === 'trash') return false;
-        if (side === to) return true;
-        moved.push(id);
-        return false;
-      });
-    });
-    if (kind === 'move') v[to] = v[to].concat(moved);
-  });
-  c.visits = c.visits.filter(v => v.before.length || v.after.length);
-  c.visits.forEach((v, i) => { v.n = i + 1; });
+    ['before', 'after'].forEach(side => v[side].forEach(id => {
+      if (!gone.has(id)) nv[side].push(id);
+      else if (kind === 'move') (side === to ? nv[side] : moved).push(id);
+    }));
+    if (kind === 'move') nv[to] = nv[to].concat(moved);
+    return nv;
+  }).filter(v => v.before.length || v.after.length);
+  out.forEach((v, i) => { v.n = i + 1; });
+  return out;
 }
+
+// 同時に送る数。画面の写真の読み込み（同時に4枚）と合わせても、データ係が同時に動かせる数（30）より十分少なく
+const BATCH_PARALLEL = 4;
 
 async function runBatch(kind, to) {
   if (!state.cur || batchBusy || state.busy) return;
@@ -1210,30 +1210,55 @@ async function runBatch(kind, to) {
   if (kind === 'trash' && !confirm('選んだ写真' + list.length + '枚を消しますか？\nドライブのゴミ箱に入り、30日間は元に戻せます。')) return;
   flushOrder();
   flushRot();
+  const visitsBefore = (state.cur.visits || []).map(v => ({ n: v.n, date: v.date, before: v.before.slice(), after: v.after.slice() }));
   batchBusy = state.busy = true;
   document.body.classList.add('sel-busy');
   ['#sel-to-before', '#sel-to-after', '#sel-trash', '#sel-cancel', '#sel-toggle'].forEach(q => { $(q).disabled = true; });
   const verb = kind === 'trash' ? '消しています' : SIDE[to] + 'へ移しています';
   const track = $('#sel-track');
   track.hidden = false;
-  const step = i => {
-    $('#sel-count').textContent = verb + '（' + i + ' / ' + list.length + '枚）';
+  const step = (i, text) => {
+    $('#sel-count').textContent = text || verb + '（' + i + ' / ' + list.length + '枚）';
     track.querySelector('i').style.width = (i / list.length * 100) + '%';
   };
+  step(0);
+
+  // 4枚ずつ同時に送る（1枚ずつ待つより、まとめて数倍早い）
   const done = [], failed = [];
-  let stop = '';
-  for (let i = 0; i < list.length && !stop; i++) {
-    step(i);
-    const id = list[i].id;
-    try {
-      const res = await call(kind === 'trash' ? { action: 'a_trash', k, id } : { action: 'a_move', k, id, to });
-      if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
-      else if (res.error) failed.push(id);
-      else done.push(id);
-    } catch (e) {
-      failed.push(id);
+  let stop = '', next = 0, finished = 0;
+  const worker = async () => {
+    while (!stop && next < list.length) {
+      const id = list[next++].id;
+      try {
+        const res = await call(kind === 'trash' ? { action: 'a_trash', k, id } : { action: 'a_move', k, id, to });
+        if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
+        else if (res.error) failed.push(id);
+        else done.push(id);
+      } catch (e) {
+        failed.push(id);
+      }
+      if (!stop) step(++finished);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(BATCH_PARALLEL, list.length) }, worker));
+
+  // 同時に移すと、移した先での並び（データ係に届いた順）が入れ替わることがある。
+  // 2枚以上移った回は、元の並びのまま後ろに付くように、その回の並びをまとめて書き直す
+  const visitsAfter = changedVisits(visitsBefore, kind, done, to);
+  let orderFailed = false;
+  if (kind === 'move' && !stop && done.length > 1) {
+    const moved = new Set(done);
+    const rows = visitsAfter.map(v => v[to]).filter(ids => ids.filter(id => moved.has(id)).length > 1 && ids.length <= 60);
+    if (rows.length) {
+      step(list.length, '並びをそろえています');
+      const results = await Promise.all(rows.map(ids => call({ action: 'a_order', k, ids }).catch(() => ({ error: 'network' }))));
+      results.forEach(res => {
+        if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
+        else if (res.error) orderFailed = true;
+      });
     }
   }
+
   step(list.length);
   batchBusy = state.busy = false;
   document.body.classList.remove('sel-busy');
@@ -1242,7 +1267,7 @@ async function runBatch(kind, to) {
   $('#sel-cancel').disabled = $('#sel-toggle').disabled = false;
 
   const here = state.cur && state.cur.k === k;
-  if (here) applyLocal(kind, done, to);
+  if (here && done.length) state.cur.visits = changedVisits(state.cur.visits || [], kind, done, to);
   if (stop) { setSelecting(false); return fail(stop); }
   // できなかった写真だけ選んだまま残す（もう一度押せばやり直せる）
   if (here && selecting) {
@@ -1253,6 +1278,7 @@ async function runBatch(kind, to) {
   const what = kind === 'trash' ? '消しました' : SIDE[to] + 'へ移しました';
   if (!done.length) toast('できませんでした。電波を確かめて、もう一度お試しください');
   else if (failed.length) toast(done.length + '枚を' + what + '。' + failed.length + '枚はできなかったので、選んだままにしています');
+  else if (orderFailed) toast(done.length + '枚を' + what + '。並びが入れ替わっていたら、写真を押して「前へ・後ろへ」で直してください');
   else toast(done.length + '枚を' + what + (kind === 'trash' ? '（ドライブのゴミ箱にあります）' : ''));
   if (here) { renderDetail(); loadDetail(k); }
 }
@@ -1309,7 +1335,7 @@ function demoVisits(c) {
     before: byDate[d].before.sort(byOrder).map(p => p.id), after: byDate[d].after.sort(byOrder).map(p => p.id) }));
 }
 function demoCall(b) {
-  return new Promise(resolve => setTimeout(() => resolve(demoAnswer(b)), b.action === 'a_img' ? 150 + Math.random() * 300 : 400));
+  return new Promise(resolve => setTimeout(() => resolve(demoAnswer(b)), b.action === 'a_img' ? 150 + Math.random() * 300 : 250 + Math.random() * 400));
 }
 function demoAnswer(b) {
   if (b.pass !== 'demo') return { error: 'wrong_pass' };
