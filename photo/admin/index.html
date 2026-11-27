@@ -177,6 +177,38 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .vw-note{color:rgba(255,255,255,.75);font-size:12px;text-align:center;margin:-4px auto 10px;max-width:620px;line-height:1.6}
 .face-note{font-size:12px;color:var(--ink-sub);margin:-4px 2px 10px}
 
+/* まとめて選ぶ（移す・消す） */
+.sec-row{display:flex;align-items:center;gap:10px;margin:24px 4px 0}
+.sec-row .sec{margin:0}
+.sel-toggle{margin-left:auto;padding:6px 18px;border-radius:999px;border:1px solid var(--brand-line);background:#fff;color:var(--brand-dark);font-size:13px;font-weight:700}
+body.selecting .sel-toggle{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.sel-hint{font-size:12px;color:var(--ink-sub);margin:6px 4px 0}
+.row-all{margin-left:6px;font-size:11.5px;color:var(--brand-dark);text-decoration:underline;padding:2px 4px;vertical-align:middle}
+.pick{display:none;position:absolute;inset:0;border-radius:10px;transition:background .15s}
+.pick:after{content:"";position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:rgba(35,33,31,.3);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+body.selecting .pick{display:block}
+.thumb.on .pick{background:rgba(10,186,181,.22);box-shadow:inset 0 0 0 3px var(--brand-deep)}
+.thumb.on .pick:after{background:var(--brand-deep) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/13px no-repeat}
+body.sel-busy .thumb{pointer-events:none}
+body.selecting main{padding-bottom:170px}
+.selbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(16,80,78,.12);
+  padding:10px 16px max(12px,env(safe-area-inset-bottom))}
+.selbar-in{max-width:620px;margin:0 auto}
+.selbar-top{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:700;min-height:28px}
+.selbar-top button{margin-left:auto;font-size:13px;font-weight:500;color:var(--ink-sub);padding:4px 6px;text-decoration:underline}
+.selbar-top button:disabled{opacity:.4}
+.selbar .track{height:6px;border-radius:999px;background:var(--brand-soft);overflow:hidden;margin-top:6px}
+.selbar .track i{display:block;height:100%;width:0;background:var(--brand-deep);transition:width .3s}
+.selbar-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.selbar-btns button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;padding:6px 4px;border-radius:16px;
+  font-size:12.5px;font-weight:700;color:#fff;line-height:1.35;letter-spacing:.02em}
+.selbar-btns button small{font-size:11px;font-weight:400;opacity:.9}
+.selbar-btns .to-before{background:var(--before)}
+.selbar-btns .to-after{background:var(--brand-deep)}
+.selbar-btns .danger{background:#fff;border:1.5px solid #E7C9C4;color:var(--warn)}
+.selbar-btns button:disabled{opacity:.3;cursor:default}
+body.selecting .toast{bottom:calc(max(12px,env(safe-area-inset-bottom)) + 130px)}
+
 /* 登録の解除 */
 .remove{display:block;margin:32px auto 0;padding:10px 20px;border-radius:999px;border:1px solid #E7C9C4;background:#fff;color:var(--warn);font-size:13px;font-weight:700}
 .remove:disabled{opacity:.5}
@@ -184,7 +216,7 @@ details.line pre{white-space:pre-wrap;font-family:inherit;background:var(--bg);b
 .viewer-btns button:disabled{opacity:.5}
 
 .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:30;background:var(--ink);color:#fff;
-  font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+  font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;width:max-content;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px}
 </style>
@@ -275,7 +307,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         </div>
         <div class="progress" id="progress" hidden><div class="track"><i></i></div><p></p></div>
         <p class="hint">撮る・アルバムから選ぶのどちらでも入れられます。写真は<b>入れた順（アルバムから選んだ順）</b>に並びます。ビフォーとアフターを同じ順番で入れると、1枚目どうし・2枚目どうしが組になります。<br>
-          並びを直したいときや、間違えたときは、下の「これまでの写真」で写真を押すと、<b>前へ・後ろへ（入れ替え）・向きを直す・差し替え・移す・消す</b>ができます。<br>
+          並びを直したいときや、間違えたときは、下の「これまでの写真」で写真を押すと、<b>前へ・後ろへ（入れ替え）・向きを直す・差し替え・移す・消す</b>ができます。
+          何枚かまとめて<b>移す・消す</b>ときは、「これまでの写真」の右の<b>「選ぶ」</b>から。<br>
           入れるときに顔の位置（眉・目・鼻・口）を読み取り、お客様のページでは顔の位置と大きさをそろえて出します（アフターは少し明るく）。元の写真はそのまま残ります。<br>
           <b>明るさは写真アプリで変えずに、撮ったまま入れてください</b>（変えてから入れると、二重に明るくなります）。</p>
       </div>
@@ -292,7 +325,11 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
         <details class="line"><summary>送る文を見る</summary><pre id="d-line"></pre></details>
       </div>
 
-      <h2 class="sec">これまでの写真</h2>
+      <div class="sec-row">
+        <h2 class="sec">これまでの写真</h2>
+        <button class="sel-toggle" id="sel-toggle" type="button" hidden>選ぶ</button>
+      </div>
+      <p class="sel-hint" id="sel-hint" hidden>移したい・消したい写真を押して選んでください（もう一度押すとはずれます）。<br>回をまたいで選んでも大丈夫です。</p>
       <p class="face-note" id="d-face" hidden></p>
       <div id="d-visits"></div>
 
@@ -320,6 +357,17 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     <label id="vw-replace-btn"><input class="vh" type="file" accept="image/*" id="vw-replace">差し替える</label>
     <button type="button" id="vw-move"></button>
     <button type="button" id="vw-trash" class="danger">この写真を消す</button>
+  </div>
+</div>
+<div class="selbar" id="selbar" hidden role="region" aria-label="選んだ写真をまとめて移す・消す">
+  <div class="selbar-in">
+    <div class="selbar-top"><span id="sel-count" aria-live="polite"></span><button type="button" id="sel-cancel">選ぶのをやめる</button></div>
+    <div class="track" id="sel-track" hidden><i></i></div>
+    <div class="selbar-btns">
+      <button type="button" class="to-before" id="sel-to-before">ビフォーへ移す</button>
+      <button type="button" class="to-after" id="sel-to-after">アフターへ移す</button>
+      <button type="button" class="danger" id="sel-trash">消す</button>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -608,6 +656,12 @@ function renderDetail() {
       (tv.before.length && tv.after.length && tv.before.length !== tv.after.length ? '<br><span class="warn">枚数がちがいます。同じ枚数にすると、すべて組になります</span>' : '');
   }
 
+  // 選んでいた写真のうち、もう無いもの（消した・別の端末で消された）は選びからはずす
+  const ids = allIds();
+  sel.forEach(id => { if (!ids.has(id)) sel.delete(id); });
+  $('#sel-toggle').hidden = !vs.length;
+  if (!vs.length && selecting && !batchBusy) setSelecting(false);
+
   const box = $('#d-visits');
   box.innerHTML = '';
   if (!vs.length) {
@@ -622,6 +676,17 @@ function renderDetail() {
       const row = document.createElement('div');
       row.className = 'side-row';
       row.innerHTML = '<span class="side-label ' + side + '">' + SIDE[side] + ' ' + v[side].length + '枚</span>';
+      if (v[side].length) {
+        // 選ぶあいだだけ出る「全部選ぶ」（その回のビフォー（またはアフター）をまとめて）
+        const all = document.createElement('button');
+        all.type = 'button';
+        all.className = 'row-all';
+        all.dataset.n = v.n;
+        all.dataset.side = side;
+        all.hidden = !selecting;
+        all.addEventListener('click', () => toggleRow(v.n, side));
+        row.appendChild(all);
+      }
       const grid = document.createElement('div');
       grid.className = 'thumbs';
       if (!v[side].length) grid.innerHTML = '<span class="none-s">なし</span>';
@@ -629,10 +694,14 @@ function renderDetail() {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'thumb';
-        b.setAttribute('aria-label', v.n + '回目の' + SIDE[side] + '、' + (i + 1) + '枚目を大きく見る');
-        b.innerHTML = '<span class="num">' + (i + 1) + '</span>';
+        b.dataset.id = id;
+        b.dataset.label = v.n + '回目の' + SIDE[side] + '、' + (i + 1) + '枚目';
+        b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="pick" aria-hidden="true"></span>';
         b.prepend(photo(c.k, id, b, 'xs'));
-        b.addEventListener('click', () => openViewer({ id, side, n: v.n, i }));
+        b.addEventListener('click', () => {
+          if (selecting) toggleSel(id);
+          else openViewer({ id, side, n: v.n, i });
+        });
         grid.appendChild(b);
       });
       row.appendChild(grid);
@@ -640,6 +709,7 @@ function renderDetail() {
     });
     box.appendChild(card);
   });
+  refreshSel();
   analyzeMissing();
 }
 
@@ -1032,6 +1102,168 @@ $('#vw-trash').addEventListener('click', () => {
   if (!confirm('この写真を消しますか？\nドライブのゴミ箱に入り、30日間は元に戻せます。')) return;
   photoAction({ action: 'a_trash' }, '写真を消しました');
 });
+
+/* ---------- まとめて選ぶ（移す・消す） ----------
+ * 「選ぶ」を押すと、写真を押すたびに「選ぶ・はずす」になる。下の帯から、選んだ写真をまとめて
+ * ビフォーへ・アフターへ移す、または消す（ドライブのゴミ箱へ）。
+ * データ係の「1枚移す（a_move）・1枚消す（a_trash）」を、回の順・並びの順に1枚ずつ呼ぶ
+ * （データ係は直さなくてよい）。移した写真は、移した先のその回のいちばん後ろに、元の並びのまま付く */
+let selecting = false, batchBusy = false;
+const sel = new Set();
+
+function allIds() {
+  const out = new Set();
+  ((state.cur && state.cur.visits) || []).forEach(v => v.before.concat(v.after).forEach(id => out.add(id)));
+  return out;
+}
+// 選んだ写真を、回の順・並びの順に（どちら側にあるか付きで）
+function selected() {
+  const out = [];
+  ((state.cur && state.cur.visits) || []).forEach(v => ['before', 'after'].forEach(side =>
+    v[side].forEach(id => { if (sel.has(id)) out.push({ id, side }); })));
+  return out;
+}
+function setSelecting(on) {
+  selecting = on;
+  sel.clear();
+  document.body.classList.toggle('selecting', on);
+  $('#selbar').hidden = !on;
+  $('#sel-hint').hidden = !on;
+  $('#sel-toggle').textContent = on ? 'やめる' : '選ぶ';
+  $('#sel-toggle').setAttribute('aria-pressed', String(on));
+  refreshSel();
+}
+function toggleSel(id) {
+  if (batchBusy) return;
+  if (sel.has(id)) sel.delete(id); else sel.add(id);
+  refreshSel();
+}
+// その回のビフォー（またはアフター）を全部選ぶ。全部選んであれば全部はずす
+function toggleRow(n, side) {
+  if (batchBusy || !state.cur) return;
+  const v = (state.cur.visits || []).find(v => v.n === n);
+  if (!v) return;
+  const allOn = v[side].every(id => sel.has(id));
+  v[side].forEach(id => { if (allOn) sel.delete(id); else sel.add(id); });
+  refreshSel();
+}
+function refreshSel() {
+  const vs = (state.cur && state.cur.visits) || [];
+  document.querySelectorAll('#d-visits .thumb[data-id]').forEach(b => {
+    const on = selecting && sel.has(b.dataset.id);
+    b.classList.toggle('on', on);
+    if (selecting) {
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-label', b.dataset.label + (on ? '（選んでいます。押すとはずす）' : 'を選ぶ'));
+    } else {
+      b.removeAttribute('aria-pressed');
+      b.setAttribute('aria-label', b.dataset.label + 'を大きく見る');
+    }
+  });
+  document.querySelectorAll('#d-visits .row-all').forEach(a => {
+    a.hidden = !selecting;
+    const v = vs.find(v => v.n === Number(a.dataset.n));
+    const ids = v ? v[a.dataset.side] : [];
+    a.textContent = ids.length && ids.every(id => sel.has(id)) ? '全部はずす' : '全部選ぶ';
+  });
+  if (!selecting || batchBusy) return; // 進みぐあいは runBatch が出す
+  const list = selected();
+  const nb = list.filter(p => p.side === 'before').length, na = list.length - nb;
+  $('#sel-count').textContent = list.length ? list.length + '枚を選んでいます' : '写真を押して選んでください';
+  setSelBtn('#sel-to-before', 'ビフォーへ移す', na); // アフターにある写真だけがビフォーへ移る
+  setSelBtn('#sel-to-after', 'アフターへ移す', nb);
+  setSelBtn('#sel-trash', '消す', list.length);
+}
+function setSelBtn(q, text, n) {
+  const b = $(q);
+  b.innerHTML = text + (n ? '<small>' + n + '枚</small>' : '');
+  b.disabled = !n;
+}
+
+// 終わった分を、読み込み直しを待たずに画面へ（このあとデータ係から読み直して確かめる）
+function applyLocal(kind, ids, to) {
+  const c = state.cur;
+  if (!ids.length || !c || !c.visits) return;
+  const gone = new Set(ids);
+  c.visits.forEach(v => {
+    const moved = [];
+    ['before', 'after'].forEach(side => {
+      v[side] = v[side].filter(id => {
+        if (!gone.has(id)) return true;
+        if (kind === 'trash') return false;
+        if (side === to) return true;
+        moved.push(id);
+        return false;
+      });
+    });
+    if (kind === 'move') v[to] = v[to].concat(moved);
+  });
+  c.visits = c.visits.filter(v => v.before.length || v.after.length);
+  c.visits.forEach((v, i) => { v.n = i + 1; });
+}
+
+async function runBatch(kind, to) {
+  if (!state.cur || batchBusy || state.busy) return;
+  const k = state.cur.k;
+  const list = selected().filter(p => kind === 'trash' || p.side !== to);
+  if (!list.length) return;
+  if (kind === 'trash' && !confirm('選んだ写真' + list.length + '枚を消しますか？\nドライブのゴミ箱に入り、30日間は元に戻せます。')) return;
+  flushOrder();
+  flushRot();
+  batchBusy = state.busy = true;
+  document.body.classList.add('sel-busy');
+  ['#sel-to-before', '#sel-to-after', '#sel-trash', '#sel-cancel', '#sel-toggle'].forEach(q => { $(q).disabled = true; });
+  const verb = kind === 'trash' ? '消しています' : SIDE[to] + 'へ移しています';
+  const track = $('#sel-track');
+  track.hidden = false;
+  const step = i => {
+    $('#sel-count').textContent = verb + '（' + i + ' / ' + list.length + '枚）';
+    track.querySelector('i').style.width = (i / list.length * 100) + '%';
+  };
+  const done = [], failed = [];
+  let stop = '';
+  for (let i = 0; i < list.length && !stop; i++) {
+    step(i);
+    const id = list[i].id;
+    try {
+      const res = await call(kind === 'trash' ? { action: 'a_trash', k, id } : { action: 'a_move', k, id, to });
+      if (res.error === 'wrong_pass' || res.error === 'locked') stop = res.error;
+      else if (res.error) failed.push(id);
+      else done.push(id);
+    } catch (e) {
+      failed.push(id);
+    }
+  }
+  step(list.length);
+  batchBusy = state.busy = false;
+  document.body.classList.remove('sel-busy');
+  track.hidden = true;
+  track.querySelector('i').style.width = '0';
+  $('#sel-cancel').disabled = $('#sel-toggle').disabled = false;
+
+  const here = state.cur && state.cur.k === k;
+  if (here) applyLocal(kind, done, to);
+  if (stop) { setSelecting(false); return fail(stop); }
+  // できなかった写真だけ選んだまま残す（もう一度押せばやり直せる）
+  if (here && selecting) {
+    sel.clear();
+    failed.forEach(id => sel.add(id));
+    if (!failed.length) setSelecting(false);
+  }
+  const what = kind === 'trash' ? '消しました' : SIDE[to] + 'へ移しました';
+  if (!done.length) toast('できませんでした。電波を確かめて、もう一度お試しください');
+  else if (failed.length) toast(done.length + '枚を' + what + '。' + failed.length + '枚はできなかったので、選んだままにしています');
+  else toast(done.length + '枚を' + what + (kind === 'trash' ? '（ドライブのゴミ箱にあります）' : ''));
+  if (here) { renderDetail(); loadDetail(k); }
+}
+
+$('#sel-toggle').addEventListener('click', () => { if (!batchBusy) setSelecting(!selecting); });
+$('#sel-cancel').addEventListener('click', () => { if (!batchBusy) setSelecting(false); });
+$('#sel-to-before').addEventListener('click', () => runBatch('move', 'before'));
+$('#sel-to-after').addEventListener('click', () => runBatch('move', 'after'));
+$('#sel-trash').addEventListener('click', () => runBatch('trash'));
+window.addEventListener('hashchange', () => { if (selecting) setSelecting(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && selecting && !viewing && !batchBusy) setSelecting(false); });
 
 /* ---------- 登録の解除 ---------- */
 $('#d-remove').addEventListener('click', () => {
