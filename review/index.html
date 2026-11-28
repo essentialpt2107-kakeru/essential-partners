@@ -158,8 +158,15 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <div class="chips" id="rating"></div>
     </section>
 
+    <!-- 治療院の形だけ -->
+    <section class="q" id="explainBox" hidden>
+      <h2>説明はわかりやすかったですか？ <span class="opt">任意</span></h2>
+      <p class="sub">施術の内容や、体の状態についての説明です</p>
+      <div class="chips" id="explain"></div>
+    </section>
+
     <section class="q" id="visitBox" hidden>
-      <h2>このお店のご利用は？ <span class="opt">任意</span></h2>
+      <h2 id="visitTitle">このお店のご利用は？ <span class="opt">任意</span></h2>
       <div class="chips" id="visit"></div>
     </section>
 
@@ -178,6 +185,12 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
       <div class="chips" id="worries"></div>
     </section>
 
+    <!-- 治療院の形だけ -->
+    <section class="q" id="foundBox" hidden>
+      <h2>当院を知ったきっかけは？ <span class="opt">あてはまるものすべて・任意</span></h2>
+      <div class="chips" id="found"></div>
+    </section>
+
     <section class="q" id="menuBox" hidden>
       <h2 id="menuTitle">受けたメニュー <span class="opt">あてはまるものすべて・任意</span></h2>
       <div class="chips" id="menus"></div>
@@ -190,7 +203,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     </section>
 
     <section class="q" id="anxietyBox" hidden>
-      <h2>ご来店前に不安だったことはありますか？ 実際はいかがでしたか？ <span class="opt">任意</span></h2>
+      <h2 id="anxietyTitle">ご来店前に不安だったことはありますか？ 実際はいかがでしたか？ <span class="opt">任意</span></h2>
       <p class="sub" id="anxietySub">例: 初めてで緊張していた、痛みが心配だった など</p>
       <textarea id="anxiety" maxlength="2000"></textarea>
     </section>
@@ -201,8 +214,8 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     </section>
 
     <section class="q">
-      <h2>お店へのご要望・改善してほしいこと <span class="opt">任意</span></h2>
-      <p class="sub">お店だけに届きます。</p>
+      <h2 id="requestTitle">お店へのご要望・改善してほしいこと <span class="opt">任意</span></h2>
+      <p class="sub" id="requestSub">お店だけに届きます。</p>
       <textarea id="request" maxlength="2000"></textarea>
     </section>
 
@@ -221,7 +234,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
 
     <button type="submit" class="send" id="send" disabled>回答を送る</button>
     <div class="err" id="err" aria-live="polite"></div>
-    <p class="privacy">いただいた回答は、このお店のサービス向上のためだけに使います。</p>
+    <p class="privacy" id="privacy">いただいた回答は、このお店のサービス向上のためだけに使います。</p>
   </form>
 
   <!-- お礼（星に関係なく全員同じ） -->
@@ -230,7 +243,7 @@ footer{text-align:center;font-size:11px;color:var(--ink-sub);padding:0 16px 32px
     <h1>アンケートのご回答<br>ありがとうございました</h1>
     <p id="thanksText">いただいた声は、スタッフ一同で読ませていただきます。</p>
     <div class="talk" id="talk" hidden>
-      <p>ご期待に添えず、申し訳ありませんでした。<br>よろしければ、お店から直接<br>お話を伺わせてください。</p>
+      <p id="talkText">ご期待に添えず、申し訳ありませんでした。<br>よろしければ、お店から直接<br>お話を伺わせてください。</p>
       <a class="btn primary" id="talkLink" target="_blank" rel="noopener">お店に直接相談する</a>
     </div>
     <div class="google" id="google" hidden>
@@ -260,8 +273,9 @@ const DEMO = !API || params.get('demo') === '1';
 const STORE = params.get('s') || '';
 const LABELS = ['不満', 'やや不満', 'ふつう', '満足', 'とても満足'];
 const $ = id => document.getElementById(id);
-const state = { stars: 0, menus: [], cares: [], worries: [], scenes: [], party: '', staff: '', rating: '', visit: '', food: false, needName: false, sending: false };
+const state = { stars: 0, menus: [], cares: [], worries: [], scenes: [], found: [], party: '', staff: '', rating: '', explain: '', visit: '', food: false, clinic: false, needName: false, sending: false };
 const RATINGS = ['とても良い', '良い', '少し悪い', '悪い'];
+const EXPLAINS = ['とてもわかりやすい', 'わかりやすい', '少しわかりにくい', 'わかりにくい']; // 治療院の「説明のわかりやすさ」（データ係と同じ並び）
 const VISITS = ['今回が初めて', '何回か来ている', '半年以上通っている'];
 // 「特になし」「なし」など、書くことがないという意味だけの答えは、下書きでは書かなかったのと同じに扱う（データ係と同じ決まり）
 const NOTHING = /^(?:特に|とくに|今のところ|いまのところ|今は|いまは|別に|べつに)*(?:何も|なにも|なんにも)?(?:なし|無し|ナシ|ない|無い|ありません|ございません)?(?:です|でした|かな|かも)?$|^(?:以上|無|none|nothing|n\/?a|\d{1,3})$/i;
@@ -275,7 +289,9 @@ function call(body) {
 
 function demo(body) {
   return new Promise(resolve => setTimeout(() => {
-    if (body.action === 'store' && params.get('food') === '1') resolve({ name: '見本のお店', menus: ['定番コース', 'おまかせコース', 'おつまみコース'], staff: [], cares: ['貸切パーティー', 'ランチの貸切'], intro: '', nameRequired: false, reviewHelp: true, survey: 'food', parties: ['1〜3名', '4〜6名', '7〜9名', '10〜12名', '13名以上'], scenes: ['貸切パーティー', '誕生日・お祝い', '友人との食事'], reasons: ['少人数で貸切できる', 'ワイン', '料理の内容'] });
+    // 治療院の形の見本（?demo=1&clinic=1）。選択肢はデータ係の決まった選択肢と同じ
+    if (body.action === 'store' && params.get('clinic') === '1') resolve({ name: '見本の整骨院', menus: ['保険の施術', '自費の施術', 'はり・きゅう'], staff: ['スタッフA', 'スタッフB'], cares: [], intro: '', nameRequired: false, reviewHelp: true, survey: 'clinic', troubles: ['首・肩', '腰', '背中', '膝・足', '姿勢', 'スポーツのけが', 'その他'], sources: ['Googleマップ', '口コミ', '家族・知人の紹介', '近所・通りがかり', 'インスタ', 'その他'] });
+    else if (body.action === 'store' && params.get('food') === '1') resolve({ name: '見本のお店', menus: ['定番コース', 'おまかせコース', 'おつまみコース'], staff: [], cares: ['貸切パーティー', 'ランチの貸切'], intro: '', nameRequired: false, reviewHelp: true, survey: 'food', parties: ['1〜3名', '4〜6名', '7〜9名', '10〜12名', '13名以上'], scenes: ['貸切パーティー', '誕生日・お祝い', '友人との食事'], reasons: ['少人数で貸切できる', 'ワイン', '料理の内容'] });
     else if (body.action === 'store') resolve({ name: '見本のお店', menus: ['フェイシャル', '毛穴ケア', '小顔リフト', 'ボディ'], staff: ['スタッフA', 'スタッフB'], cares: ['小顔', '毛穴ケア', 'ニキビ/肌荒れケア'], intro: '', nameRequired: true, reviewHelp: true });
     else if (body.action === 'polish') resolve({ text: demoDraft(state.last) });
     else {
@@ -294,6 +310,22 @@ function demoDraft(b) {
   const worry = b.worries.length ? b.worries.join('や') + 'が気になっていて、' + (menus || '伺いました。') : menus;
   const rating = { 'とても良い': 'とても良かった', '良い': '良かった', '少し悪い': '少し悪かった', '悪い': '悪かった' }[b.staffRating];
   const change = words(b.change), anxiety = words(b.anxiety), comment = words(b.comment);
+  if (state.clinic) {
+    // 治療院: 「その他」は文にしない。施術のあとの変化は聞いていない
+    const pick = list => (list || []).filter(x => x !== 'その他');
+    const found = pick(b.found), trouble = pick(b.worries);
+    return [
+      found.length ? found.join('や') + 'で知りました。' : '',
+      { '今回が初めて': '今回が初めての来院でした。', '何回か来ている': '何回か通院しています。', '半年以上通っている': '半年以上通っています。' }[b.visit] || '',
+      trouble.length ? trouble.join('や') + 'のことで相談しました。' : '',
+      b.menus.length ? b.menus.join('と') + 'を受けました。' : '',
+      '全体として' + LABELS[b.stars - 1] + 'です。',
+      anxiety ? end(anxiety) : '',
+      comment ? end(comment) : '',
+      rating ? 'スタッフの対応は' + rating + 'です。' : '',
+      b.explain ? '説明は' + b.explain.replace(/い$/, 'かった') + 'です。' : '',
+    ].filter(Boolean).join('');
+  }
   return [
     visit + worry,
     '全体として' + LABELS[b.stars - 1] + 'です。',
@@ -393,10 +425,14 @@ function buildMulti(box, list, key) {
   });
 }
 
+// 質問の見出しの文字だけを替える（後ろの「任意」などの印はそのまま）
+function title(id, text) {
+  $(id).firstChild.textContent = text + ' ';
+}
+
 // 飲食店のアンケート: 人数・集まり・お店を選んだ決め手・コース・印象に残った料理やワインを聞く（担当は聞かない）
 function food(res) {
   state.food = true;
-  const title = (id, text) => { $(id).firstChild.textContent = text + ' '; };
   title('menuTitle', 'ご利用のコース');
   title('changeTitle', '印象に残った料理やワインはありますか？');
   $('changeSub').textContent = '料理の名前や、ワインの感想など、ひとことでも大丈夫です';
@@ -414,6 +450,40 @@ function food(res) {
     title('worryTitle', 'お店を選んだ決め手は？');
     buildMulti('worries', res.reasons, 'worries');
     $('worryBox').hidden = false;
+  }
+}
+
+// 治療院のアンケート（整骨院・接骨院・鍼灸院・整体院）: 院・来院の言葉で、ご相談のきっかけになったお悩み・当院を知ったきっかけ・
+// スタッフの対応・説明のわかりやすさを聞く。施術のあとの変化・これから気になっているケアは聞かない（効果の話を集めないため）
+function clinic(res) {
+  state.clinic = true;
+  if (!res.intro) $('lead').innerHTML = '<b>本日はご来院<br>ありがとうございました</b>よりよい院にするため、1分ほどのアンケートにご協力ください。';
+  if ((res.staff || []).length) {
+    buildPick('staff', res.staff, 'staff');
+    $('staffBox').hidden = false;
+  }
+  // スタッフの対応・説明のわかりやすさは、担当の名前を入れていなくても聞く（良い答えも悪い答えも同じように選べる形）
+  buildPick('rating', RATINGS, 'rating');
+  buildPick('explain', EXPLAINS, 'explain');
+  $('ratingBox').hidden = $('explainBox').hidden = false;
+  title('visitTitle', '当院へのご来院は？');
+  title('menuTitle', '受けた施術・メニュー');
+  title('anxietyTitle', 'ご来院前に不安だったことはありますか？ 実際はいかがでしたか？');
+  $('anxietySub').textContent = '例: 初めてで緊張していた、施術が痛くないか心配だった など';
+  title('requestTitle', '院へのご要望・改善してほしいこと');
+  $('requestSub').textContent = '院だけに届きます。';
+  $('privacy').textContent = 'いただいた回答は、当院のサービス向上のためだけに使います。';
+  $('talkText').innerHTML = 'ご期待に添えず、申し訳ありませんでした。<br>よろしければ、院から直接<br>お話を伺わせてください。';
+  $('talkLink').textContent = '院に直接相談する';
+  $('googleLead').innerHTML = 'よろしければ、Google にも<br>ご感想をお寄せください。<br>これから院を選ぶ方の参考になります。';
+  if ((res.troubles || []).length) {
+    title('worryTitle', 'ご相談のきっかけになったお悩みは？');
+    buildMulti('worries', res.troubles, 'worries');
+    $('worryBox').hidden = false;
+  }
+  if ((res.sources || []).length) {
+    buildMulti('found', res.sources, 'found');
+    $('foundBox').hidden = false;
   }
 }
 
@@ -440,22 +510,24 @@ function start() {
       state.needName = !!res.nameRequired;
       $('nameBox').hidden = !state.needName;
       $('nameBottom').hidden = state.needName;
-      if ((res.staff || []).length) {
+      const isClinic = res.survey === 'clinic'; // 治療院の担当・対応の聞き方は clinic() で決める
+      if (!isClinic && (res.staff || []).length) {
         buildPick('staff', res.staff, 'staff');
         buildPick('rating', RATINGS, 'rating');
         $('staffBox').hidden = $('ratingBox').hidden = $('changeBox').hidden = false;
         $('commentTitle').firstChild.textContent = '良かった点を教えてください ';
       }
-      if ((res.cares || []).length) {
+      if (!isClinic && (res.cares || []).length) {
         buildMulti('cares', res.cares, 'cares');
         $('caresBox').hidden = false;
       }
       if (res.survey === 'food') food(res);
+      if (isClinic) clinic(res);
       // 口コミの材料になる質問（どれも任意。良い答えだけを選ばせる聞き方にはしない）
       if (res.reviewHelp) {
         buildPick('visit', VISITS, 'visit');
         $('visitBox').hidden = $('anxietyBox').hidden = false;
-        if (!state.food && (res.cares || []).length) {
+        if (!state.food && !state.clinic && (res.cares || []).length) {
           buildMulti('worries', res.cares, 'worries');
           $('worryBox').hidden = false;
         }
@@ -498,6 +570,8 @@ $('form').addEventListener('submit', e => {
     anxiety: anxiety,
     party: state.party,
     scenes: state.scenes,
+    found: state.found,
+    explain: state.explain,
     website: $('website').value,
   })
     .then(res => {
